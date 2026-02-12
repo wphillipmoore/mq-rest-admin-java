@@ -92,21 +92,45 @@ This is a Java port of `pymqrest`, providing a Java wrapper for the IBM MQ admin
 
 ### Validation
 
-TBD - validation suite to be determined. Will include:
-- Build compilation: `./mvnw compile`
-- Static analysis / linting
-- Markdown standards checking
-- Commit message validation
-- Security audit
-- Unit tests with coverage requirement
+```bash
+./mvnw verify              # Run entire validation pipeline (single command)
+```
+
+The `verify` lifecycle runs in order: formatting check (Spotless) → style check
+(Checkstyle) → compile → unit tests (Surefire) → integration tests (Failsafe) →
+coverage enforcement (JaCoCo 100% line + branch) → bug analysis (SpotBugs) →
+code smell detection (PMD).
+
+Individual tools can also be run standalone:
+
+```bash
+./mvnw spotless:check      # Check formatting
+./mvnw spotless:apply      # Auto-format code
+./mvnw checkstyle:check    # Check style rules
+./mvnw spotbugs:check      # Check for bug patterns
+./mvnw pmd:check           # Check for code smells
+```
 
 ### Testing
 
-TBD - testing framework and commands to be determined.
+```bash
+./mvnw test                # Unit tests only (*Test.java)
+./mvnw verify              # Unit + integration tests (*IT.java)
+```
+
+- **Framework**: JUnit 5 (Jupiter)
+- **Mocking**: Mockito 5 with `@ExtendWith(MockitoExtension.class)`
+- **Assertions**: AssertJ (`assertThat(x).isEqualTo(y)`)
+- **Coverage**: JaCoCo — 100% line and branch coverage enforced at BUNDLE level
 
 ### Linting and Formatting
 
-TBD - Java linting and formatting tools to be determined.
+- **Formatter**: Spotless + google-java-format (2-space indent, opinionated)
+- **Style**: Checkstyle with `google_checks.xml` (bundled)
+- **Bug analysis**: SpotBugs (`effort=Max`, `threshold=Low`)
+- **Code smells**: PMD (default ruleset)
+
+Run `./mvnw spotless:apply` to auto-format before committing.
 
 ## Architecture
 

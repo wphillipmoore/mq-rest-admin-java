@@ -32,11 +32,13 @@
 ## Local validation
 
 ```bash
-./mvnw compile          # Verify sources compile
-./mvnw clean compile    # Clean rebuild
+./mvnw verify           # Full validation pipeline (formatting, style, compile,
+                        # tests, coverage, SpotBugs, PMD)
+./mvnw clean verify     # Clean full validation
+./mvnw compile          # Compile only
+./mvnw test             # Unit tests only
+./mvnw spotless:apply   # Auto-format code
 ```
-
-Additional validation commands TBD (static analysis, testing, linting).
 
 ## Tooling requirement
 

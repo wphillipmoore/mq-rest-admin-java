@@ -45,16 +45,26 @@ Java port of pymqrest.
 
 ## Code quality and static analysis
 
-- **Linter / static analysis**: TBD (Checkstyle, SpotBugs, Error Prone, PMD,
-  etc.).
-- **Formatter**: TBD (google-java-format, Spotless, etc.).
-- **Null-safety strategy**: TBD (annotations, Optional, etc.).
+- **Formatter**: Spotless + google-java-format (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier2-decisions.md`).
+- **Style checker**: Checkstyle with `google_checks.xml` (decided 2026-02-12).
+- **Bug analysis**: SpotBugs at max effort / low threshold (decided 2026-02-12).
+- **Code smell detection**: PMD with default ruleset (decided 2026-02-12).
+- **Null-safety strategy**: Deferred until API surface takes shape (JSpecify
+  planned).
 
 ## Testing
 
-- **Test framework**: TBD (JUnit 5, TestNG, etc.).
-- **Mocking library**: TBD (Mockito, etc.).
-- **Coverage tool and threshold**: TBD (JaCoCo target percentage).
+- **Test framework**: JUnit 5 (Jupiter) (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier2-decisions.md`).
+- **Mocking library**: Mockito 5 with `mockito-junit-jupiter` (decided
+  2026-02-12).
+- **Coverage tool and threshold**: JaCoCo, 100% line and branch coverage
+  (decided 2026-02-12).
+- **Unit test convention**: `*Test.java` via `maven-surefire-plugin` (decided
+  2026-02-12).
+- **Integration test convention**: `*IT.java` via `maven-failsafe-plugin`
+  (decided 2026-02-12).
 - **Integration test strategy**: TBD (same local MQ container as pymqrest).
 
 ## Architecture
@@ -75,8 +85,8 @@ Java port of pymqrest.
 
 ## Validation scripts
 
-- **Local validation command**: TBD (equivalent of pymqrest's
-  `validate_local.py`).
+- **Local validation command**: `./mvnw verify` (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier2-decisions.md`).
 - **Docs-only validation**: TBD (markdownlint is already available).
 - **Git hooks**: TBD (scripts/git-hooks directory created, hooks not yet
   written).
