@@ -23,21 +23,25 @@ Java port of pymqrest.
   `docs/plans/2026-02-12-project-naming.md`).
 - **GitHub repository name**: `mq-rest-admin`.
 - **Maven artifactId**: `mq-rest-admin`.
-- **Maven groupId**: TBD. Depends on namespace choice (`io.github.wphillipmoore`
-  vs personal domain).
-- **Java package**: `{groupId}.mq.rest.admin` (dot-separated form, decided
+- **Maven groupId**: `io.github.wphillipmoore` (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier1-decisions.md`).
+- **Java package**: `io.github.wphillipmoore.mq.rest.admin` (decided
   2026-02-12).
 
 ## Java platform
 
-- **Minimum Java version**: TBD.
-- **Distribution**: TBD (OpenJDK, Temurin, etc.).
+- **Minimum Java version**: 17 (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier1-decisions.md`).
+- **CI test matrix**: 17, 21, and 25.
+- **Distribution**: Temurin (Eclipse Adoptium).
 
 ## Build tooling
 
-- **Build tool**: TBD (Maven vs Gradle).
-- **Dependency lock file strategy**: TBD.
-- **Wrapper inclusion**: TBD (Maven Wrapper / Gradle Wrapper).
+- **Build tool**: Maven (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier1-decisions.md`).
+- **Dependency lock file strategy**: Pin exact versions in `pom.xml` (no native
+  lock file in Maven; acceptable for a library).
+- **Wrapper inclusion**: Maven Wrapper (`mvnw`) checked into source control.
 
 ## Code quality and static analysis
 
@@ -66,8 +70,8 @@ Java port of pymqrest.
 ## CI and publishing
 
 - **CI platform**: GitHub Actions (consistent with pymqrest).
-- **Publishing target**: TBD (Maven Central, GitHub Packages, etc.).
-- **Publishing mechanism**: TBD (OSSRH, Central Portal, etc.).
+- **Publishing target**: Maven Central (implicit from groupId decision).
+- **Publishing mechanism**: Central Portal API (OSSRH shut down June 2025).
 
 ## Validation scripts
 
