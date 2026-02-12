@@ -64,9 +64,13 @@ Both files share the same underlying standards via include directives, ensuring 
 
 This is a Java port of `pymqrest`, providing a Java wrapper for the IBM MQ administrative REST API. The project will provide a Java mapping layer for MQ REST API attribute translations and command metadata.
 
-**Project name**: TBD (this folder name is a placeholder)
+**Project name**: mq-rest-admin
 
 **Status**: Pre-alpha (initial setup)
+
+**Build coordinates**: `io.github.wphillipmoore:mq-rest-admin:0.1.0-SNAPSHOT`
+
+**Java package**: `io.github.wphillipmoore.mq.rest.admin`
 
 **Canonical Standards**: This repository follows standards at https://github.com/wphillipmoore/standards-and-conventions (local path: `../standards-and-conventions` if available)
 
@@ -74,12 +78,22 @@ This is a Java port of `pymqrest`, providing a Java wrapper for the IBM MQ admin
 
 ### Environment Setup
 
-TBD - build tooling and Java version requirements to be determined.
+- **Java**: 17+ (install via `brew install openjdk@17` or SDKMAN)
+- **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
+
+### Build
+
+```bash
+./mvnw compile          # Compile sources
+./mvnw clean            # Remove target/
+./mvnw clean compile    # Clean rebuild
+./mvnw package          # Compile and package JAR
+```
 
 ### Validation
 
 TBD - validation suite to be determined. Will include:
-- Build compilation
+- Build compilation: `./mvnw compile`
 - Static analysis / linting
 - Markdown standards checking
 - Commit message validation
