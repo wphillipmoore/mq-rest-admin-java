@@ -31,14 +31,19 @@
 
 ## Local validation
 
-TBD - validation commands to be established with Java tooling.
+```bash
+./mvnw compile          # Verify sources compile
+./mvnw clean compile    # Clean rebuild
+```
+
+Additional validation commands TBD (static analysis, testing, linting).
 
 ## Tooling requirement
 
-TBD - Java version, build tool, and other requirements to be determined.
-
 Required for daily workflow:
 
+- Java 17+ (`brew install openjdk@17` or SDKMAN)
+- Maven Wrapper (`./mvnw`, checked into repo -- no separate Maven install needed)
 - `markdownlint` (required for docs validation and PR pre-submission)
 
 ## Merge strategy override

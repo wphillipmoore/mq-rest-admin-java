@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.wphillipmoore</groupId>
+    <artifactId>mq-rest-admin</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>mq-rest-admin</name>
+    <description>Java wrapper for the IBM MQ administrative REST API</description>
+    <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>W. Phillip Moore</name>
+            <url>https://github.com/wphillipmoore</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin.git</developerConnection>
+        <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+    </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
