@@ -86,6 +86,11 @@ Java port of pymqrest.
 ## CI and publishing
 
 - **CI platform**: GitHub Actions (consistent with pymqrest).
+- **CI workflows**: 6-job pipeline (docs-only, standards-compliance,
+  dependency-audit, release-gates, test-and-validate, integration-tests) with
+  Java 17/21/25 matrix (decided 2026-02-13).
+- **Dependency audit**: `actions/dependency-review-action@v4` (GitHub-native,
+  zero-config) over OWASP Dependency-Check Maven Plugin (decided 2026-02-13).
 - **Publishing target**: Maven Central (implicit from groupId decision).
 - **Publishing mechanism**: Central Portal API (OSSRH shut down June 2025).
 
