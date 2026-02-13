@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,27 @@ class MappingDataTest {
           "queue": {
             "request_key_map": {"max_depth": "MAXDEPTH"},
             "response_key_map": {"MAXDEPTH": "max_depth"}
+          }
+        }
+      }
+      """;
+
+  private static final String JSON_WITH_MACROS =
+      """
+      {
+        "commands": {
+          "DISPLAY QUEUE": {
+            "qualifier": "queue",
+            "response_parameter_macros": ["CLUSINFO", "MONITOR"]
+          },
+          "ALTER QUEUE": {
+            "qualifier": "queue"
+          }
+        },
+        "qualifiers": {
+          "queue": {
+            "request_key_map": {"max_depth": "MAXDEPTH", "description": "DESCR"},
+            "response_key_map": {"MAXDEPTH": "max_depth", "CURDEPTH": "current_q_depth"}
           }
         }
       }
@@ -361,5 +383,192 @@ class MappingDataTest {
     MappingData replaced = base.withOverrides(overrides, MappingOverrideMode.REPLACE);
 
     assertThat(replaced.getQualifierForCommand("NEW")).isEqualTo("q");
+  }
+
+  // --- getResponseParameterMacros tests ---
+
+  @Test
+  void getResponseParameterMacrosReturnsMacrosForKnownCommand() {
+    MappingData data = MappingData.fromJson(JSON_WITH_MACROS);
+
+    List<String> macros = data.getResponseParameterMacros("DISPLAY", "QUEUE");
+
+    assertThat(macros).containsExactly("CLUSINFO", "MONITOR");
+  }
+
+  @Test
+  void getResponseParameterMacrosReturnsEmptyForCommandWithoutMacros() {
+    MappingData data = MappingData.fromJson(JSON_WITH_MACROS);
+
+    List<String> macros = data.getResponseParameterMacros("ALTER", "QUEUE");
+
+    assertThat(macros).isEmpty();
+  }
+
+  @Test
+  void getResponseParameterMacrosReturnsEmptyForUnknownCommand() {
+    MappingData data = MappingData.fromJson(JSON_WITH_MACROS);
+
+    List<String> macros = data.getResponseParameterMacros("DELETE", "QUEUE");
+
+    assertThat(macros).isEmpty();
+  }
+
+  @Test
+  void getResponseParameterMacrosReturnsEmptyWhenNoCommandsSection() {
+    MappingData data = MappingData.fromMap(Map.of());
+
+    List<String> macros = data.getResponseParameterMacros("DISPLAY", "QUEUE");
+
+    assertThat(macros).isEmpty();
+  }
+
+  @Test
+  void getResponseParameterMacrosReturnsEmptyWhenCommandEntryNotMap() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("commands", Map.of("DISPLAY QUEUE", "not_a_map"));
+    MappingData data = MappingData.fromMap(map);
+
+    List<String> macros = data.getResponseParameterMacros("DISPLAY", "QUEUE");
+
+    assertThat(macros).isEmpty();
+  }
+
+  @Test
+  void getResponseParameterMacrosReturnsEmptyWhenMacrosNotList() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    Map<String, Object> cmdEntry = new LinkedHashMap<>();
+    cmdEntry.put("qualifier", "queue");
+    cmdEntry.put("response_parameter_macros", "not_a_list");
+    map.put("commands", Map.of("DISPLAY QUEUE", cmdEntry));
+    MappingData data = MappingData.fromMap(map);
+
+    List<String> macros = data.getResponseParameterMacros("DISPLAY", "QUEUE");
+
+    assertThat(macros).isEmpty();
+  }
+
+  @Test
+  void getResponseParameterMacrosFiltersNonStringItems() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    Map<String, Object> cmdEntry = new LinkedHashMap<>();
+    cmdEntry.put("qualifier", "queue");
+    cmdEntry.put("response_parameter_macros", List.of("VALID", 123, "ALSO_VALID"));
+    map.put("commands", Map.of("DISPLAY QUEUE", cmdEntry));
+    MappingData data = MappingData.fromMap(map);
+
+    List<String> macros = data.getResponseParameterMacros("DISPLAY", "QUEUE");
+
+    assertThat(macros).containsExactly("VALID", "ALSO_VALID");
+  }
+
+  // --- getSnakeToMqscMap tests ---
+
+  @Test
+  void getSnakeToMqscMapCombinesResponseAndRequestKeyMaps() {
+    MappingData data = MappingData.fromJson(JSON_WITH_MACROS);
+
+    Map<String, String> map = data.getSnakeToMqscMap("queue");
+
+    // From inverted response_key_map: max_depth→MAXDEPTH, current_q_depth→CURDEPTH
+    // From request_key_map: max_depth→MAXDEPTH (confirms), description→DESCR
+    assertThat(map)
+        .containsEntry("max_depth", "MAXDEPTH")
+        .containsEntry("current_q_depth", "CURDEPTH")
+        .containsEntry("description", "DESCR");
+  }
+
+  @Test
+  void getSnakeToMqscMapRequestKeyMapTakesPrecedence() {
+    String json =
+        """
+        {
+          "commands": {},
+          "qualifiers": {
+            "test": {
+              "request_key_map": {"attr": "REQUEST_VALUE"},
+              "response_key_map": {"RESPONSE_VALUE": "attr"}
+            }
+          }
+        }
+        """;
+    MappingData data = MappingData.fromJson(json);
+
+    Map<String, String> map = data.getSnakeToMqscMap("test");
+
+    assertThat(map).containsEntry("attr", "REQUEST_VALUE");
+  }
+
+  @Test
+  void getSnakeToMqscMapReturnsEmptyForUnknownQualifier() {
+    MappingData data = MappingData.fromJson(VALID_JSON);
+
+    Map<String, String> map = data.getSnakeToMqscMap("channel");
+
+    assertThat(map).isEmpty();
+  }
+
+  @Test
+  void getSnakeToMqscMapReturnsEmptyWhenNoKeyMaps() {
+    String json =
+        """
+        {
+          "commands": {},
+          "qualifiers": {
+            "empty": {}
+          }
+        }
+        """;
+    MappingData data = MappingData.fromJson(json);
+
+    Map<String, String> map = data.getSnakeToMqscMap("empty");
+
+    assertThat(map).isEmpty();
+  }
+
+  @Test
+  void getSnakeToMqscMapHandlesNonStringValues() {
+    Map<String, Object> qualifierData = new LinkedHashMap<>();
+    Map<String, Object> responseKeyMap = new LinkedHashMap<>();
+    responseKeyMap.put("VALID", "valid_key");
+    responseKeyMap.put("INVALID", 123);
+    qualifierData.put("response_key_map", responseKeyMap);
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("qualifiers", Map.of("test", qualifierData));
+    MappingData data = MappingData.fromMap(map);
+
+    Map<String, String> result = data.getSnakeToMqscMap("test");
+
+    assertThat(result).containsEntry("valid_key", "VALID").hasSize(1);
+  }
+
+  @Test
+  void getSnakeToMqscMapHandlesNonMapKeyMaps() {
+    Map<String, Object> qualifierData = new LinkedHashMap<>();
+    qualifierData.put("response_key_map", "not_a_map");
+    qualifierData.put("request_key_map", "also_not_a_map");
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("qualifiers", Map.of("test", qualifierData));
+    MappingData data = MappingData.fromMap(map);
+
+    Map<String, String> result = data.getSnakeToMqscMap("test");
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getSnakeToMqscMapHandlesNonStringValuesInRequestKeyMap() {
+    Map<String, Object> qualifierData = new LinkedHashMap<>();
+    Map<String, Object> requestKeyMap = new LinkedHashMap<>();
+    requestKeyMap.put("valid_attr", "VALID_MQSC");
+    requestKeyMap.put("invalid_attr", 456);
+    qualifierData.put("request_key_map", requestKeyMap);
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("qualifiers", Map.of("test", qualifierData));
+    MappingData data = MappingData.fromMap(map);
+
+    Map<String, String> result = data.getSnakeToMqscMap("test");
+
+    assertThat(result).containsEntry("valid_attr", "VALID_MQSC").hasSize(1);
   }
 }
