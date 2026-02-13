@@ -134,14 +134,67 @@ Run `./mvnw spotless:apply` to auto-format before committing.
 
 ## Architecture
 
-TBD - architecture to be determined during porting from pymqrest.
+Direct port of `pymqrest`'s architecture, adapted to Java idioms.
 
-The Python project (`pymqrest`) provides the reference architecture:
-- Session management (authentication, base URL construction, request/response handling)
-- Command methods (MQSC command wrappers)
-- Attribute mapping (MQSC ↔ PCF ↔ idiomatic name translations)
-- Mapping data (qualifier and attribute mappings)
-- Exception hierarchy
+### Technology Stack
+
+- **HTTP client**: `java.net.http.HttpClient` (JDK built-in, zero runtime dependencies)
+- **JSON library**: Gson (`com.google.code.gson:gson`, single JAR, zero transitive deps)
+- **Runtime dependencies**: 1 (Gson ~280KB)
+
+### API Surface
+
+- **Style**: Method-per-command mirroring pymqrest (`displayQueue()`, `defineQlocal()`, etc.)
+- **Parameters/results**: `Map<String, Object>` for MQ attributes (dynamic attribute sets, permissive mode)
+- **Fixed-schema types**: Java records for `TransportResponse`, `SyncConfig`, `SyncResult`, `EnsureResult`, `MappingIssue`, credential types
+- **Credentials**: Sealed interface (`Credentials permits BasicAuth, LtpaAuth, CertificateAuth`)
+- **Session**: Single `MqRestSession` class (no mixin decomposition)
+
+### Transport Layer
+
+- `MqRestTransport` interface (mirrors pymqrest's Protocol) — enables Mockito-based testing
+- `HttpClientTransport` implementation behind that interface
+- Supports TLS/mTLS via `SSLContext`, timeouts via `Duration`, custom headers
+
+### Attribute Mapping
+
+- Direct port of pymqrest's 3-layer pipeline: key map, value map, key-value map
+- Two directions: request and response
+- Strict/permissive modes with `MappingIssue` tracking
+- Mapping data stored as JSON resource file in `src/main/resources/` (loaded by Gson)
+- Override mechanism with merge/replace modes
+
+### Exception Hierarchy
+
+Unchecked (`RuntimeException`), sealed:
+
+```
+MqRestException (sealed, extends RuntimeException)
+├── MqRestTransportException   (network/connection failures)
+├── MqRestResponseException    (malformed JSON, unexpected structure)
+├── MqRestAuthException        (authentication/authorization failures)
+├── MqRestCommandException     (MQSC command returned error codes)
+└── MqRestTimeoutException     (polling timeout exceeded)
+
+MappingException (separate hierarchy, data-transformation errors)
+```
+
+### Package Structure
+
+```
+io.github.wphillipmoore.mq.rest.admin
+    MqRestSession, MqRestTransport, HttpClientTransport, TransportResponse
+io.github.wphillipmoore.mq.rest.admin.auth
+    Credentials, BasicAuth, LtpaAuth, CertificateAuth
+io.github.wphillipmoore.mq.rest.admin.exception
+    MqRestException, MqRest{Transport,Response,Auth,Command,Timeout}Exception
+io.github.wphillipmoore.mq.rest.admin.mapping
+    AttributeMapper, MappingData, MappingIssue, MappingException, MappingOverrideMode
+io.github.wphillipmoore.mq.rest.admin.sync
+    SyncConfig, SyncResult, SyncOperation
+io.github.wphillipmoore.mq.rest.admin.ensure
+    EnsureResult, EnsureAction
+```
 
 ## Repository Standards Quick Reference
 

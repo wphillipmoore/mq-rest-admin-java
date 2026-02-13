@@ -69,13 +69,19 @@ Java port of pymqrest.
 
 ## Architecture
 
-- **HTTP client library**: TBD (java.net.http, OkHttp, Apache HttpClient, etc.).
-- **JSON library**: TBD (Jackson, Gson, etc.).
-- **API surface style**: TBD (fluent builder, method-per-command mirroring
-  pymqrest, etc.).
-- **Attribute mapping approach**: TBD (port pymqrest mapping pipeline, or
-  redesign for Java idioms).
-- **Exception hierarchy**: TBD (mirror pymqrest or adapt to Java conventions).
+- **HTTP client library**: `java.net.http.HttpClient` (JDK built-in) (decided
+  2026-02-12, see `docs/plans/2026-02-12-tier3-decisions.md`).
+- **JSON library**: Gson (`com.google.code.gson:gson`) (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier3-decisions.md`).
+- **API surface style**: Method-per-command mirroring pymqrest, with
+  `Map<String, Object>` for request/response attributes (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier3-decisions.md`).
+- **Attribute mapping approach**: Direct port of pymqrest's 3-layer mapping
+  pipeline (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier3-decisions.md`).
+- **Exception hierarchy**: Unchecked (`RuntimeException`), sealed hierarchy
+  mirroring pymqrest's structure (decided 2026-02-12, see
+  `docs/plans/2026-02-12-tier3-decisions.md`).
 
 ## CI and publishing
 
