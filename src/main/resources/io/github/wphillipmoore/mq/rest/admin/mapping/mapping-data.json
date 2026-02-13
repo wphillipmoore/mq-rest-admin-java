@@ -1,0 +1,43 @@
+{
+  "commands": {
+    "DISPLAY QUEUE": {
+      "qualifier": "queue"
+    }
+  },
+  "qualifiers": {
+    "queue": {
+      "request_key_map": {
+        "max_depth": "MAXDEPTH",
+        "description": "DESCR"
+      },
+      "request_value_map": {
+        "get": {
+          "enabled": "ENABLED",
+          "disabled": "DISABLED"
+        }
+      },
+      "request_key_value_map": {
+        "purge": {
+          "yes": {
+            "key": "PURGE",
+            "value": "YES"
+          },
+          "no": {
+            "key": "PURGE",
+            "value": "NO"
+          }
+        }
+      },
+      "response_key_map": {
+        "MAXDEPTH": "max_depth",
+        "DESCR": "description"
+      },
+      "response_value_map": {
+        "GET": {
+          "ENABLED": "enabled",
+          "DISABLED": "disabled"
+        }
+      }
+    }
+  }
+}
