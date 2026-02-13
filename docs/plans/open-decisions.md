@@ -94,5 +94,5 @@ Java port of pymqrest.
 - **Local validation command**: `./mvnw verify` (decided 2026-02-12, see
   `docs/plans/2026-02-12-tier2-decisions.md`).
 - **Docs-only validation**: TBD (markdownlint is already available).
-- **Git hooks**: TBD (scripts/git-hooks directory created, hooks not yet
-  written).
+- **Git hooks**: `pre-commit` (branch protection + naming) and `commit-msg`
+  (Conventional Commits + co-author validation) (decided 2026-02-13).
