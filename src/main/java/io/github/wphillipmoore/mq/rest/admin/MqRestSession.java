@@ -5,6 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
 import io.github.wphillipmoore.mq.rest.admin.auth.Credentials;
 import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
+import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureAction;
+import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestAuthException;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestResponseException;
@@ -1685,6 +1687,299 @@ public final class MqRestSession {
   public void rverifySecurity(
       String name, Map<String, Object> requestParameters, List<String> responseParameters) {
     mqscCommand("RVERIFY", "SECURITY", name, requestParameters, responseParameters, null);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Ensure methods — idempotent upsert operations
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Compares two values for equality using string conversion, trimming, and case-insensitive
+   * comparison.
+   *
+   * <p>Mirrors pymqrest's {@code _values_match()}.
+   *
+   * @param desired the desired value
+   * @param current the current value from the queue manager
+   * @return true if the values are considered equal
+   */
+  static boolean valuesMatch(Object desired, Object current) {
+    if (current == null) {
+      return false;
+    }
+    return String.valueOf(desired).strip().equalsIgnoreCase(String.valueOf(current).strip());
+  }
+
+  /**
+   * Extracts the parameters map from a commandResponse item.
+   *
+   * <p>The MQ REST API wraps attributes in a {@code "parameters"} sub-object. This method unwraps
+   * that, mirroring what pymqrest does in {@code _mqsc_command()}.
+   *
+   * @param item a commandResponse item
+   * @return the parameters map, or the item itself if no parameters sub-object exists
+   */
+  @SuppressWarnings("unchecked")
+  static Map<String, Object> extractParametersMap(Map<String, Object> item) {
+    Object params = item.get("parameters");
+    if (params instanceof Map) {
+      return new LinkedHashMap<>((Map<String, Object>) params);
+    }
+    return item;
+  }
+
+  private EnsureResult ensureObject(
+      String name,
+      Map<String, Object> requestParameters,
+      String displayQualifier,
+      String defineQualifier,
+      String alterQualifier) {
+
+    // 1. Try to DISPLAY the object
+    List<Map<String, Object>> currentObjects;
+    try {
+      currentObjects = mqscCommand("DISPLAY", displayQualifier, name, null, List.of("all"), null);
+    } catch (MqRestCommandException e) {
+      currentObjects = List.of();
+    }
+
+    // 2. Object not found → DEFINE
+    if (currentObjects.isEmpty()) {
+      mqscCommand("DEFINE", defineQualifier, name, requestParameters, null, null);
+      return new EnsureResult(EnsureAction.CREATED, null);
+    }
+
+    // 3. No params → UNCHANGED
+    if (requestParameters == null || requestParameters.isEmpty()) {
+      return new EnsureResult(EnsureAction.UNCHANGED, null);
+    }
+
+    // 4. Compare each desired attribute against current
+    Map<String, Object> current = extractParametersMap(currentObjects.get(0));
+    List<String> changedKeys = new ArrayList<>();
+    Map<String, Object> changedParams = new LinkedHashMap<>();
+
+    for (Map.Entry<String, Object> entry : requestParameters.entrySet()) {
+      Object currentValue = current.get(entry.getKey());
+      if (!valuesMatch(entry.getValue(), currentValue)) {
+        changedKeys.add(entry.getKey());
+        changedParams.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    // 5. All match → UNCHANGED
+    if (changedKeys.isEmpty()) {
+      return new EnsureResult(EnsureAction.UNCHANGED, null);
+    }
+
+    // 6. Some differ → ALTER with only changed attrs
+    mqscCommand("ALTER", alterQualifier, name, changedParams, null, null);
+    return new EnsureResult(EnsureAction.UPDATED, changedKeys);
+  }
+
+  /**
+   * Ensures the queue manager attributes match the desired values.
+   *
+   * <p>Unlike other ensure methods, the queue manager always exists so this never returns {@link
+   * EnsureAction#CREATED}.
+   *
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureQmgr(Map<String, Object> requestParameters) {
+    // No params → UNCHANGED (skip DISPLAY)
+    if (requestParameters == null || requestParameters.isEmpty()) {
+      return new EnsureResult(EnsureAction.UNCHANGED, null);
+    }
+
+    // DISPLAY QMGR
+    List<Map<String, Object>> currentObjects =
+        mqscCommand("DISPLAY", "QMGR", null, null, List.of("all"), null);
+
+    Map<String, Object> current =
+        currentObjects.isEmpty() ? Map.of() : extractParametersMap(currentObjects.get(0));
+    List<String> changedKeys = new ArrayList<>();
+    Map<String, Object> changedParams = new LinkedHashMap<>();
+
+    for (Map.Entry<String, Object> entry : requestParameters.entrySet()) {
+      Object currentValue = current.get(entry.getKey());
+      if (!valuesMatch(entry.getValue(), currentValue)) {
+        changedKeys.add(entry.getKey());
+        changedParams.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    if (changedKeys.isEmpty()) {
+      return new EnsureResult(EnsureAction.UNCHANGED, null);
+    }
+
+    mqscCommand("ALTER", "QMGR", null, changedParams, null, null);
+    return new EnsureResult(EnsureAction.UPDATED, changedKeys);
+  }
+
+  /**
+   * Ensures a local queue exists with the desired attributes.
+   *
+   * @param name the queue name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureQlocal(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "QUEUE", "QLOCAL", "QLOCAL");
+  }
+
+  /**
+   * Ensures a remote queue exists with the desired attributes.
+   *
+   * @param name the queue name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureQremote(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "QUEUE", "QREMOTE", "QREMOTE");
+  }
+
+  /**
+   * Ensures an alias queue exists with the desired attributes.
+   *
+   * @param name the queue name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureQalias(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "QUEUE", "QALIAS", "QALIAS");
+  }
+
+  /**
+   * Ensures a model queue exists with the desired attributes.
+   *
+   * @param name the queue name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureQmodel(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "QUEUE", "QMODEL", "QMODEL");
+  }
+
+  /**
+   * Ensures a channel exists with the desired attributes.
+   *
+   * @param name the channel name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureChannel(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "CHANNEL", "CHANNEL", "CHANNEL");
+  }
+
+  /**
+   * Ensures an authentication information object exists with the desired attributes.
+   *
+   * @param name the authinfo name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureAuthinfo(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "AUTHINFO", "AUTHINFO", "AUTHINFO");
+  }
+
+  /**
+   * Ensures a listener exists with the desired attributes.
+   *
+   * @param name the listener name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureListener(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "LISTENER", "LISTENER", "LISTENER");
+  }
+
+  /**
+   * Ensures a namelist exists with the desired attributes.
+   *
+   * @param name the namelist name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureNamelist(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "NAMELIST", "NAMELIST", "NAMELIST");
+  }
+
+  /**
+   * Ensures a process exists with the desired attributes.
+   *
+   * @param name the process name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureProcess(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "PROCESS", "PROCESS", "PROCESS");
+  }
+
+  /**
+   * Ensures a service exists with the desired attributes.
+   *
+   * @param name the service name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureService(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "SERVICE", "SERVICE", "SERVICE");
+  }
+
+  /**
+   * Ensures a topic exists with the desired attributes.
+   *
+   * @param name the topic name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureTopic(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "TOPIC", "TOPIC", "TOPIC");
+  }
+
+  /**
+   * Ensures a subscription exists with the desired attributes.
+   *
+   * @param name the subscription name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureSub(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "SUB", "SUB", "SUB");
+  }
+
+  /**
+   * Ensures a storage class exists with the desired attributes.
+   *
+   * @param name the storage class name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureStgclass(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "STGCLASS", "STGCLASS", "STGCLASS");
+  }
+
+  /**
+   * Ensures a communication information object exists with the desired attributes.
+   *
+   * @param name the comminfo name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureComminfo(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "COMMINFO", "COMMINFO", "COMMINFO");
+  }
+
+  /**
+   * Ensures a coupling facility structure exists with the desired attributes.
+   *
+   * @param name the CF structure name
+   * @param requestParameters the desired attributes, or null
+   * @return the result indicating what action was taken
+   */
+  public EnsureResult ensureCfstruct(String name, Map<String, Object> requestParameters) {
+    return ensureObject(name, requestParameters, "CFSTRUCT", "CFSTRUCT", "CFSTRUCT");
   }
 
   /** Builder for {@link MqRestSession}. */
