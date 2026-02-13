@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -135,6 +137,80 @@ public final class MappingData {
   }
 
   /**
+   * Returns the response parameter macros for a given command.
+   *
+   * <p>Extracts the {@code response_parameter_macros} list from the command definition. These are
+   * shorthand MQSC parameter group names (e.g., {@code "CLUSINFO"}) that can be used in response
+   * parameter requests.
+   *
+   * @param command the MQSC command (e.g., "DISPLAY")
+   * @param qualifier the MQSC qualifier (e.g., "QUEUE")
+   * @return the list of macro names, or an empty list if the command is unknown or has no macros
+   */
+  @SuppressWarnings("unchecked")
+  public List<String> getResponseParameterMacros(String command, String qualifier) {
+    Map<String, Object> commands = getCommandsMap();
+    if (commands == null) {
+      return List.of();
+    }
+    String commandKey = command + " " + qualifier;
+    Object entry = commands.get(commandKey);
+    if (!(entry instanceof Map)) {
+      return List.of();
+    }
+    Map<String, Object> commandMap = (Map<String, Object>) entry;
+    Object macros = commandMap.get("response_parameter_macros");
+    if (!(macros instanceof List)) {
+      return List.of();
+    }
+    List<String> result = new ArrayList<>();
+    for (Object item : (List<Object>) macros) {
+      if (item instanceof String) {
+        result.add((String) item);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Builds a combined snake_case-to-MQSC lookup map for the given qualifier.
+   *
+   * <p>Inverts the {@code response_key_map} (MQSC→snake becomes snake→MQSC) and overlays the {@code
+   * request_key_map} (snake→MQSC takes precedence). This is used by the session to map WHERE
+   * keywords and response parameter names from user-friendly snake_case to MQSC names.
+   *
+   * @param qualifier the qualifier name (e.g., "queue")
+   * @return the combined map, or an empty map if the qualifier is unknown
+   */
+  @SuppressWarnings("unchecked")
+  public Map<String, String> getSnakeToMqscMap(String qualifier) {
+    Map<String, Object> qualifierData = getQualifierData(qualifier);
+    if (qualifierData == null) {
+      return Map.of();
+    }
+    Map<String, String> result = new LinkedHashMap<>();
+    // Start with inverted response_key_map (MQSC→snake → snake→MQSC)
+    Object responseKeyMap = qualifierData.get("response_key_map");
+    if (responseKeyMap instanceof Map) {
+      for (Map.Entry<String, Object> entry : ((Map<String, Object>) responseKeyMap).entrySet()) {
+        if (entry.getValue() instanceof String) {
+          result.put((String) entry.getValue(), entry.getKey());
+        }
+      }
+    }
+    // Overlay with request_key_map (snake→MQSC, takes precedence)
+    Object requestKeyMap = qualifierData.get("request_key_map");
+    if (requestKeyMap instanceof Map) {
+      for (Map.Entry<String, Object> entry : ((Map<String, Object>) requestKeyMap).entrySet()) {
+        if (entry.getValue() instanceof String) {
+          result.put(entry.getKey(), (String) entry.getValue());
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Returns the qualifier data map for the given qualifier.
    *
    * @param qualifier the qualifier name (e.g., "queue")
@@ -156,7 +232,7 @@ public final class MappingData {
    * @param qualifier the qualifier name to check
    * @return true if the qualifier exists, false otherwise
    */
-  boolean hasQualifier(String qualifier) {
+  public boolean hasQualifier(String qualifier) {
     return getQualifierData(qualifier) != null;
   }
 
