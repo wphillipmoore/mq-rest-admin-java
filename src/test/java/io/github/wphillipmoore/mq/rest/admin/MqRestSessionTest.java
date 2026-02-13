@@ -758,8 +758,8 @@ class MqRestSessionTest {
           session.mqscCommand("DISPLAY", "QUEUE", "Q1", null, null, null);
 
       assertThat(result).hasSize(1);
-      // Should have mapped MAXDEPTH → max_depth
-      assertThat(result.get(0)).containsKey("max_depth");
+      // Should have mapped MAXDEPTH → max_queue_depth
+      assertThat(result.get(0)).containsKey("max_queue_depth");
     }
 
     @Test
@@ -784,7 +784,7 @@ class MqRestSessionTest {
           .thenReturn(successResponse(emptyCommandResponse()));
 
       MqRestSession session = basicBuilder().mapAttributes(true).mappingStrict(false).build();
-      session.mqscCommand("ALTER", "QUEUE", "Q1", Map.of("max_depth", 5000), null, null);
+      session.mqscCommand("ALTER", "QUEUE", "Q1", Map.of("max_queue_depth", 5000), null, null);
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Map<String, Object>> payloadCaptor = ArgumentCaptor.forClass(Map.class);
@@ -864,7 +864,7 @@ class MqRestSessionTest {
           .thenReturn(successResponse(emptyCommandResponse()));
 
       MqRestSession session = basicBuilder().mappingStrict(false).build();
-      session.mqscCommand("DISPLAY", "QUEUE", "Q1", null, List.of("max_depth"), null);
+      session.mqscCommand("DISPLAY", "QUEUE", "Q1", null, List.of("max_queue_depth"), null);
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Map<String, Object>> payloadCaptor = ArgumentCaptor.forClass(Map.class);
@@ -972,7 +972,7 @@ class MqRestSessionTest {
           .thenReturn(successResponse(emptyCommandResponse()));
 
       MqRestSession session = basicBuilder().mappingStrict(false).build();
-      session.mqscCommand("DISPLAY", "QUEUE", "*", null, null, "max_depth GT 5000");
+      session.mqscCommand("DISPLAY", "QUEUE", "*", null, null, "max_queue_depth GT 5000");
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Map<String, Object>> payloadCaptor = ArgumentCaptor.forClass(Map.class);
@@ -990,7 +990,7 @@ class MqRestSessionTest {
           .thenReturn(successResponse(emptyCommandResponse()));
 
       MqRestSession session = basicBuilder().mappingStrict(false).build();
-      session.mqscCommand("DISPLAY", "QUEUE", "*", null, null, "max_depth");
+      session.mqscCommand("DISPLAY", "QUEUE", "*", null, null, "max_queue_depth");
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Map<String, Object>> payloadCaptor = ArgumentCaptor.forClass(Map.class);
@@ -1495,7 +1495,7 @@ class MqRestSessionTest {
           .thenReturn(successResponse(emptyCommandResponse()));
 
       MqRestSession session = basicBuilder().mappingStrict(true).build();
-      session.mqscCommand("DISPLAY", "QUEUE", "Q1", null, List.of("max_depth"), null);
+      session.mqscCommand("DISPLAY", "QUEUE", "Q1", null, List.of("max_queue_depth"), null);
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Map<String, Object>> payloadCaptor = ArgumentCaptor.forClass(Map.class);
