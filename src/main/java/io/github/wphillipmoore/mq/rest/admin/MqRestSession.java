@@ -10,11 +10,15 @@ import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestAuthException;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestResponseException;
+import io.github.wphillipmoore.mq.rest.admin.exception.MqRestTimeoutException;
 import io.github.wphillipmoore.mq.rest.admin.mapping.AttributeMapper;
 import io.github.wphillipmoore.mq.rest.admin.mapping.MappingData;
 import io.github.wphillipmoore.mq.rest.admin.mapping.MappingException;
 import io.github.wphillipmoore.mq.rest.admin.mapping.MappingIssue;
 import io.github.wphillipmoore.mq.rest.admin.mapping.MappingOverrideMode;
+import io.github.wphillipmoore.mq.rest.admin.sync.SyncConfig;
+import io.github.wphillipmoore.mq.rest.admin.sync.SyncOperation;
+import io.github.wphillipmoore.mq.rest.admin.sync.SyncResult;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -65,6 +70,61 @@ public final class MqRestSession {
   private static final Gson GSON = new Gson();
   private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 
+  static final Set<String> RUNNING_VALUES = Set.of("RUNNING", "running");
+  static final Set<String> STOPPED_VALUES = Set.of("STOPPED", "stopped");
+
+  private static final ObjectTypeConfig CHANNEL_CONFIG =
+      new ObjectTypeConfig(
+          "CHANNEL", "CHANNEL", "CHSTATUS", new String[] {"channel_status", "STATUS"}, true);
+
+  private static final ObjectTypeConfig LISTENER_CONFIG =
+      new ObjectTypeConfig(
+          "LISTENER", "LISTENER", "LSSTATUS", new String[] {"status", "STATUS"}, false);
+
+  private static final ObjectTypeConfig SERVICE_CONFIG =
+      new ObjectTypeConfig(
+          "SERVICE", "SERVICE", "SVSTATUS", new String[] {"status", "STATUS"}, false);
+
+  /** Clock abstraction for testability. */
+  interface Clock {
+    void sleep(double seconds) throws InterruptedException;
+
+    double elapsedSeconds();
+
+    void reset();
+  }
+
+  /** Real clock using System.nanoTime and Thread.sleep. */
+  static final class SystemClock implements Clock {
+    private long startNanos;
+
+    SystemClock() {
+      reset();
+    }
+
+    @Override
+    public void sleep(double seconds) throws InterruptedException {
+      Thread.sleep((long) (seconds * 1000));
+    }
+
+    @Override
+    public double elapsedSeconds() {
+      return (System.nanoTime() - startNanos) / 1_000_000_000.0;
+    }
+
+    @Override
+    public void reset() {
+      startNanos = System.nanoTime();
+    }
+  }
+
+  private record ObjectTypeConfig(
+      String startQualifier,
+      String stopQualifier,
+      String statusQualifier,
+      String[] statusKeys,
+      boolean emptyMeansStopped) {}
+
   private final String restBaseUrl;
   private final String qmgrName;
   private final Credentials credentials;
@@ -78,11 +138,17 @@ public final class MqRestSession {
   private final MappingData mappingData;
   private final AttributeMapper attributeMapper;
 
+  private Clock clock = new SystemClock();
   private String ltpaToken;
   private Integer lastHttpStatus;
   private String lastResponseText;
   private Map<String, Object> lastResponsePayload;
   private Map<String, Object> lastCommandPayload;
+
+  /** Package-private setter for test injection. */
+  void setClock(Clock clock) {
+    this.clock = Objects.requireNonNull(clock, "clock");
+  }
 
   private MqRestSession(Builder builder) {
     this.restBaseUrl = stripTrailingSlashes(builder.restBaseUrl);
@@ -1980,6 +2046,233 @@ public final class MqRestSession {
    */
   public EnsureResult ensureCfstruct(String name, Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "CFSTRUCT", "CFSTRUCT", "CFSTRUCT");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Sync methods — start/stop/restart with polling
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Checks whether any row contains a status value matching the target set.
+   *
+   * @param rows raw commandResponse items (with {@code parameters} wrapper)
+   * @param statusKeys the attribute keys to check for status values
+   * @param targetValues the set of acceptable status values
+   * @return true if a matching status value is found
+   */
+  static boolean hasStatus(
+      List<Map<String, Object>> rows, String[] statusKeys, Set<String> targetValues) {
+    for (Map<String, Object> row : rows) {
+      Map<String, Object> params = extractParametersMap(row);
+      for (String key : statusKeys) {
+        Object value = params.get(key);
+        if (value instanceof String s && targetValues.contains(s)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private SyncResult startAndPoll(String name, ObjectTypeConfig config, SyncConfig syncConfig) {
+    // Issue START command
+    mqscCommand("START", config.startQualifier(), name, null, null, null);
+
+    // Poll for RUNNING status
+    clock.reset();
+    int polls = 0;
+    while (true) {
+      try {
+        clock.sleep(syncConfig.pollIntervalSeconds());
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new MqRestTimeoutException(
+            "Interrupted while polling for start of " + name,
+            name,
+            "START",
+            clock.elapsedSeconds(),
+            e);
+      }
+
+      List<Map<String, Object>> statusRows;
+      try {
+        statusRows =
+            mqscCommand("DISPLAY", config.statusQualifier(), name, null, List.of("all"), null);
+      } catch (MqRestCommandException e) {
+        statusRows = List.of();
+      }
+      polls++;
+
+      if (hasStatus(statusRows, config.statusKeys(), RUNNING_VALUES)) {
+        return new SyncResult(SyncOperation.STARTED, polls, clock.elapsedSeconds());
+      }
+
+      if (clock.elapsedSeconds() >= syncConfig.timeoutSeconds()) {
+        throw new MqRestTimeoutException(
+            "Timed out waiting for start of " + name, name, "START", clock.elapsedSeconds());
+      }
+    }
+  }
+
+  private SyncResult stopAndPoll(String name, ObjectTypeConfig config, SyncConfig syncConfig) {
+    // Issue STOP command
+    mqscCommand("STOP", config.stopQualifier(), name, null, null, null);
+
+    // Poll for STOPPED status
+    clock.reset();
+    int polls = 0;
+    while (true) {
+      try {
+        clock.sleep(syncConfig.pollIntervalSeconds());
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new MqRestTimeoutException(
+            "Interrupted while polling for stop of " + name,
+            name,
+            "STOP",
+            clock.elapsedSeconds(),
+            e);
+      }
+
+      List<Map<String, Object>> statusRows;
+      try {
+        statusRows =
+            mqscCommand("DISPLAY", config.statusQualifier(), name, null, List.of("all"), null);
+      } catch (MqRestCommandException e) {
+        statusRows = List.of();
+      }
+      polls++;
+
+      if (config.emptyMeansStopped() && statusRows.isEmpty()) {
+        return new SyncResult(SyncOperation.STOPPED, polls, clock.elapsedSeconds());
+      }
+
+      if (hasStatus(statusRows, config.statusKeys(), STOPPED_VALUES)) {
+        return new SyncResult(SyncOperation.STOPPED, polls, clock.elapsedSeconds());
+      }
+
+      if (clock.elapsedSeconds() >= syncConfig.timeoutSeconds()) {
+        throw new MqRestTimeoutException(
+            "Timed out waiting for stop of " + name, name, "STOP", clock.elapsedSeconds());
+      }
+    }
+  }
+
+  private SyncResult restartObject(String name, ObjectTypeConfig config, SyncConfig syncConfig) {
+    SyncResult stopResult = stopAndPoll(name, config, syncConfig);
+    SyncResult startResult = startAndPoll(name, config, syncConfig);
+    return new SyncResult(
+        SyncOperation.RESTARTED,
+        stopResult.polls() + startResult.polls(),
+        stopResult.elapsedSeconds() + startResult.elapsedSeconds());
+  }
+
+  /**
+   * Starts a channel and polls until it reaches RUNNING status.
+   *
+   * @param name the channel name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the channel does not reach RUNNING in time
+   */
+  public SyncResult startChannelSync(String name, SyncConfig config) {
+    return startAndPoll(name, CHANNEL_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Stops a channel and polls until it reaches STOPPED status or the status is empty.
+   *
+   * @param name the channel name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the channel does not stop in time
+   */
+  public SyncResult stopChannelSync(String name, SyncConfig config) {
+    return stopAndPoll(name, CHANNEL_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Restarts a channel (stop then start) with polling.
+   *
+   * @param name the channel name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result with combined polls and elapsed time
+   * @throws MqRestTimeoutException if either phase times out
+   */
+  public SyncResult restartChannel(String name, SyncConfig config) {
+    return restartObject(name, CHANNEL_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Starts a listener and polls until it reaches RUNNING status.
+   *
+   * @param name the listener name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the listener does not reach RUNNING in time
+   */
+  public SyncResult startListenerSync(String name, SyncConfig config) {
+    return startAndPoll(name, LISTENER_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Stops a listener and polls until it reaches STOPPED status.
+   *
+   * @param name the listener name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the listener does not stop in time
+   */
+  public SyncResult stopListenerSync(String name, SyncConfig config) {
+    return stopAndPoll(name, LISTENER_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Restarts a listener (stop then start) with polling.
+   *
+   * @param name the listener name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result with combined polls and elapsed time
+   * @throws MqRestTimeoutException if either phase times out
+   */
+  public SyncResult restartListener(String name, SyncConfig config) {
+    return restartObject(name, LISTENER_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Starts a service and polls until it reaches RUNNING status.
+   *
+   * @param name the service name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the service does not reach RUNNING in time
+   */
+  public SyncResult startServiceSync(String name, SyncConfig config) {
+    return startAndPoll(name, SERVICE_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Stops a service and polls until it reaches STOPPED status.
+   *
+   * @param name the service name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result
+   * @throws MqRestTimeoutException if the service does not stop in time
+   */
+  public SyncResult stopServiceSync(String name, SyncConfig config) {
+    return stopAndPoll(name, SERVICE_CONFIG, config != null ? config : new SyncConfig());
+  }
+
+  /**
+   * Restarts a service (stop then start) with polling.
+   *
+   * @param name the service name
+   * @param config polling configuration, or null for defaults
+   * @return the sync result with combined polls and elapsed time
+   * @throws MqRestTimeoutException if either phase times out
+   */
+  public SyncResult restartService(String name, SyncConfig config) {
+    return restartObject(name, SERVICE_CONFIG, config != null ? config : new SyncConfig());
   }
 
   /** Builder for {@link MqRestSession}. */
