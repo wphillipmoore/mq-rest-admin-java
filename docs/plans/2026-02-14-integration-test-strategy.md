@@ -2,6 +2,16 @@
 
 **Date**: 2026-02-14
 
+## Table of Contents
+
+- [Decision](#decision)
+- [Context](#context)
+- [Isolation mechanism](#isolation-mechanism)
+- [Local development](#local-development)
+- [CI](#ci)
+- [Java integration test gating](#java-integration-test-gating)
+- [Backward compatibility](#backward-compatibility)
+
 ## Decision
 
 Each consuming project (pymqrest, mq-rest-admin, future Go port) runs distinct
