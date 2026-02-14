@@ -80,15 +80,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: SNAPSHOT gate (PRs targeting main)
+      - name: Version format gate (PRs targeting main)
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          if echo "$version" | grep -q -- '-SNAPSHOT'; then
-            echo "FAIL: Version ($version) must not be a SNAPSHOT for releases to main."
+          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "FAIL: Version ($version) must be plain semver (x.y.z)."
             exit 1
           fi
-          echo "OK: Version ($version) is not a SNAPSHOT."
+          echo "OK: Version ($version) is valid semver."
 
       - name: Version divergence gate (PRs targeting develop)
         if: github.event_name == 'pull_request' && github.base_ref == 'develop'
