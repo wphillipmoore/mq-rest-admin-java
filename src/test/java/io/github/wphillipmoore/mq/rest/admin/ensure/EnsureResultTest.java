@@ -18,7 +18,7 @@ class EnsureResultTest {
   }
 
   @Test
-  void nullActionThrowsNpe() {
+  void nullActionThrowsNullPointerException() {
     assertThatThrownBy(() -> new EnsureResult(null, List.of()))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("action");

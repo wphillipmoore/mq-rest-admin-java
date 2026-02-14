@@ -3,6 +3,7 @@ package io.github.wphillipmoore.mq.rest.admin.ensure;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Result of an ensure operation, containing the action taken and the list of attribute names that
@@ -13,7 +14,8 @@ import java.util.Objects;
  *
  * <p>Mirrors pymqrest's {@code EnsureResult} dataclass.
  */
-public record EnsureResult(EnsureAction action, List<String> changed) implements Serializable {
+public record EnsureResult(EnsureAction action, @Nullable List<String> changed)
+    implements Serializable {
 
   /**
    * Creates an ensure result.

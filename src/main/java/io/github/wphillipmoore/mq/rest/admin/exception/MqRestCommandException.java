@@ -2,6 +2,7 @@ package io.github.wphillipmoore.mq.rest.admin.exception;
 
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Thrown when an MQSC command returns an error response from the MQ REST API.
@@ -12,7 +13,7 @@ import java.util.Objects;
 public final class MqRestCommandException extends MqRestException {
 
   private final Map<String, Object> payload;
-  private final Integer statusCode;
+  private final @Nullable Integer statusCode;
 
   /**
    * Creates a command exception.
@@ -21,7 +22,8 @@ public final class MqRestCommandException extends MqRestException {
    * @param payload the error response payload (defensively copied as unmodifiable)
    * @param statusCode the HTTP status code, or {@code null} if unavailable
    */
-  public MqRestCommandException(String message, Map<String, Object> payload, Integer statusCode) {
+  public MqRestCommandException(
+      String message, Map<String, Object> payload, @Nullable Integer statusCode) {
     super(message);
     this.payload = Map.copyOf(Objects.requireNonNull(payload, "payload"));
     this.statusCode = statusCode;
@@ -56,7 +58,7 @@ public final class MqRestCommandException extends MqRestException {
    *
    * @return the status code, or {@code null}
    */
-  public Integer getStatusCode() {
+  public @Nullable Integer getStatusCode() {
     return statusCode;
   }
 }

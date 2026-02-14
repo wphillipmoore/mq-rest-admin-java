@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Mapping data for attribute translation between snake_case and MQSC parameter names.
@@ -121,7 +122,7 @@ public final class MappingData {
    * @param command the command string (e.g., "DISPLAY QUEUE")
    * @return the qualifier name, or null if the command is unknown
    */
-  public String getQualifierForCommand(String command) {
+  public @Nullable String getQualifierForCommand(String command) {
     Map<String, Object> commands = getCommandsMap();
     if (commands == null) {
       return null;
@@ -217,7 +218,7 @@ public final class MappingData {
    * @return the qualifier data map, or null if the qualifier is unknown
    */
   @SuppressWarnings("unchecked")
-  Map<String, Object> getQualifierData(String qualifier) {
+  @Nullable Map<String, Object> getQualifierData(String qualifier) {
     Map<String, Object> qualifiers = getQualifiersMap();
     if (qualifiers == null) {
       return null;
@@ -237,13 +238,13 @@ public final class MappingData {
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> getCommandsMap() {
+  private @Nullable Map<String, Object> getCommandsMap() {
     Object commands = data.get("commands");
     return commands instanceof Map ? (Map<String, Object>) commands : null;
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> getQualifiersMap() {
+  private @Nullable Map<String, Object> getQualifiersMap() {
     Object qualifiers = data.get("qualifiers");
     return qualifiers instanceof Map ? (Map<String, Object>) qualifiers : null;
   }

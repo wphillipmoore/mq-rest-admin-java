@@ -8,6 +8,8 @@
 - [Local validation](#local-validation)
 - [Tooling requirement](#tooling-requirement)
 - [Merge strategy override](#merge-strategy-override)
+- [Approved domain abbreviations](#approved-domain-abbreviations)
+- [Accepted naming deviations](#accepted-naming-deviations)
 
 ## Pre-flight checklist
 
@@ -56,3 +58,19 @@ Required for daily workflow:
 - Auto-merge commands:
   - Feature PRs: `gh pr merge --auto --squash --delete-branch`
   - Release PRs: `gh pr merge --auto --merge --delete-branch`
+
+## Approved domain abbreviations
+
+Domain-specific abbreviations that are well-established in the IBM MQ ecosystem
+and may be used in identifiers without expansion:
+
+- `qmgr` — queue manager (established MQSC domain term)
+
+## Accepted naming deviations
+
+Identifiers that intentionally diverge from general naming rules for readability
+or domain alignment:
+
+- `MqRestTransport transport` field in `MqRestSession` — the `MqRest` prefix on
+  the type is redundant within the `MqRestSession` class context, so the field
+  uses the shorter `transport` name rather than `mqRestTransport`.

@@ -2,6 +2,7 @@ package io.github.wphillipmoore.mq.rest.admin.mapping;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Single mapping issue recorded during attribute translation.
@@ -20,9 +21,9 @@ public record MappingIssue(
     MappingDirection direction,
     MappingReason reason,
     String attributeName,
-    Object attributeValue,
-    Integer objectIndex,
-    String qualifier)
+    @Nullable Object attributeValue,
+    @Nullable Integer objectIndex,
+    @Nullable String qualifier)
     implements Serializable {
 
   /** Validates that required fields are non-null. */

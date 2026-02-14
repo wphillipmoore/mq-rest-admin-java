@@ -76,28 +76,28 @@ class MqRestSessionTest {
     }
 
     @Test
-    void builderNullRestBaseUrlThrowsNpe() {
+    void builderNullRestBaseUrlThrowsNullPointerException() {
       assertThatThrownBy(() -> new MqRestSession.Builder(null, QMGR, new BasicAuth("u", "p")))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("restBaseUrl");
     }
 
     @Test
-    void builderNullQmgrNameThrowsNpe() {
+    void builderNullQmgrNameThrowsNullPointerException() {
       assertThatThrownBy(() -> new MqRestSession.Builder(BASE_URL, null, new BasicAuth("u", "p")))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("qmgrName");
     }
 
     @Test
-    void builderNullCredentialsThrowsNpe() {
+    void builderNullCredentialsThrowsNullPointerException() {
       assertThatThrownBy(() -> new MqRestSession.Builder(BASE_URL, QMGR, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("credentials");
     }
 
     @Test
-    void buildWithoutTransportThrowsNpe() {
+    void buildWithoutTransportThrowsNullPointerException() {
       assertThatThrownBy(
               () -> new MqRestSession.Builder(BASE_URL, QMGR, new BasicAuth("u", "p")).build())
           .isInstanceOf(NullPointerException.class)

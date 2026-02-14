@@ -1,5 +1,7 @@
 package io.github.wphillipmoore.mq.rest.admin.exception;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Thrown when the MQ REST API returns a malformed or unexpected response.
  *
@@ -7,7 +9,7 @@ package io.github.wphillipmoore.mq.rest.admin.exception;
  */
 public final class MqRestResponseException extends MqRestException {
 
-  private final String responseText;
+  private final @Nullable String responseText;
 
   /**
    * Creates a response exception.
@@ -15,7 +17,7 @@ public final class MqRestResponseException extends MqRestException {
    * @param message description of the failure
    * @param responseText the raw response text, or {@code null} if unavailable
    */
-  public MqRestResponseException(String message, String responseText) {
+  public MqRestResponseException(String message, @Nullable String responseText) {
     super(message);
     this.responseText = responseText;
   }
@@ -27,7 +29,7 @@ public final class MqRestResponseException extends MqRestException {
    * @param responseText the raw response text, or {@code null} if unavailable
    * @param cause the underlying cause
    */
-  public MqRestResponseException(String message, String responseText, Throwable cause) {
+  public MqRestResponseException(String message, @Nullable String responseText, Throwable cause) {
     super(message, cause);
     this.responseText = responseText;
   }
@@ -37,7 +39,7 @@ public final class MqRestResponseException extends MqRestException {
    *
    * @return the response text, or {@code null}
    */
-  public String getResponseText() {
+  public @Nullable String getResponseText() {
     return responseText;
   }
 }
