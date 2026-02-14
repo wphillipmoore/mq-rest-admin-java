@@ -13,7 +13,7 @@ On 2026-02-14, the following GitHub repositories were renamed to normalize the
 naming convention across the mq-rest-admin family:
 
 | Old name | New name |
-|---|---|
+| --- | --- |
 | `wphillipmoore/mq-rest-admin` | `wphillipmoore/mq-rest-admin-java` |
 | `wphillipmoore/pymqrest` | `wphillipmoore/mq-rest-admin-python` |
 | `wphillipmoore/mq-rest-admin-go` | (already correct) |
@@ -52,16 +52,20 @@ Files changed (all edits already applied, just need commit + PR):
 - **`docs/plans/2026-02-12-tier3-decisions.md`** — 5 path references
 
 Also update `docs/plans/open-decisions.md` line 25:
-```
+
+```text
 - **GitHub repository name**: `mq-rest-admin`.
 ```
+
 Change to:
-```
+
+```text
 - **GitHub repository name**: `mq-rest-admin-java`.
 ```
 
 Commit message:
-```
+
+```text
 chore: update references for repo rename to mq-rest-admin-java
 
 Update SCM URLs in pom.xml, cross-repo references to the renamed
@@ -91,7 +95,8 @@ Files changed (all edits already applied, just need commit + PR):
 - **`scripts/dev/generate_commands.py`** — 1 `DOCS_BASE_URL` constant
 
 Commit message:
-```
+
+```text
 chore: update references for repo rename to mq-rest-admin-python
 
 Update GitHub URLs, documentation site URLs, and developer setup
@@ -104,6 +109,7 @@ Run the Python repo's validation before submitting the PR.
 ### Step 3: Update MEMORY.md
 
 Update the Claude Code memory file to reflect:
+
 - New repo names and directory paths
 - The rename context for future sessions
 
