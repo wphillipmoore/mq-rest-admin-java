@@ -1,9 +1,5 @@
 # Declarative Object Management
 
-## Table of Contents
-
-- [Java usage](#java-usage)
-
 --8<-- "concepts/ensure-pattern.md"
 
 ## Java usage
@@ -25,7 +21,7 @@ import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 EnsureResult result = session.ensureQlocal(
     "APP.REQUEST.Q",
     Map.of(
-        "max_q_depth", 50000,
+        "max_queue_depth", 50000,
         "description", "Application request queue"
     )
 );
@@ -35,7 +31,7 @@ assert result.action() == EnsureAction.CREATED;
 result = session.ensureQlocal(
     "APP.REQUEST.Q",
     Map.of(
-        "max_q_depth", 50000,
+        "max_queue_depth", 50000,
         "description", "Application request queue"
     )
 );
@@ -45,7 +41,7 @@ assert result.action() == EnsureAction.UNCHANGED;
 result = session.ensureQlocal(
     "APP.REQUEST.Q",
     Map.of(
-        "max_q_depth", 50000,
+        "max_queue_depth", 50000,
         "description", "Updated request queue"
     )
 );
@@ -57,10 +53,10 @@ assert result.changed().contains("description");
 
 ```java
 EnsureResult result = session.ensureQmgr(Map.of(
-    "statistics_queue", "on",
-    "statistics_channel", "on",
-    "monitoring_queue", "medium",
-    "monitoring_channel", "medium"
+    "queue_statistics", "on",
+    "channel_statistics", "on",
+    "queue_monitoring", "medium",
+    "channel_monitoring", "medium"
 ));
 // result.action() is UPDATED or UNCHANGED, never CREATED
 ```
@@ -87,18 +83,18 @@ The ensure pattern is designed for scripts that declare desired state:
 void configureQueueManager(MqRestSession session) {
     // Ensure queue manager settings
     EnsureResult result = session.ensureQmgr(Map.of(
-        "statistics_queue", "on",
-        "statistics_channel", "on",
-        "monitoring_queue", "medium",
-        "monitoring_channel", "medium"
+        "queue_statistics", "on",
+        "channel_statistics", "on",
+        "queue_monitoring", "medium",
+        "channel_monitoring", "medium"
     ));
     System.out.println("Queue manager: " + result.action());
 
     // Ensure application queues
     var queues = Map.of(
-        "APP.REQUEST.Q", Map.of("max_q_depth", 50000, "def_persistence", "yes"),
-        "APP.REPLY.Q", Map.of("max_q_depth", 10000, "def_persistence", "no"),
-        "APP.DLQ", Map.of("max_q_depth", 100000, "def_persistence", "yes")
+        "APP.REQUEST.Q", Map.of("max_queue_depth", 50000, "default_persistence", "yes"),
+        "APP.REPLY.Q", Map.of("max_queue_depth", 10000, "default_persistence", "no"),
+        "APP.DLQ", Map.of("max_queue_depth", 100000, "default_persistence", "yes")
     );
 
     for (var entry : queues.entrySet()) {

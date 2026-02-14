@@ -1,19 +1,5 @@
 # Getting Started
 
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Creating a session](#creating-a-session)
-- [Running a command](#running-a-command)
-- [Attribute mapping](#attribute-mapping)
-- [Strict vs lenient mapping](#strict-vs-lenient-mapping)
-- [Custom mapping overrides](#custom-mapping-overrides)
-- [Gateway queue manager](#gateway-queue-manager)
-- [Error handling](#error-handling)
-- [Diagnostic state](#diagnostic-state)
-- [Next steps](#next-steps)
-
 ## Prerequisites
 
 - **Java**: 17 or later
@@ -60,7 +46,7 @@ follow the pattern `verbQualifier` in camelCase:
 List<Map<String, Object>> queues = session.displayQueue("SYSTEM.*");
 
 for (var queue : queues) {
-    System.out.println(queue.get("queue_name") + " " + queue.get("current_depth"));
+    System.out.println(queue.get("queue_name") + " " + queue.get("current_queue_depth"));
 }
 ```
 
@@ -80,8 +66,8 @@ parameter names. This applies to both request and response attributes:
 ```java
 // With mapping enabled (default)
 var queues = session.displayQueue("MY.QUEUE",
-    Map.of("response_parameters", List.of("current_depth", "max_depth")));
-// Returns: [{"queue_name": "MY.QUEUE", "current_depth": 0, "max_depth": 5000}]
+    Map.of("response_parameters", List.of("current_queue_depth", "max_queue_depth")));
+// Returns: [{"queue_name": "MY.QUEUE", "current_queue_depth": 0, "max_queue_depth": 5000}]
 
 // With mapping disabled
 var queues = session.displayQueue("MY.QUEUE",
@@ -196,8 +182,8 @@ try {
     session.defineQlocal("MY.QUEUE", Map.of());
 } catch (MqRestCommandException e) {
     System.out.println(e.getMessage());
-    System.out.println("Reason code: " + e.getReasonCode());
-    System.out.println(e.getCommandResponse());  // full MQ response payload
+    System.out.println("HTTP status: " + e.getStatusCode());
+    System.out.println(e.getPayload());  // full MQ response payload
 }
 ```
 
