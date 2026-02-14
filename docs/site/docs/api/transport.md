@@ -7,7 +7,6 @@
 - [TransportResponse](#transportresponse)
 - [Custom transport](#custom-transport)
 
-
 `io.github.wphillipmoore.mq.rest.admin.MqRestTransport`
 
 ## MqRestTransport

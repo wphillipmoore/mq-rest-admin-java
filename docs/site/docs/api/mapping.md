@@ -8,7 +8,6 @@
 - [MappingIssue](#mappingissue)
 - [MappingException](#mappingexception)
 
-
 `io.github.wphillipmoore.mq.rest.admin.mapping`
 
 ## AttributeMapper
@@ -27,7 +26,7 @@ The mapper performs three types of translation in each direction:
 
 Holds the complete mapping tables loaded from the JSON resource file at:
 
-```
+```text
 src/main/resources/io/github/wphillipmoore/mq/rest/admin/mapping/mapping-data.json
 ```
 

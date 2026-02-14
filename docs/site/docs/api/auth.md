@@ -7,7 +7,6 @@
 - [LtpaAuth](#ltpaauth)
 - [CertificateAuth](#certificateauth)
 
-
 `io.github.wphillipmoore.mq.rest.admin.auth`
 
 ## Credentials

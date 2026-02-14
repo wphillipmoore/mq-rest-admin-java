@@ -9,7 +9,6 @@
 - [Running integration tests](#running-integration-tests)
 - [Environment variables](#environment-variables)
 
-
 ## Overview
 
 Integration tests run against live IBM MQ containers managed by the

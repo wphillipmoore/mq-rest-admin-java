@@ -8,7 +8,6 @@
 - [Ensure methods](#ensure-methods)
 - [Sync](#sync)
 
-
 `io.github.wphillipmoore.mq.rest.admin.MqRestSession`
 
 The main entry point for interacting with an IBM MQ queue manager's

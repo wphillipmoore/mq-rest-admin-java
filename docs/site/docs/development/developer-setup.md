@@ -9,7 +9,6 @@
 - [Git hooks](#git-hooks)
 - [Documentation](#documentation)
 
-
 ## Prerequisites
 
 - **Java 17+**: Install via [SDKMAN](https://sdkman.io/) or `brew install openjdk@17`

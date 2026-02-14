@@ -9,7 +9,6 @@
 - [Status](#status)
 - [License](#license)
 
-
 A Java wrapper for the IBM MQ administrative REST API.
 
 ## Overview

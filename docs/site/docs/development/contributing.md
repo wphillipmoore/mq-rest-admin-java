@@ -7,7 +7,6 @@
 - [Code quality requirements](#code-quality-requirements)
 - [Pull request process](#pull-request-process)
 
-
 ## Branch workflow
 
 This project follows a library-release branching model:
@@ -22,7 +21,7 @@ This project follows a library-release branching model:
 Commits must follow the [Conventional Commits](https://www.conventionalcommits.org/)
 format:
 
-```
+```text
 <type>: <description>
 
 [optional body]

@@ -8,7 +8,6 @@
 - [Exceptions](#exceptions)
 - [Patterns](#patterns)
 
-
 This section documents the public API of mq-rest-admin. For generated Javadoc,
 see the [Javadoc](../javadoc.md) page.
 

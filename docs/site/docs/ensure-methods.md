@@ -4,7 +4,6 @@
 
 - [Java usage](#java-usage)
 
-
 --8<-- "concepts/ensure-pattern.md"
 
 ## Java usage

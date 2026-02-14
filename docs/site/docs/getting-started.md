@@ -10,7 +10,6 @@
 - [Error handling](#error-handling)
 - [Next steps](#next-steps)
 
-
 ## Prerequisites
 
 - **Java**: 17 or later

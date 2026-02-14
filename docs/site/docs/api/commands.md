@@ -7,7 +7,6 @@
 - [Return values](#return-values)
 - [Command categories](#command-categories)
 
-
 `MqRestSession` provides ~144 generated command methods, one for each MQSC
 command verb + qualifier combination. Each method is a thin wrapper that calls
 the internal command dispatcher with the correct verb and qualifier.

@@ -9,7 +9,6 @@
 - [Gateway routing](#gateway-routing)
 - [Package structure](#package-structure)
 
-
 ## Component overview
 
 --8<-- "architecture/component-overview.md"
@@ -47,7 +46,7 @@ configuration.
 
 ## Package structure
 
-```
+```text
 io.github.wphillipmoore.mq.rest.admin
     MqRestSession, MqRestTransport, HttpClientTransport, TransportResponse
 io.github.wphillipmoore.mq.rest.admin.auth

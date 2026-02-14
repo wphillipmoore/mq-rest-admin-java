@@ -11,14 +11,13 @@
 - [MqRestTimeoutException](#mqresttimeoutexception)
 - [MappingException](#mappingexception)
 
-
 `io.github.wphillipmoore.mq.rest.admin.exception`
 
 ## Hierarchy
 
 All exceptions are unchecked (extend `RuntimeException`) and sealed:
 
-```
+```text
 MqRestException (sealed, extends RuntimeException)
 ├── MqRestTransportException   — Network/connection failures
 ├── MqRestResponseException    — Malformed JSON, unexpected structure

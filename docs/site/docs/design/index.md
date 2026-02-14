@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
-
 These pages document design decisions and the MQ REST API protocol details
 that inform the library's architecture.
 

@@ -9,7 +9,6 @@
 - [Strict vs lenient mode](#strict-vs-lenient-mode)
 - [Custom mapping overrides](#custom-mapping-overrides)
 
-
 ## The three-namespace problem
 
 --8<-- "mapping-pipeline/three-namespace-problem.md"

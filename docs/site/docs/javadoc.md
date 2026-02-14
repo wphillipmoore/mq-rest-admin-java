@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
-
 The generated Javadoc API documentation is available at
 [/javadoc/](/javadoc/index.html).
 
