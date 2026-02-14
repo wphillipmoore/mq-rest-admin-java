@@ -17,6 +17,7 @@ import java.util.Objects;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import org.jspecify.annotations.Nullable;
 
 /**
  * JDK {@link HttpClient}-based implementation of {@link MqRestTransport}.
@@ -29,7 +30,7 @@ public final class HttpClientTransport implements MqRestTransport {
 
   private final Gson gson = new Gson();
   private final HttpClient client;
-  private HttpClient nonVerifyingClient;
+  private @Nullable HttpClient nonVerifyingClient;
 
   /** Creates a transport with a default TLS-verifying {@link HttpClient}. */
   public HttpClientTransport() {
@@ -60,7 +61,7 @@ public final class HttpClientTransport implements MqRestTransport {
       String url,
       Map<String, Object> payload,
       Map<String, String> headers,
-      Duration timeout,
+      @Nullable Duration timeout,
       boolean verifyTls) {
     HttpClient activeClient = verifyTls ? client : getNonVerifyingClient();
     String json = gson.toJson(payload);

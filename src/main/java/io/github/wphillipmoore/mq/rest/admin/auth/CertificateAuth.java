@@ -1,6 +1,7 @@
 package io.github.wphillipmoore.mq.rest.admin.auth;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Certificate-based (mTLS) authentication credentials for the MQ REST API.
@@ -11,7 +12,7 @@ import java.util.Objects;
  * @param certPath path to the client certificate file, never null
  * @param keyPath path to the private key file, or null if combined with the certificate
  */
-public record CertificateAuth(String certPath, String keyPath) implements Credentials {
+public record CertificateAuth(String certPath, @Nullable String keyPath) implements Credentials {
 
   /** Validates that certPath is non-null. keyPath may be null. */
   public CertificateAuth {

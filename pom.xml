@@ -48,6 +48,11 @@
         <mockito.version>5.21.0</mockito.version>
         <assertj.version>3.27.6</assertj.version>
 
+        <!-- Static analysis versions (Error Prone profile, JDK 21+) -->
+        <error-prone.version>2.47.0</error-prone.version>
+        <nullaway.version>0.13.1</nullaway.version>
+        <jspecify.version>1.0.0</jspecify.version>
+
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
@@ -64,6 +69,11 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -256,4 +266,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>error-prone</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-XDcompilePolicy=simple</arg>
+                                <arg>--should-stop=ifError=FLOW</arg>
+                                <arg>-Xplugin:ErrorProne
+                                    -XepOpt:NullAway:AnnotatedPackages=io.github.wphillipmoore.mq.rest.admin
+                                    -Xep:NullAway:ERROR</arg>
+                            </compilerArgs>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>com.google.errorprone</groupId>
+                                    <artifactId>error_prone_core</artifactId>
+                                    <version>${error-prone.version}</version>
+                                </path>
+                                <path>
+                                    <groupId>com.uber.nullaway</groupId>
+                                    <artifactId>nullaway</artifactId>
+                                    <version>${nullaway.version}</version>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

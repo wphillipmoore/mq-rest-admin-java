@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Central session class for the MQ REST administrative API.
@@ -129,21 +130,21 @@ public final class MqRestSession {
   private final String qmgrName;
   private final Credentials credentials;
   private final MqRestTransport transport;
-  private final String gatewayQmgr;
+  private final @Nullable String gatewayQmgr;
   private final boolean verifyTls;
-  private final Duration timeout;
+  private final @Nullable Duration timeout;
   private final boolean mapAttributes;
   private final boolean mappingStrict;
-  private final String csrfToken;
+  private final @Nullable String csrfToken;
   private final MappingData mappingData;
   private final AttributeMapper attributeMapper;
 
   private Clock clock = new SystemClock();
-  private String ltpaToken;
-  private Integer lastHttpStatus;
-  private String lastResponseText;
-  private Map<String, Object> lastResponsePayload;
-  private Map<String, Object> lastCommandPayload;
+  private @Nullable String ltpaToken;
+  private @Nullable Integer lastHttpStatus;
+  private @Nullable String lastResponseText;
+  private @Nullable Map<String, Object> lastResponsePayload;
+  private @Nullable Map<String, Object> lastCommandPayload;
 
   /** Package-private setter for test injection. */
   void setClock(Clock clock) {
@@ -180,17 +181,17 @@ public final class MqRestSession {
   }
 
   /** Returns the gateway queue manager name, or {@code null} if not set. */
-  public String getGatewayQmgr() {
+  public @Nullable String getGatewayQmgr() {
     return gatewayQmgr;
   }
 
   /** Returns the HTTP status code of the last command, or {@code null} before any command. */
-  public Integer getLastHttpStatus() {
+  public @Nullable Integer getLastHttpStatus() {
     return lastHttpStatus;
   }
 
   /** Returns the raw response text of the last command, or {@code null} before any command. */
-  public String getLastResponseText() {
+  public @Nullable String getLastResponseText() {
     return lastResponseText;
   }
 
@@ -198,7 +199,7 @@ public final class MqRestSession {
    * Returns the parsed response payload of the last command, or {@code null} before any command.
    * The returned map is unmodifiable.
    */
-  public Map<String, Object> getLastResponsePayload() {
+  public @Nullable Map<String, Object> getLastResponsePayload() {
     return lastResponsePayload;
   }
 
@@ -206,7 +207,7 @@ public final class MqRestSession {
    * Returns the command payload sent in the last command, or {@code null} before any command. The
    * returned map is unmodifiable.
    */
-  public Map<String, Object> getLastCommandPayload() {
+  public @Nullable Map<String, Object> getLastCommandPayload() {
     return lastCommandPayload;
   }
 
@@ -224,31 +225,32 @@ public final class MqRestSession {
   public List<Map<String, Object>> mqscCommand(
       String command,
       String mqscQualifier,
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
 
     // 1. Normalize command/qualifier to uppercase
     String upperCommand = command.toUpperCase(Locale.ROOT);
     String upperQualifier = mqscQualifier.toUpperCase(Locale.ROOT);
 
     // 2. Copy requestParameters to mutable map
-    Map<String, Object> params =
+    requestParameters =
         requestParameters != null ? new LinkedHashMap<>(requestParameters) : new LinkedHashMap<>();
 
     // 3. Normalize responseParameters
     boolean isDisplay = "DISPLAY".equals(upperCommand);
-    List<String> respParams = normalizeResponseParameters(responseParameters, isDisplay);
+    responseParameters = normalizeResponseParameters(responseParameters, isDisplay);
 
     // 4. Resolve mapping qualifier
     String mappingQualifier = resolveMappingQualifier(upperCommand, upperQualifier);
 
     // 5. Map request attributes if enabled
     if (mapAttributes) {
-      params = attributeMapper.mapRequestAttributes(mappingQualifier, params, mappingStrict);
-      respParams =
-          mapResponseParameters(upperCommand, upperQualifier, mappingQualifier, respParams);
+      requestParameters =
+          attributeMapper.mapRequestAttributes(mappingQualifier, requestParameters, mappingStrict);
+      responseParameters =
+          mapResponseParameters(upperCommand, upperQualifier, mappingQualifier, responseParameters);
     }
 
     // 6. Map WHERE keyword if provided
@@ -256,12 +258,13 @@ public final class MqRestSession {
       where = mapWhereKeyword(where, mappingQualifier);
     }
     if (where != null && !where.isBlank()) {
-      params.put("WHERE", where);
+      requestParameters.put("WHERE", where);
     }
 
     // 7. Build command payload
     Map<String, Object> payload =
-        buildCommandPayload(upperCommand, upperQualifier, name, params, respParams);
+        buildCommandPayload(
+            upperCommand, upperQualifier, name, requestParameters, responseParameters);
     lastCommandPayload = Collections.unmodifiableMap(new LinkedHashMap<>(payload));
 
     // 8. Execute transport call
@@ -351,7 +354,7 @@ public final class MqRestSession {
     this.ltpaToken = token;
   }
 
-  static String extractLtpaToken(Map<String, String> headers) {
+  static @Nullable String extractLtpaToken(Map<String, String> headers) {
     // Look for Set-Cookie header (case-insensitive)
     String setCookie = null;
     for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -411,17 +414,18 @@ public final class MqRestSession {
     return payload;
   }
 
-  static List<String> normalizeResponseParameters(List<String> params, boolean isDisplay) {
-    if (params == null) {
+  static List<String> normalizeResponseParameters(
+      @Nullable List<String> parameters, boolean isDisplay) {
+    if (parameters == null) {
       return isDisplay ? List.of("all") : List.of();
     }
     // Check for "all" (case-insensitive)
-    for (String param : params) {
-      if ("all".equalsIgnoreCase(param)) {
+    for (String parameter : parameters) {
+      if ("all".equalsIgnoreCase(parameter)) {
         return List.of("all");
       }
     }
-    return new ArrayList<>(params);
+    return new ArrayList<>(parameters);
   }
 
   static Map<String, Object> parseResponsePayload(String text) {
@@ -525,9 +529,9 @@ public final class MqRestSession {
     return flattened;
   }
 
-  static Map<String, Object> normalizeResponseAttributes(Map<String, Object> attrs) {
+  static Map<String, Object> normalizeResponseAttributes(Map<String, Object> attributes) {
     Map<String, Object> normalized = new LinkedHashMap<>();
-    for (Map.Entry<String, Object> entry : attrs.entrySet()) {
+    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
       normalized.put(entry.getKey().toUpperCase(Locale.ROOT), entry.getValue());
     }
     return normalized;
@@ -655,7 +659,7 @@ public final class MqRestSession {
     return -1;
   }
 
-  static Integer extractOptionalInt(Object value) {
+  static @Nullable Integer extractOptionalInt(@Nullable Object value) {
     if (value instanceof Number n) {
       return n.intValue();
     }
@@ -675,10 +679,10 @@ public final class MqRestSession {
 
   /** Executes a DISPLAY QUEUE MQSC command. */
   public List<Map<String, Object>> displayQueue(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand(
         "DISPLAY",
         "QUEUE",
@@ -690,10 +694,10 @@ public final class MqRestSession {
 
   /** Executes a DISPLAY CHANNEL MQSC command. */
   public List<Map<String, Object>> displayChannel(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand(
         "DISPLAY",
         "CHANNEL",
@@ -708,24 +712,24 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a DISPLAY QMGR MQSC command. */
-  public Map<String, Object> displayQmgr(
-      Map<String, Object> requestParameters, List<String> responseParameters) {
+  public @Nullable Map<String, Object> displayQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     List<Map<String, Object>> objects =
         mqscCommand("DISPLAY", "QMGR", null, requestParameters, responseParameters, null);
     return objects.isEmpty() ? null : objects.get(0);
   }
 
   /** Executes a DISPLAY QMSTATUS MQSC command. */
-  public Map<String, Object> displayQmstatus(
-      Map<String, Object> requestParameters, List<String> responseParameters) {
+  public @Nullable Map<String, Object> displayQmstatus(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     List<Map<String, Object>> objects =
         mqscCommand("DISPLAY", "QMSTATUS", null, requestParameters, responseParameters, null);
     return objects.isEmpty() ? null : objects.get(0);
   }
 
   /** Executes a DISPLAY CMDSERV MQSC command. */
-  public Map<String, Object> displayCmdserv(
-      Map<String, Object> requestParameters, List<String> responseParameters) {
+  public @Nullable Map<String, Object> displayCmdserv(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     List<Map<String, Object>> objects =
         mqscCommand("DISPLAY", "CMDSERV", null, requestParameters, responseParameters, null);
     return objects.isEmpty() ? null : objects.get(0);
@@ -737,352 +741,352 @@ public final class MqRestSession {
 
   /** Executes a DISPLAY APSTATUS MQSC command. */
   public List<Map<String, Object>> displayApstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "APSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY ARCHIVE MQSC command. */
   public List<Map<String, Object>> displayArchive(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "ARCHIVE", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY AUTHINFO MQSC command. */
   public List<Map<String, Object>> displayAuthinfo(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "AUTHINFO", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY AUTHREC MQSC command. */
   public List<Map<String, Object>> displayAuthrec(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "AUTHREC", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY AUTHSERV MQSC command. */
   public List<Map<String, Object>> displayAuthserv(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "AUTHSERV", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CFSTATUS MQSC command. */
   public List<Map<String, Object>> displayCfstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CFSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CFSTRUCT MQSC command. */
   public List<Map<String, Object>> displayCfstruct(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CFSTRUCT", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CHINIT MQSC command. */
   public List<Map<String, Object>> displayChinit(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CHINIT", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CHLAUTH MQSC command. */
   public List<Map<String, Object>> displayChlauth(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CHLAUTH", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CHSTATUS MQSC command. */
   public List<Map<String, Object>> displayChstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CHSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CLUSQMGR MQSC command. */
   public List<Map<String, Object>> displayClusqmgr(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CLUSQMGR", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY COMMINFO MQSC command. */
   public List<Map<String, Object>> displayComminfo(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "COMMINFO", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY CONN MQSC command. */
   public List<Map<String, Object>> displayConn(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "CONN", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY ENTAUTH MQSC command. */
   public List<Map<String, Object>> displayEntauth(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "ENTAUTH", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY GROUP MQSC command. */
   public List<Map<String, Object>> displayGroup(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "GROUP", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY LISTENER MQSC command. */
   public List<Map<String, Object>> displayListener(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "LISTENER", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY LOG MQSC command. */
   public List<Map<String, Object>> displayLog(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "LOG", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY LSSTATUS MQSC command. */
   public List<Map<String, Object>> displayLsstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "LSSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY MAXSMSGS MQSC command. */
   public List<Map<String, Object>> displayMaxsmsgs(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "MAXSMSGS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY NAMELIST MQSC command. */
   public List<Map<String, Object>> displayNamelist(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "NAMELIST", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY POLICY MQSC command. */
   public List<Map<String, Object>> displayPolicy(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "POLICY", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY PROCESS MQSC command. */
   public List<Map<String, Object>> displayProcess(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "PROCESS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY PUBSUB MQSC command. */
   public List<Map<String, Object>> displayPubsub(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "PUBSUB", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY QSTATUS MQSC command. */
   public List<Map<String, Object>> displayQstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "QSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SBSTATUS MQSC command. */
   public List<Map<String, Object>> displaySbstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SBSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SECURITY MQSC command. */
   public List<Map<String, Object>> displaySecurity(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SECURITY", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SERVICE MQSC command. */
   public List<Map<String, Object>> displayService(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SERVICE", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SMDS MQSC command. */
   public List<Map<String, Object>> displaySmds(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SMDS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SMDSCONN MQSC command. */
   public List<Map<String, Object>> displaySmdsconn(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SMDSCONN", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY STGCLASS MQSC command. */
   public List<Map<String, Object>> displayStgclass(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "STGCLASS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SUB MQSC command. */
   public List<Map<String, Object>> displaySub(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SUB", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SVSTATUS MQSC command. */
   public List<Map<String, Object>> displaySvstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SVSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY SYSTEM MQSC command. */
   public List<Map<String, Object>> displaySystem(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "SYSTEM", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY TCLUSTER MQSC command. */
   public List<Map<String, Object>> displayTcluster(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "TCLUSTER", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY THREAD MQSC command. */
   public List<Map<String, Object>> displayThread(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "THREAD", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY TOPIC MQSC command. */
   public List<Map<String, Object>> displayTopic(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "TOPIC", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY TPSTATUS MQSC command. */
   public List<Map<String, Object>> displayTpstatus(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "TPSTATUS", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY TRACE MQSC command. */
   public List<Map<String, Object>> displayTrace(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "TRACE", name, requestParameters, responseParameters, where);
   }
 
   /** Executes a DISPLAY USAGE MQSC command. */
   public List<Map<String, Object>> displayUsage(
-      String name,
-      Map<String, Object> requestParameters,
-      List<String> responseParameters,
-      String where) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters,
+      @Nullable String where) {
     return mqscCommand("DISPLAY", "USAGE", name, requestParameters, responseParameters, where);
   }
 
@@ -1092,35 +1096,45 @@ public final class MqRestSession {
 
   /** Executes a DEFINE QLOCAL MQSC command. */
   public void defineQlocal(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DEFINE", "QLOCAL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE QREMOTE MQSC command. */
   public void defineQremote(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DEFINE", "QREMOTE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE QALIAS MQSC command. */
   public void defineQalias(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DEFINE", "QALIAS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE QMODEL MQSC command. */
   public void defineQmodel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DEFINE", "QMODEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE CHANNEL MQSC command. */
   public void defineChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DEFINE", "CHANNEL", name, requestParameters, responseParameters, null);
   }
@@ -1131,14 +1145,18 @@ public final class MqRestSession {
 
   /** Executes a DELETE QUEUE MQSC command. */
   public void deleteQueue(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DELETE", "QUEUE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE CHANNEL MQSC command. */
   public void deleteChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     Objects.requireNonNull(name, "name");
     mqscCommand("DELETE", "CHANNEL", name, requestParameters, responseParameters, null);
   }
@@ -1149,85 +1167,113 @@ public final class MqRestSession {
 
   /** Executes a DEFINE AUTHINFO MQSC command. */
   public void defineAuthinfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "AUTHINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE BUFFPOOL MQSC command. */
   public void defineBuffpool(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "BUFFPOOL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE CFSTRUCT MQSC command. */
   public void defineCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE COMMINFO MQSC command. */
   public void defineComminfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "COMMINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE LISTENER MQSC command. */
   public void defineListener(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "LISTENER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE LOG MQSC command. */
   public void defineLog(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "LOG", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE MAXSMSGS MQSC command. */
   public void defineMaxsmsgs(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "MAXSMSGS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE NAMELIST MQSC command. */
   public void defineNamelist(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "NAMELIST", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE PROCESS MQSC command. */
   public void defineProcess(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "PROCESS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE PSID MQSC command. */
   public void definePsid(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "PSID", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE SERVICE MQSC command. */
   public void defineService(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "SERVICE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE STGCLASS MQSC command. */
   public void defineStgclass(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "STGCLASS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE SUB MQSC command. */
   public void defineSub(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "SUB", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DEFINE TOPIC MQSC command. */
   public void defineTopic(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DEFINE", "TOPIC", name, requestParameters, responseParameters, null);
   }
 
@@ -1236,7 +1282,8 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes an ALTER QMGR MQSC command. */
-  public void alterQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void alterQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "QMGR", null, requestParameters, responseParameters, null);
   }
 
@@ -1246,97 +1293,129 @@ public final class MqRestSession {
 
   /** Executes an ALTER AUTHINFO MQSC command. */
   public void alterAuthinfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "AUTHINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER BUFFPOOL MQSC command. */
   public void alterBuffpool(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "BUFFPOOL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER CFSTRUCT MQSC command. */
   public void alterCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER CHANNEL MQSC command. */
   public void alterChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER COMMINFO MQSC command. */
   public void alterComminfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "COMMINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER LISTENER MQSC command. */
   public void alterListener(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "LISTENER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER NAMELIST MQSC command. */
   public void alterNamelist(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "NAMELIST", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER PROCESS MQSC command. */
   public void alterProcess(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "PROCESS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER PSID MQSC command. */
   public void alterPsid(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "PSID", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER SECURITY MQSC command. */
   public void alterSecurity(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "SECURITY", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER SERVICE MQSC command. */
   public void alterService(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "SERVICE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER SMDS MQSC command. */
   public void alterSmds(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "SMDS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER STGCLASS MQSC command. */
   public void alterStgclass(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "STGCLASS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER SUB MQSC command. */
   public void alterSub(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "SUB", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER TOPIC MQSC command. */
   public void alterTopic(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "TOPIC", name, requestParameters, responseParameters, null);
   }
 
   /** Executes an ALTER TRACE MQSC command. */
   public void alterTrace(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ALTER", "TRACE", name, requestParameters, responseParameters, null);
   }
 
@@ -1346,85 +1425,113 @@ public final class MqRestSession {
 
   /** Executes a DELETE AUTHINFO MQSC command. */
   public void deleteAuthinfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "AUTHINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE AUTHREC MQSC command. */
   public void deleteAuthrec(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "AUTHREC", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE BUFFPOOL MQSC command. */
   public void deleteBuffpool(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "BUFFPOOL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE CFSTRUCT MQSC command. */
   public void deleteCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE COMMINFO MQSC command. */
   public void deleteComminfo(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "COMMINFO", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE LISTENER MQSC command. */
   public void deleteListener(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "LISTENER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE NAMELIST MQSC command. */
   public void deleteNamelist(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "NAMELIST", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE POLICY MQSC command. */
   public void deletePolicy(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "POLICY", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE PROCESS MQSC command. */
   public void deleteProcess(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "PROCESS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE PSID MQSC command. */
   public void deletePsid(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "PSID", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE SERVICE MQSC command. */
   public void deleteService(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "SERVICE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE STGCLASS MQSC command. */
   public void deleteStgclass(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "STGCLASS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE SUB MQSC command. */
   public void deleteSub(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "SUB", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a DELETE TOPIC MQSC command. */
   public void deleteTopic(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("DELETE", "TOPIC", name, requestParameters, responseParameters, null);
   }
 
@@ -1433,12 +1540,14 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a START QMGR MQSC command. */
-  public void startQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void startQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("START", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a START CMDSERV MQSC command. */
-  public void startCmdserv(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void startCmdserv(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("START", "CMDSERV", null, requestParameters, responseParameters, null);
   }
 
@@ -1448,37 +1557,49 @@ public final class MqRestSession {
 
   /** Executes a START CHANNEL MQSC command. */
   public void startChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a START CHINIT MQSC command. */
   public void startChinit(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "CHINIT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a START LISTENER MQSC command. */
   public void startListener(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "LISTENER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a START SERVICE MQSC command. */
   public void startService(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "SERVICE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a START SMDSCONN MQSC command. */
   public void startSmdsconn(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "SMDSCONN", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a START TRACE MQSC command. */
   public void startTrace(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("START", "TRACE", name, requestParameters, responseParameters, null);
   }
 
@@ -1487,12 +1608,14 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a STOP QMGR MQSC command. */
-  public void stopQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void stopQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP CMDSERV MQSC command. */
-  public void stopCmdserv(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void stopCmdserv(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "CMDSERV", null, requestParameters, responseParameters, null);
   }
 
@@ -1502,43 +1625,57 @@ public final class MqRestSession {
 
   /** Executes a STOP CHANNEL MQSC command. */
   public void stopChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP CHINIT MQSC command. */
   public void stopChinit(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "CHINIT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP CONN MQSC command. */
   public void stopConn(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "CONN", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP LISTENER MQSC command. */
   public void stopListener(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "LISTENER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP SERVICE MQSC command. */
   public void stopService(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "SERVICE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP SMDSCONN MQSC command. */
   public void stopSmdsconn(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "SMDSCONN", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a STOP TRACE MQSC command. */
   public void stopTrace(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("STOP", "TRACE", name, requestParameters, responseParameters, null);
   }
 
@@ -1547,13 +1684,16 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a PING QMGR MQSC command. */
-  public void pingQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void pingQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("PING", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a PING CHANNEL MQSC command. */
   public void pingChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("PING", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
@@ -1563,13 +1703,17 @@ public final class MqRestSession {
 
   /** Executes a CLEAR QLOCAL MQSC command. */
   public void clearQlocal(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("CLEAR", "QLOCAL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a CLEAR TOPICSTR MQSC command. */
   public void clearTopicstr(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("CLEAR", "TOPICSTR", name, requestParameters, responseParameters, null);
   }
 
@@ -1578,19 +1722,24 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a REFRESH QMGR MQSC command. */
-  public void refreshQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void refreshQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("REFRESH", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a REFRESH CLUSTER MQSC command. */
   public void refreshCluster(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("REFRESH", "CLUSTER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a REFRESH SECURITY MQSC command. */
   public void refreshSecurity(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("REFRESH", "SECURITY", name, requestParameters, responseParameters, null);
   }
 
@@ -1599,43 +1748,56 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a RESET QMGR MQSC command. */
-  public void resetQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void resetQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET CFSTRUCT MQSC command. */
   public void resetCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET CHANNEL MQSC command. */
   public void resetChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET CLUSTER MQSC command. */
   public void resetCluster(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "CLUSTER", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET QSTATS MQSC command. */
   public void resetQstats(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "QSTATS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET SMDS MQSC command. */
   public void resetSmds(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "SMDS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESET TPIPE MQSC command. */
   public void resetTpipe(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESET", "TPIPE", name, requestParameters, responseParameters, null);
   }
 
@@ -1645,13 +1807,17 @@ public final class MqRestSession {
 
   /** Executes a RESOLVE CHANNEL MQSC command. */
   public void resolveChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESOLVE", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RESOLVE INDOUBT MQSC command. */
   public void resolveIndoubt(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RESOLVE", "INDOUBT", name, requestParameters, responseParameters, null);
   }
 
@@ -1660,12 +1826,14 @@ public final class MqRestSession {
   // ---------------------------------------------------------------------------
 
   /** Executes a RESUME QMGR MQSC command. */
-  public void resumeQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void resumeQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("RESUME", "QMGR", null, requestParameters, responseParameters, null);
   }
 
   /** Executes a SUSPEND QMGR MQSC command. */
-  public void suspendQmgr(Map<String, Object> requestParameters, List<String> responseParameters) {
+  public void suspendQmgr(
+      @Nullable Map<String, Object> requestParameters, @Nullable List<String> responseParameters) {
     mqscCommand("SUSPEND", "QMGR", null, requestParameters, responseParameters, null);
   }
 
@@ -1675,37 +1843,49 @@ public final class MqRestSession {
 
   /** Executes a SET ARCHIVE MQSC command. */
   public void setArchive(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "ARCHIVE", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a SET AUTHREC MQSC command. */
   public void setAuthrec(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "AUTHREC", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a SET CHLAUTH MQSC command. */
   public void setChlauth(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "CHLAUTH", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a SET LOG MQSC command. */
   public void setLog(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "LOG", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a SET POLICY MQSC command. */
   public void setPolicy(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "POLICY", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a SET SYSTEM MQSC command. */
   public void setSystem(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("SET", "SYSTEM", name, requestParameters, responseParameters, null);
   }
 
@@ -1715,43 +1895,57 @@ public final class MqRestSession {
 
   /** Executes an ARCHIVE LOG MQSC command. */
   public void archiveLog(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("ARCHIVE", "LOG", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a BACKUP CFSTRUCT MQSC command. */
   public void backupCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("BACKUP", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RECOVER BSDS MQSC command. */
   public void recoverBsds(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RECOVER", "BSDS", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RECOVER CFSTRUCT MQSC command. */
   public void recoverCfstruct(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RECOVER", "CFSTRUCT", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a PURGE CHANNEL MQSC command. */
   public void purgeChannel(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("PURGE", "CHANNEL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a MOVE QLOCAL MQSC command. */
   public void moveQlocal(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("MOVE", "QLOCAL", name, requestParameters, responseParameters, null);
   }
 
   /** Executes a RVERIFY SECURITY MQSC command. */
   public void rverifySecurity(
-      String name, Map<String, Object> requestParameters, List<String> responseParameters) {
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
     mqscCommand("RVERIFY", "SECURITY", name, requestParameters, responseParameters, null);
   }
 
@@ -1787,16 +1981,16 @@ public final class MqRestSession {
    */
   @SuppressWarnings("unchecked")
   static Map<String, Object> extractParametersMap(Map<String, Object> item) {
-    Object params = item.get("parameters");
-    if (params instanceof Map) {
-      return new LinkedHashMap<>((Map<String, Object>) params);
+    Object parameters = item.get("parameters");
+    if (parameters instanceof Map) {
+      return new LinkedHashMap<>((Map<String, Object>) parameters);
     }
     return item;
   }
 
   private EnsureResult ensureObject(
       String name,
-      Map<String, Object> requestParameters,
+      @Nullable Map<String, Object> requestParameters,
       String displayQualifier,
       String defineQualifier,
       String alterQualifier) {
@@ -1852,7 +2046,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureQmgr(Map<String, Object> requestParameters) {
+  public EnsureResult ensureQmgr(@Nullable Map<String, Object> requestParameters) {
     // No params → UNCHANGED (skip DISPLAY)
     if (requestParameters == null || requestParameters.isEmpty()) {
       return new EnsureResult(EnsureAction.UNCHANGED, null);
@@ -1890,7 +2084,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureQlocal(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureQlocal(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "QUEUE", "QLOCAL", "QLOCAL");
   }
 
@@ -1901,7 +2095,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureQremote(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureQremote(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "QUEUE", "QREMOTE", "QREMOTE");
   }
 
@@ -1912,7 +2106,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureQalias(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureQalias(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "QUEUE", "QALIAS", "QALIAS");
   }
 
@@ -1923,7 +2117,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureQmodel(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureQmodel(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "QUEUE", "QMODEL", "QMODEL");
   }
 
@@ -1934,7 +2128,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureChannel(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureChannel(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "CHANNEL", "CHANNEL", "CHANNEL");
   }
 
@@ -1945,7 +2139,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureAuthinfo(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureAuthinfo(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "AUTHINFO", "AUTHINFO", "AUTHINFO");
   }
 
@@ -1956,7 +2150,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureListener(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureListener(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "LISTENER", "LISTENER", "LISTENER");
   }
 
@@ -1967,7 +2161,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureNamelist(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureNamelist(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "NAMELIST", "NAMELIST", "NAMELIST");
   }
 
@@ -1978,7 +2172,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureProcess(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureProcess(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "PROCESS", "PROCESS", "PROCESS");
   }
 
@@ -1989,7 +2183,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureService(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureService(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "SERVICE", "SERVICE", "SERVICE");
   }
 
@@ -2000,7 +2194,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureTopic(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureTopic(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "TOPIC", "TOPIC", "TOPIC");
   }
 
@@ -2011,7 +2205,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureSub(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureSub(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "SUB", "SUB", "SUB");
   }
 
@@ -2022,7 +2216,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureStgclass(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureStgclass(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "STGCLASS", "STGCLASS", "STGCLASS");
   }
 
@@ -2033,7 +2227,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureComminfo(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureComminfo(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "COMMINFO", "COMMINFO", "COMMINFO");
   }
 
@@ -2044,7 +2238,7 @@ public final class MqRestSession {
    * @param requestParameters the desired attributes, or null
    * @return the result indicating what action was taken
    */
-  public EnsureResult ensureCfstruct(String name, Map<String, Object> requestParameters) {
+  public EnsureResult ensureCfstruct(String name, @Nullable Map<String, Object> requestParameters) {
     return ensureObject(name, requestParameters, "CFSTRUCT", "CFSTRUCT", "CFSTRUCT");
   }
 
@@ -2063,9 +2257,9 @@ public final class MqRestSession {
   static boolean hasStatus(
       List<Map<String, Object>> rows, String[] statusKeys, Set<String> targetValues) {
     for (Map<String, Object> row : rows) {
-      Map<String, Object> params = extractParametersMap(row);
+      Map<String, Object> parameters = extractParametersMap(row);
       for (String key : statusKeys) {
-        Object value = params.get(key);
+        Object value = parameters.get(key);
         if (value instanceof String s && targetValues.contains(s)) {
           return true;
         }
@@ -2281,15 +2475,15 @@ public final class MqRestSession {
     private final String restBaseUrl;
     private final String qmgrName;
     private final Credentials credentials;
-    private MqRestTransport transport;
-    private String gatewayQmgr;
+    private @Nullable MqRestTransport transport;
+    private @Nullable String gatewayQmgr;
     private boolean verifyTls = true;
-    private Duration timeout = DEFAULT_TIMEOUT;
+    private @Nullable Duration timeout = DEFAULT_TIMEOUT;
     private boolean mapAttributes = true;
     private boolean mappingStrict = true;
-    private Map<String, Object> mappingOverrides;
+    private @Nullable Map<String, Object> mappingOverrides;
     private MappingOverrideMode mappingOverridesMode = MappingOverrideMode.MERGE;
-    private String csrfToken = DEFAULT_CSRF_TOKEN;
+    private @Nullable String csrfToken = DEFAULT_CSRF_TOKEN;
 
     /**
      * Creates a builder with the required session parameters.
@@ -2311,7 +2505,7 @@ public final class MqRestSession {
     }
 
     /** Sets the gateway queue manager name. */
-    public Builder gatewayQmgr(String gatewayQmgr) {
+    public Builder gatewayQmgr(@Nullable String gatewayQmgr) {
       this.gatewayQmgr = gatewayQmgr;
       return this;
     }
@@ -2323,7 +2517,7 @@ public final class MqRestSession {
     }
 
     /** Sets the request timeout. Defaults to 30 seconds. Pass {@code null} for no timeout. */
-    public Builder timeout(Duration timeout) {
+    public Builder timeout(@Nullable Duration timeout) {
       this.timeout = timeout;
       return this;
     }
@@ -2341,7 +2535,7 @@ public final class MqRestSession {
     }
 
     /** Sets mapping overrides to apply on top of the default mapping data. */
-    public Builder mappingOverrides(Map<String, Object> mappingOverrides) {
+    public Builder mappingOverrides(@Nullable Map<String, Object> mappingOverrides) {
       this.mappingOverrides =
           mappingOverrides != null ? new LinkedHashMap<>(mappingOverrides) : null;
       return this;
@@ -2355,7 +2549,7 @@ public final class MqRestSession {
     }
 
     /** Sets the CSRF token. Defaults to {@code "local"}. Pass {@code null} to omit the header. */
-    public Builder csrfToken(String csrfToken) {
+    public Builder csrfToken(@Nullable String csrfToken) {
       this.csrfToken = csrfToken;
       return this;
     }

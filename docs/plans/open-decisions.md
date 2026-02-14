@@ -50,8 +50,9 @@ Java port of pymqrest.
 - **Style checker**: Checkstyle with `google_checks.xml` (decided 2026-02-12).
 - **Bug analysis**: SpotBugs at max effort / low threshold (decided 2026-02-12).
 - **Code smell detection**: PMD with default ruleset (decided 2026-02-12).
-- **Null-safety strategy**: Deferred until API surface takes shape (JSpecify
-  planned).
+- **Null-safety strategy**: JSpecify 1.0.0 adopted for `@Nullable` annotations,
+  enforced by NullAway 0.13.1 at ERROR severity via Error Prone 2.47.0 (JDK
+  21+ only, decided 2026-02-14).
 
 ## Testing
 

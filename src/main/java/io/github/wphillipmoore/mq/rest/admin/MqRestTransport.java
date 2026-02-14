@@ -2,6 +2,7 @@ package io.github.wphillipmoore.mq.rest.admin;
 
 import java.time.Duration;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Transport interface for MQ REST API HTTP communication.
@@ -27,6 +28,6 @@ public interface MqRestTransport {
       String url,
       Map<String, Object> payload,
       Map<String, String> headers,
-      Duration timeout,
+      @Nullable Duration timeout,
       boolean verifyTls);
 }

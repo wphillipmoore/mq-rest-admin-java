@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Translates attributes between snake_case Python-style names and MQSC parameter names.
@@ -106,16 +107,15 @@ public final class AttributeMapper {
       String qualifier,
       Map<String, Object> attributes,
       MappingDirection direction,
-      Integer objectIndex,
+      @Nullable Integer objectIndex,
       List<MappingIssue> issues) {
-    if (!data.hasQualifier(qualifier)) {
+    Map<String, Object> qualifierData = data.getQualifierData(qualifier);
+    if (qualifierData == null) {
       issues.add(
           new MappingIssue(
               direction, MappingReason.UNKNOWN_QUALIFIER, qualifier, null, objectIndex, qualifier));
       return new LinkedHashMap<>(attributes);
     }
-
-    Map<String, Object> qualifierData = data.getQualifierData(qualifier);
     Map<String, String> keyMap =
         getStringMap(
             qualifierData,
@@ -179,7 +179,7 @@ public final class AttributeMapper {
   }
 
   @SuppressWarnings("unchecked")
-  private static Object mapKeyValue(
+  private static @Nullable Object mapKeyValue(
       Map<String, Object> keyValueMap, String attrName, String attrValue) {
     Object attrEntry = keyValueMap.get(attrName);
     if (!(attrEntry instanceof Map)) {
@@ -197,7 +197,7 @@ public final class AttributeMapper {
       Object attrValue,
       MappingDirection direction,
       List<MappingIssue> issues,
-      Integer objectIndex,
+      @Nullable Integer objectIndex,
       String qualifier) {
     if (!valueMap.containsKey(attrName)) {
       return attrValue;

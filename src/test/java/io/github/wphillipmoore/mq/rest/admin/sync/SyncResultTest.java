@@ -16,7 +16,7 @@ class SyncResultTest {
   }
 
   @Test
-  void nullOperationThrowsNpe() {
+  void nullOperationThrowsNullPointerException() {
     assertThatThrownBy(() -> new SyncResult(null, 1, 1.0))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("operation");

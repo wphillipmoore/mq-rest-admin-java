@@ -204,49 +204,49 @@ class MqRestSessionCommandsTest {
     }
 
     @Test
-    void defineQlocalWithNullNameThrowsNpe() {
+    void defineQlocalWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.defineQlocal(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void defineQremoteWithNullNameThrowsNpe() {
+    void defineQremoteWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.defineQremote(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void defineQaliasWithNullNameThrowsNpe() {
+    void defineQaliasWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.defineQalias(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void defineQmodelWithNullNameThrowsNpe() {
+    void defineQmodelWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.defineQmodel(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void defineChannelWithNullNameThrowsNpe() {
+    void defineChannelWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.defineChannel(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void deleteQueueWithNullNameThrowsNpe() {
+    void deleteQueueWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.deleteQueue(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
     }
 
     @Test
-    void deleteChannelWithNullNameThrowsNpe() {
+    void deleteChannelWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.deleteChannel(null, null, null))
           .isInstanceOf(NullPointerException.class)
           .hasMessage("name");
