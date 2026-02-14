@@ -31,3 +31,13 @@ fi
 
 ln -s "$COMMON_REPO" "$LINK_PATH"
 echo "Created symlink: $LINK_PATH -> $COMMON_REPO"
+
+echo ""
+echo "To install documentation tools:"
+echo "  pip install mkdocs-material mike"
+echo ""
+echo "To build docs locally:"
+echo "  mkdocs build -f docs/site/mkdocs.yml"
+echo ""
+echo "To preview versioned docs locally:"
+echo "  mike serve -F docs/site/mkdocs.yml"
