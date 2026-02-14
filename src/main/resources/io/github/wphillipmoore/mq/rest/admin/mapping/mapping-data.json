@@ -150,6 +150,18 @@
     "DELETE SUB": {
       "qualifier": "sub"
     },
+    "DELETE QALIAS": {
+      "qualifier": "queue"
+    },
+    "DELETE QLOCAL": {
+      "qualifier": "queue"
+    },
+    "DELETE QMODEL": {
+      "qualifier": "queue"
+    },
+    "DELETE QREMOTE": {
+      "qualifier": "queue"
+    },
     "DELETE TOPIC": {
       "qualifier": "topic"
     },
@@ -907,6 +919,10 @@
         "STATCHL": "channel_statistics",
         "TPNAME": "transaction_program_name",
         "TPROOT": "topic_root",
+        "CHANNEL": "channel_name",
+        "DEFRECON": "default_reconnect",
+        "TMPMODEL": "temporary_model_queue_name",
+        "TMPQPRFX": "temporary_queue_prefix",
         "TRPTYPE": "transport_type",
         "USECLTID": "use_client_id",
         "USEDLQ": "use_dead_letter_queue",
@@ -1008,6 +1024,7 @@
         "BUFSSENT": "buffers_sent",
         "BYTSRCVD": "bytes_received",
         "BYTSSENT": "bytes_sent",
+        "CHANNEL": "channel_name",
         "CHLTYPE": "channel_type",
         "CHSTADA": "channel_start_date",
         "CHSTATI": "channel_start_time",
@@ -1015,7 +1032,9 @@
         "COMPMSG": "message_compression",
         "COMPRATE": "compression_rate",
         "COMPTIME": "compression_time",
+        "CONNAME": "connection_name",
         "CURLUWID": "current_logical_unit_of_work_id",
+        "CURRENT": "current",
         "CURMSGS": "current_messages",
         "CURSEQNO": "current_sequence_number",
         "CURSHCNV": "current_sharing_conversations",
@@ -1058,6 +1077,7 @@
         "STOPREQ": "stop_requested",
         "SUBSTATE": "sub_state",
         "TPROOT": "topic_root",
+        "XMITQ": "transmission_queue_name",
         "XBATCHSZ": "batch_size_indicator",
         "XQMSGSA": "messages_available",
         "XQTIME": "transmission_queue_time"
@@ -1258,6 +1278,24 @@
         "transaction_program_name": "TPNAME",
         "transport_type": "TRPTYPE"
       },
+      "request_key_value_map": {
+        "noreplace": {
+          "yes": {
+            "key": "REPLACE",
+            "value": "NO"
+          }
+        },
+        "replace": {
+          "no": {
+            "key": "REPLACE",
+            "value": "NO"
+          },
+          "yes": {
+            "key": "REPLACE",
+            "value": "YES"
+          }
+        }
+      },
       "request_value_map": {},
       "response_key_map": {
         "ADAPTER": "adapter",
@@ -1268,12 +1306,14 @@
         "CONTROL": "start_mode",
         "DESCR": "description",
         "IPADDR": "ip_address",
+        "LISTENER": "listener_name",
         "LOCLNAME": "local_name",
         "NTBNAMES": "netbios_names",
         "PORT": "port",
         "SESSIONS": "sessions",
         "SOCKET": "socket",
-        "TPNAME": "transaction_program_name"
+        "TPNAME": "transaction_program_name",
+        "TRPTYPE": "transport_type"
       },
       "response_value_map": {}
     },
@@ -1358,6 +1398,7 @@
         "ALTTIME": "alteration_time",
         "DESCR": "description",
         "NAMCOUNT": "name_count",
+        "NAMELIST": "namelist_name",
         "NAMES": "names"
       },
       "response_value_map": {}
@@ -1416,6 +1457,7 @@
         "APPLTYPE": "application_type",
         "DESCR": "description",
         "ENVRDATA": "environment_data",
+        "PROCESS": "process_name",
         "USERDATA": "user_data"
       },
       "response_value_map": {}
@@ -1804,6 +1846,7 @@
         "STARTDA": "start_date",
         "STARTTI": "start_time",
         "STATUS": "ha_status",
+        "TYPE": "status_type",
         "UNICLUS": "uniform_cluster_name"
       },
       "response_value_map": {}
@@ -1865,6 +1908,7 @@
         "storage_class": "STGCLASS",
         "stream_queue": "STREAMQ",
         "stream_queue_service": "STRMQOS",
+        "target_queue_name": "TARGET",
         "target_type": "TARGTYPE",
         "to_queue_name": "TOQLOCAL",
         "transmission_queue_name": "XMITQ",
@@ -1912,7 +1956,9 @@
       "request_value_map": {
         "default_persistence": {
           "def": "DEF",
-          "not_fixed": "NOTFIXED"
+          "no": "NO",
+          "not_fixed": "NOTFIXED",
+          "yes": "YES"
         }
       },
       "response_key_map": {
@@ -1975,6 +2021,8 @@
         "MONQ": "queue_monitoring",
         "MSGAGE": "oldest_message_age",
         "MSGDLVSQ": "message_delivery_sequence",
+        "NOSHARE": "no_share",
+        "NOTRIGGER": "no_trigger",
         "NPMCLASS": "non_persistent_message_class",
         "OPPROCS": "open_output_count",
         "OTELPCTL": "otel_propagation_control",
@@ -1995,9 +2043,11 @@
         "QMID": "queue_manager_id",
         "QMURID": "queue_manager_unit_of_work_id",
         "QSGDISP": "queue_sharing_group_disposition",
+        "QSVCIEV": "queue_service_interval_event",
         "QSVCINT": "queue_service_interval",
         "QTIME": "on_queue_time",
         "QTYPE": "queue_type",
+        "QUEUE": "queue_name",
         "RETINTVL": "retention_interval",
         "RNAME": "remote_queue_name",
         "RQMNAME": "remote_queue_manager_name",
@@ -2008,11 +2058,13 @@
         "STGCLASS": "storage_class",
         "STREAMQ": "stream_queue",
         "STRMQOS": "stream_queue_service",
+        "TARGET": "target_queue_name",
         "TARGTYPE": "target_type",
         "TASKNO": "task_number",
         "TID": "thread_id",
         "TPIPE": "tpipe_names",
         "TRANSID": "transaction_id",
+        "TYPE": "type",
         "TRIGDATA": "trigger_data",
         "TRIGDPTH": "trigger_depth",
         "TRIGGER": "trigger_control",
@@ -2028,7 +2080,9 @@
       "response_value_map": {
         "DEFPSIST": {
           "DEF": "def",
-          "NOTFIXED": "not_fixed"
+          "NO": "no",
+          "NOTFIXED": "not_fixed",
+          "YES": "yes"
         }
       }
     },
@@ -2068,6 +2122,7 @@
         "QMURID": "queue_manager_unit_of_work_id",
         "QSGDISP": "queue_sharing_group_disposition",
         "QTIME": "on_queue_time",
+        "QUEUE": "queue_name",
         "SET": "open_set",
         "TASKNO": "task_number",
         "TID": "thread_id",
@@ -2413,8 +2468,11 @@
         "NPMSGDLV": "non_persistent_message_delivery",
         "PMSGDLV": "persistent_message_delivery",
         "PROXYSUB": "proxy_subscriptions",
+        "PUB": "publish",
         "PUBSCOPE": "publication_scope",
+        "SUB": "subscribe",
         "SUBSCOPE": "subscription_scope",
+        "TOPIC": "topic_name",
         "TOPICSTR": "topic_string",
         "TYPE": "topic_type",
         "USEDLQ": "use_dead_letter_queue",

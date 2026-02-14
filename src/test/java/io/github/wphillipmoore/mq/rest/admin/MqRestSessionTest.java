@@ -698,8 +698,8 @@ class MqRestSessionTest {
           .thenReturn(
               successResponse(
                   "{\"overallCompletionCode\":0,\"overallReasonCode\":0,"
-                      + "\"commandResponse\":[{\"shared\":\"val\","
-                      + "\"objects\":[{\"nested1\":\"a\"},{\"nested2\":\"b\"}]}]}"));
+                      + "\"commandResponse\":[{\"parameters\":{\"shared\":\"val\","
+                      + "\"objects\":[{\"nested1\":\"a\"},{\"nested2\":\"b\"}]}}]}"));
 
       MqRestSession session = buildSessionNoMapping();
       List<Map<String, Object>> result =
@@ -716,7 +716,7 @@ class MqRestSessionTest {
           .thenReturn(
               successResponse(
                   "{\"overallCompletionCode\":0,\"overallReasonCode\":0,"
-                      + "\"commandResponse\":[{\"key\":\"value\"}]}"));
+                      + "\"commandResponse\":[{\"parameters\":{\"key\":\"value\"}}]}"));
 
       MqRestSession session = buildSessionNoMapping();
       List<Map<String, Object>> result =
@@ -751,7 +751,7 @@ class MqRestSessionTest {
           .thenReturn(
               successResponse(
                   "{\"overallCompletionCode\":0,\"overallReasonCode\":0,"
-                      + "\"commandResponse\":[{\"MAXDEPTH\":5000}]}"));
+                      + "\"commandResponse\":[{\"parameters\":{\"MAXDEPTH\":5000}}]}"));
 
       MqRestSession session = basicBuilder().mapAttributes(true).mappingStrict(false).build();
       List<Map<String, Object>> result =
@@ -768,7 +768,7 @@ class MqRestSessionTest {
           .thenReturn(
               successResponse(
                   "{\"overallCompletionCode\":0,\"overallReasonCode\":0,"
-                      + "\"commandResponse\":[{\"MAXDEPTH\":5000}]}"));
+                      + "\"commandResponse\":[{\"parameters\":{\"MAXDEPTH\":5000}}]}"));
 
       MqRestSession session = buildSessionNoMapping();
       List<Map<String, Object>> result =

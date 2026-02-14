@@ -236,13 +236,13 @@ class MqRestSessionIT {
                   session.defineQlocal(
                       TEST_QLOCAL,
                       Map.of(
-                          "replace", "YES",
-                          "default_persistence", "YES",
+                          "replace", "yes",
+                          "default_persistence", "yes",
                           "description", "dev test qlocal"),
                       null),
               () -> session.displayQueue(TEST_QLOCAL, null, null, null),
               () -> {}, // no alter for qlocal in pymqrest reference
-              () -> session.deleteQueue(TEST_QLOCAL, null, null),
+              () -> session.mqscCommand("DELETE", "QLOCAL", TEST_QLOCAL, null, null, null),
               null),
           new LifecycleCase(
               "qremote",
@@ -251,15 +251,15 @@ class MqRestSessionIT {
                   session.defineQremote(
                       TEST_QREMOTE,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "remote_queue_name", "DEV.TARGET",
                           "remote_queue_manager_name", QM1_NAME,
-                          "xmit_q_name", "DEV.XMITQ",
+                          "transmission_queue_name", "DEV.XMITQ",
                           "description", "dev test qremote"),
                       null),
               () -> session.displayQueue(TEST_QREMOTE, null, null, null),
               () -> {},
-              () -> session.deleteQueue(TEST_QREMOTE, null, null),
+              () -> session.mqscCommand("DELETE", "QREMOTE", TEST_QREMOTE, null, null, null),
               null),
           new LifecycleCase(
               "qalias",
@@ -268,13 +268,13 @@ class MqRestSessionIT {
                   session.defineQalias(
                       TEST_QALIAS,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "target_queue_name", "DEV.QLOCAL",
                           "description", "dev test qalias"),
                       null),
               () -> session.displayQueue(TEST_QALIAS, null, null, null),
               () -> {},
-              () -> session.deleteQueue(TEST_QALIAS, null, null),
+              () -> session.mqscCommand("DELETE", "QALIAS", TEST_QALIAS, null, null, null),
               null),
           new LifecycleCase(
               "qmodel",
@@ -283,14 +283,14 @@ class MqRestSessionIT {
                   session.defineQmodel(
                       TEST_QMODEL,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "definition_type", "TEMPDYN",
-                          "default_share_option", "SHARED",
+                          "default_input_open_option", "SHARED",
                           "description", "dev test qmodel"),
                       null),
               () -> session.displayQueue(TEST_QMODEL, null, null, null),
               () -> {},
-              () -> session.deleteQueue(TEST_QMODEL, null, null),
+              () -> session.mqscCommand("DELETE", "QMODEL", TEST_QMODEL, null, null, null),
               null),
           new LifecycleCase(
               "channel",
@@ -299,7 +299,7 @@ class MqRestSessionIT {
                   session.defineChannel(
                       TEST_CHANNEL,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "channel_type", "SVRCONN",
                           "transport_type", "TCP",
                           "description", "dev test channel"),
@@ -321,10 +321,10 @@ class MqRestSessionIT {
                   session.defineListener(
                       TEST_LISTENER,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "transport_type", "TCP",
                           "port", 1416,
-                          "control", "QMGR",
+                          "start_mode", "QMGR",
                           "description", "dev test listener"),
                       null),
               () -> session.displayListener(TEST_LISTENER, null, null, null),
@@ -342,7 +342,7 @@ class MqRestSessionIT {
                   session.defineProcess(
                       TEST_PROCESS,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "application_id", "/bin/true",
                           "description", "dev test process"),
                       null),
@@ -359,7 +359,7 @@ class MqRestSessionIT {
                   session.defineTopic(
                       TEST_TOPIC,
                       Map.of(
-                          "replace", "YES",
+                          "replace", "yes",
                           "topic_string", "dev/test",
                           "description", "dev test topic"),
                       null),
@@ -376,8 +376,8 @@ class MqRestSessionIT {
                   session.defineNamelist(
                       TEST_NAMELIST,
                       Map.of(
-                          "replace", "YES",
-                          "names", "DEV.QLOCAL",
+                          "replace", "yes",
+                          "names", List.of("DEV.QLOCAL"),
                           "description", "dev test namelist"),
                       null),
               () -> session.displayNamelist(TEST_NAMELIST, null, null, null),
@@ -458,7 +458,8 @@ class MqRestSessionIT {
       MqRestSession nonStrict = buildNonStrictSession();
 
       // Clean up from any prior failed run.
-      silentDelete(() -> nonStrict.deleteQueue(TEST_ENSURE_QLOCAL, null, null));
+      silentDelete(
+          () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
 
       try {
         // Create.
@@ -475,7 +476,8 @@ class MqRestSessionIT {
             nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure updated"));
         assertThat(result.action()).isEqualTo(EnsureAction.UPDATED);
       } finally {
-        silentDelete(() -> nonStrict.deleteQueue(TEST_ENSURE_QLOCAL, null, null));
+        silentDelete(
+            () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
       }
     }
 

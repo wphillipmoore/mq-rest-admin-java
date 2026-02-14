@@ -285,10 +285,24 @@ public final class MqRestSession {
     // 12. Extract commandResponse
     List<Map<String, Object>> commandResponse = extractCommandResponse(responsePayload);
 
-    // 13. Flatten nested objects
+    // 13. Extract parameters from each commandResponse item
+    List<Map<String, Object>> parameterObjects = new ArrayList<>();
+    for (Map<String, Object> item : commandResponse) {
+      Object parameters = item.get("parameters");
+      if (parameters instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> parametersMap = (Map<String, Object>) parameters;
+        parameterObjects.add(new LinkedHashMap<>(parametersMap));
+      } else {
+        parameterObjects.add(new LinkedHashMap<>());
+      }
+    }
+    commandResponse = parameterObjects;
+
+    // 14. Flatten nested objects
     commandResponse = flattenNestedObjects(commandResponse);
 
-    // 14. Map response attributes if enabled
+    // 15. Map response attributes if enabled
     if (mapAttributes) {
       commandResponse = normalizeAndMapResponse(commandResponse, mappingQualifier);
     }
