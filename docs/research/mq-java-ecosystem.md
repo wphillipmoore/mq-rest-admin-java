@@ -23,7 +23,7 @@ decisions and project naming for the Java port of pymqrest. Research conducted
 All official IBM MQ Java artifacts are published under groupId `com.ibm.mq`.
 
 | Artifact ID | Latest Version | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `com.ibm.mq.allclient` | 9.4.3.0 | Uber-JAR: MQ Java + JMS + PCF + Headers |
 | `com.ibm.mq.jakarta.client` | 9.4.3.0 | Jakarta Messaging 3.0 equivalent of allclient |
 | `mq-jms-spring-boot-starter` | 3.5.3 | Spring Boot autoconfiguration for JMS |
@@ -91,7 +91,7 @@ Programmable Command Format support for administration.
 ### PCF vs the REST API
 
 | Aspect | PCF | REST API |
-|---|---|---|
+| --- | --- | --- |
 | Transport | MQ messages via TCP:1414 / JNI | HTTP/HTTPS via mqweb (TCP:9443) |
 | Wire format | Binary PCF structures | JSON over HTTP |
 | Requires | MQ client libraries (native code) | Any HTTP client |
@@ -139,7 +139,7 @@ repositories) uses consistent naming: `mq-{purpose}` or
 `mq-{protocol}-{language}`.
 
 | Repository | Language | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `mq-jms-spring` | Java | Spring Boot JMS integration |
 | `mq-golang` | Go | Go MQI wrapper |
 | `mq-golang-jms20` | Go | JMS 2.0 style interface for Go |
@@ -158,7 +158,7 @@ pattern is `mq-{technology}-{purpose}`.
 ## Published package names across languages
 
 | Language | Registry | Package Name | GitHub Repo |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Java | Maven Central | `com.ibm.mq:com.ibm.mq.allclient` | (closed source) |
 | Node.js | npm | `ibmmq` | `ibm-messaging/mq-mqi-nodejs` |
 | Python | PyPI | `ibmmq` | `ibm-messaging/mq-mqi-python` |
@@ -170,7 +170,7 @@ name across npm, PyPI, and Go.
 ## Community naming conventions
 
 | Project | Convention | Example |
-|---|---|---|
+| --- | --- | --- |
 | pymqi (Python) | `py` + protocol | Python + MQI = `pymqi` |
 | pymqrest (Python) | `py` + product + interface | Python + MQ + REST = `pymqrest` |
 | mqweb (C++) | product + interface | MQ + web = `mqweb` |
