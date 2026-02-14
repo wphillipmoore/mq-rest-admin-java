@@ -204,6 +204,7 @@
 #### Evidence cited
 
 - pymqrest's mapping data structure is a nested dictionary:
+
   ```python
   MAPPING_DATA = {
       "commands": {
@@ -221,6 +222,7 @@
       }
   }
   ```
+
   This translates directly to `Map<String, Object>` in Java.
 - Storing the mapping data as a JSON resource file (`mapping_data.json` in
   `src/main/resources/`) provides several advantages over a Java static
@@ -268,6 +270,7 @@
 - The rationale is well-established: checked exceptions force try/catch at
   every call site. For a library where the common case is "call a method,
   get a result," this creates boilerplate. Consider:
+
   ```java
   // Checked (every call site):
   try {
@@ -277,10 +280,12 @@
   // Unchecked (handle where appropriate):
   var queues = session.displayQueue("MY.*");
   ```
+
 - pymqrest uses unchecked exceptions (Python has no checked exception
   concept). The Java port preserves this behavior.
 - `sealed` on `MqRestException` documents the complete set of failure modes
   and prevents consumers from creating fragile subclasses:
+
   ```java
   public sealed class MqRestException extends RuntimeException
       permits MqRestTransportException, MqRestResponseException,
@@ -290,7 +295,7 @@
 
 #### Exception hierarchy
 
-```
+```text
 MqRestException (sealed, extends RuntimeException)
 ├── MqRestTransportException   (url)
 ├── MqRestResponseException    (responseText)
@@ -318,7 +323,7 @@ MappingException (extends RuntimeException, separate hierarchy)
 
 ## Planned package structure
 
-```
+```text
 io.github.wphillipmoore.mq.rest.admin
     MqRestSession, MqRestTransport (interface), HttpClientTransport,
     TransportResponse (record)
@@ -346,7 +351,7 @@ io.github.wphillipmoore.mq.rest.admin.ensure
 ## Runtime dependency profile
 
 | Dependency | Scope | Size | Transitive deps |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `com.google.code.gson:gson` | compile | ~280KB | 0 |
 | **Total** | | **~280KB** | **0** |
 

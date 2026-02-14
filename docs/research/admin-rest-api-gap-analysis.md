@@ -35,7 +35,7 @@ by `com.ibm.mq.allclient` and PCF.
 ### Administrative endpoints
 
 | Endpoint | Methods | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `/admin/action/qmgr/{qmgrName}/mqsc` | POST | Execute MQSC commands |
 | `/admin/installation` | GET | Query MQ installations |
 | `/admin/qmgr` | GET | List queue managers and status |
@@ -51,7 +51,7 @@ by `com.ibm.mq.allclient` and PCF.
 ### Messaging endpoints (separate from admin)
 
 | Endpoint | Methods | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `/messaging/qmgr/{qmgrName}/queue/{qName}/message` | POST, DELETE | Send/receive messages |
 | `/messaging/qmgr/{qmgrName}/topic/{topicString}/message` | POST | Publish to topic |
 
@@ -109,7 +109,7 @@ pymqrest currently supports basic auth and CSRF token handling.
 ## REST API version history
 
 | Version | Introduced In | Notes |
-|---|---|---|
+| --- | --- | --- |
 | v1 | IBM MQ 9.0.1 | Initial REST API |
 | v2 | IBM MQ 9.1.5 | Additional features |
 | v3 | IBM MQ 9.3.0 | Current version |
@@ -128,7 +128,7 @@ MQ administrative REST API.
 ### Other languages
 
 | Project | Language | Approach |
-|---|---|---|
+| --- | --- | --- |
 | pymqrest | Python | Full client library (this project's reference implementation) |
 | mq-dotnet-administration-with-mqrestapi | C# / .NET | IBM sample code, raw HTTP calls |
 | mq-sample-web-ui | JavaScript | IBM sample web page, raw fetch calls |

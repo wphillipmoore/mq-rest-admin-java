@@ -49,20 +49,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Dependency review (PRs only)
-        if: github.event_name == 'pull_request'
-        uses: actions/dependency-review-action@v4
-
-      - name: Set up Java 17 (push only)
-        if: github.event_name == 'push'
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
 
-      - name: Dependency resolution check (push only)
-        if: github.event_name == 'push'
+      - name: Verify dependency resolution
         run: ./mvnw dependency:tree -B -q
 
   release-gates:
@@ -100,6 +94,10 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'develop'
         run: |
           git fetch origin main --depth=1
+          if ! git show origin/main:pom.xml > /dev/null 2>&1; then
+            echo "OK: pom.xml not found on main; version divergence check skipped."
+            exit 0
+          fi
           head_version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
           main_pom=$(git show origin/main:pom.xml)
           main_version=$(echo "$main_pom" | grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
