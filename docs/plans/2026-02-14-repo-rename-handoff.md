@@ -1,5 +1,12 @@
 # Repo rename handoff plan
 
+## Table of Contents
+
+- [Context](#context)
+- [What is already done](#what-is-already-done)
+- [What remains (pick up here)](#what-remains-pick-up-here)
+- [Important notes](#important-notes)
+
 ## Context
 
 On 2026-02-14, the following GitHub repositories were renamed to normalize the
