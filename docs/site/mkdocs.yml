@@ -1,0 +1,83 @@
+site_name: mq-rest-admin (Java)
+site_url: https://wphillipmoore.github.io/mq-rest-admin-java/
+site_description: Java wrapper for the IBM MQ administrative REST API
+repo_url: https://github.com/wphillipmoore/mq-rest-admin-java
+repo_name: mq-rest-admin-java
+edit_uri: ""
+
+strict: true
+
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+      base_path:
+        - docs
+        - ../../.mq-rest-admin-common/fragments
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Mapping Pipeline: mapping-pipeline.md
+  - Ensure Methods: ensure-methods.md
+  - Sync Methods: sync-methods.md
+  - API Reference:
+      - api/index.md
+      - Session: api/session.md
+      - Commands: api/commands.md
+      - Authentication: api/auth.md
+      - Transport: api/transport.md
+      - Mapping: api/mapping.md
+      - Exceptions: api/exceptions.md
+      - Ensure: api/ensure.md
+      - Sync: api/sync.md
+  - Mappings:
+      - mappings/index.md
+  - Design:
+      - design/index.md
+      - Rationale: design/rationale.md
+      - runCommandJSON Endpoint: design/runcommand-endpoint.md
+      - Nested Object Flattening: design/nested-object-flattening.md
+  - Development:
+      - development/index.md
+      - Developer Setup: development/developer-setup.md
+      - Contributing: development/contributing.md
+      - Local MQ Container: development/local-mq-container.md
+  - Javadoc: javadoc.md
