@@ -1,28 +1,17 @@
 # mq-rest-admin
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Key features](#key-features)
-- [Quick links](#quick-links)
-- [Build coordinates](#build-coordinates)
-- [Status](#status)
-- [License](#license)
-
-A Java wrapper for the IBM MQ administrative REST API.
-
 ## Overview
 
 **mq-rest-admin** provides a Java mapping layer for MQ REST API attribute
 translations and command metadata. It wraps the complexity of the
 `runCommandJSON` endpoint behind typed Java methods that map 1:1 to MQSC
-commands, translate attribute names between developer-friendly `camelCase` and
+commands, translate attribute names between developer-friendly `snake_case` and
 native MQSC tokens, and surface errors as structured exceptions.
 
 ## Key features
 
 - **~144 command methods** covering all MQSC verbs and qualifiers
-- **Bidirectional attribute mapping** between Java-friendly names and MQSC parameters
+- **Bidirectional attribute mapping** between developer-friendly names and MQSC parameters
 - **Idempotent ensure methods** for declarative object management
 - **Bulk sync operations** for configuration-as-code workflows
 - **Zero runtime dependencies** beyond Gson (~280KB)

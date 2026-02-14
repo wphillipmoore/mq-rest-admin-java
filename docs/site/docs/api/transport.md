@@ -1,17 +1,15 @@
 # Transport
 
-## Table of Contents
+## Overview
 
-- [MqRestTransport](#mqresttransport)
-- [HttpClientTransport](#httpclienttransport)
-- [TransportResponse](#transportresponse)
-- [Custom transport](#custom-transport)
-
-`io.github.wphillipmoore.mq.rest.admin.MqRestTransport`
+The transport layer abstracts HTTP communication from the session logic. The
+session builds `runCommandJSON` payloads and delegates HTTP delivery to a
+transport implementation. This separation enables testing the entire command
+pipeline without an MQ server by injecting a mock transport.
 
 ## MqRestTransport
 
-The transport interface defines the HTTP layer used by `MqRestSession`:
+The transport interface defines a single method for posting JSON payloads:
 
 ```java
 public interface MqRestTransport {
@@ -20,48 +18,64 @@ public interface MqRestTransport {
         Map<String, Object> payload,
         Map<String, String> headers,
         Duration timeout,
-        SSLContext sslContext
+        boolean verifyTls
     );
 }
 ```
 
+| Parameter | Description |
+| --- | --- |
+| `url` | Fully-qualified endpoint URL |
+| `payload` | The `runCommandJSON` request body |
+| `headers` | Authentication, CSRF token, and optional gateway headers |
+| `timeout` | Per-request timeout duration |
+| `verifyTls` | Whether to verify server certificates |
+
+Throws `MqRestTransportException` on network failures.
+
 ## HttpClientTransport
 
 The default transport implementation using `java.net.http.HttpClient` (JDK
-built-in, zero additional dependencies):
+built-in, zero additional dependencies beyond Gson for JSON serialization):
 
 ```java
+// Default — verifies TLS certificates
 var transport = new HttpClientTransport();
+
+// Custom SSLContext for mTLS client certificate authentication
+var transport = new HttpClientTransport(sslContext);
 ```
 
 `HttpClientTransport` handles:
 
 - HTTPS connections with configurable `SSLContext`
+- Automatic TLS certificate verification (or disabled via `verifyTls=false`)
 - Request timeouts via `Duration`
 - JSON serialization/deserialization with Gson
 - Custom HTTP headers
+- Defensive header flattening per RFC 9110
 
 ## TransportResponse
 
-A record containing the HTTP response data:
+An immutable record containing the HTTP response data:
 
 ```java
 public record TransportResponse(
     int statusCode,
-    String body,
-    Map<String, List<String>> headers
+    String body,                   // never null (empty string if no body)
+    Map<String, String> headers    // never null, unmodifiable
 ) {}
 ```
 
 ## Custom transport
 
-Implement `MqRestTransport` to provide custom HTTP behavior or for testing:
+Implement `MqRestTransport` to provide custom HTTP behavior or for testing.
+Because the interface has a single method, a lambda works naturally:
 
 ```java
 // Mock transport for unit tests
-MqRestTransport mockTransport = (url, payload, headers, timeout, ssl) -> {
-    return new TransportResponse(200, responseJson, Map.of());
-};
+MqRestTransport mockTransport = (url, payload, headers, timeout, verify) ->
+    new TransportResponse(200, responseJson, Map.of());
 
 var session = MqRestSession.builder()
     .host("localhost")
@@ -71,3 +85,7 @@ var session = MqRestSession.builder()
     .transport(mockTransport)
     .build();
 ```
+
+This pattern is used extensively in the library's own test suite to verify
+command payload construction, response parsing, and error handling without
+network access.

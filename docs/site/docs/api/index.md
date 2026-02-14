@@ -1,16 +1,5 @@
 # API Reference
 
-## Table of Contents
-
-- [Core](#core)
-- [Authentication](#authentication)
-- [Mapping](#mapping)
-- [Exceptions](#exceptions)
-- [Patterns](#patterns)
-
-This section documents the public API of mq-rest-admin. For generated Javadoc,
-see the [Javadoc](../javadoc.md) page.
-
 ## Core
 
 - [Session](session.md) — `MqRestSession` main entry point
