@@ -62,6 +62,7 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
     </properties>
 
     <dependencies>
@@ -264,6 +265,19 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Javadoc generation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <source>17</source>
+                    <doclint>all,-missing</doclint>
+                    <quiet>true</quiet>
+                    <reportOutputDirectory>${project.basedir}/docs/site/site</reportOutputDirectory>
+                    <destDir>javadoc</destDir>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -81,3 +81,8 @@ bin/
 # Cursor
 .cursorignore
 .cursorindexingignore
+
+# Documentation
+.mq-rest-admin-common
+docs/site/site/
+docs/site/docs/mappings/
