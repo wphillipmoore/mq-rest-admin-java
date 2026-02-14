@@ -1,0 +1,602 @@
+package io.github.wphillipmoore.mq.rest.admin;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
+import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureAction;
+import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
+import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Integration tests that exercise the MQ REST API against live queue managers.
+ *
+ * <p>Gated by the {@code MQ_REST_ADMIN_RUN_INTEGRATION} environment variable. Start the MQ
+ * environment with {@code scripts/dev/mq_start.sh && scripts/dev/mq_seed.sh} before running.
+ */
+@EnabledIfEnvironmentVariable(named = "MQ_REST_ADMIN_RUN_INTEGRATION", matches = ".+")
+class MqRestSessionIT {
+
+  static final String REST_BASE_URL =
+      System.getenv().getOrDefault("MQ_REST_BASE_URL", "https://localhost:9453/ibmmq/rest/v2");
+  static final String QM1_NAME = System.getenv().getOrDefault("MQ_QMGR_NAME", "QM1");
+  static final String QM2_REST_BASE_URL =
+      System.getenv().getOrDefault("MQ_REST_BASE_URL_QM2", "https://localhost:9454/ibmmq/rest/v2");
+  static final String QM2_NAME = System.getenv().getOrDefault("MQ_QMGR_NAME_QM2", "QM2");
+  static final String ADMIN_USER = System.getenv().getOrDefault("MQ_ADMIN_USER", "mqadmin");
+  static final String ADMIN_PASSWORD = System.getenv().getOrDefault("MQ_ADMIN_PASSWORD", "mqadmin");
+
+  static final String TEST_QLOCAL = "DEV.TEST.QLOCAL";
+  static final String TEST_QREMOTE = "DEV.TEST.QREMOTE";
+  static final String TEST_QALIAS = "DEV.TEST.QALIAS";
+  static final String TEST_QMODEL = "DEV.TEST.QMODEL";
+  static final String TEST_CHANNEL = "DEV.TEST.SVRCONN";
+  static final String TEST_LISTENER = "DEV.TEST.LSTR";
+  static final String TEST_PROCESS = "DEV.TEST.PROC";
+  static final String TEST_TOPIC = "DEV.TEST.TOPIC";
+  static final String TEST_NAMELIST = "DEV.TEST.NAMELIST";
+  static final String TEST_ENSURE_QLOCAL = "DEV.ENSURE.QLOCAL";
+  static final String TEST_ENSURE_CHANNEL = "DEV.ENSURE.CHL";
+
+  static MqRestSession session;
+  static MqRestSession qm2Session;
+
+  @BeforeAll
+  static void setUp() {
+    HttpClientTransport transport = new HttpClientTransport();
+    session = buildSession(transport, REST_BASE_URL, QM1_NAME);
+    qm2Session = buildSession(transport, QM2_REST_BASE_URL, QM2_NAME);
+  }
+
+  static MqRestSession buildSession(MqRestTransport transport, String baseUrl, String qmgrName) {
+    return new MqRestSession.Builder(baseUrl, qmgrName, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+        .transport(transport)
+        .verifyTls(false)
+        .mapAttributes(true)
+        .mappingStrict(true)
+        .build();
+  }
+
+  static MqRestSession buildNonStrictSession() {
+    return new MqRestSession.Builder(
+            REST_BASE_URL, QM1_NAME, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+        .transport(new HttpClientTransport())
+        .verifyTls(false)
+        .mapAttributes(true)
+        .mappingStrict(false)
+        .build();
+  }
+
+  static boolean containsStringValue(Map<String, Object> obj, String expected) {
+    String normalized = expected.strip().toUpperCase();
+    for (Object value : obj.values()) {
+      if (value instanceof String str && str.strip().toUpperCase().equals(normalized)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean anyContainsValue(List<Map<String, Object>> results, String expected) {
+    return results.stream().anyMatch(r -> containsStringValue(r, expected));
+  }
+
+  @SuppressWarnings("unchecked")
+  static String getDescriptionCaseInsensitive(Map<String, Object> attrs) {
+    for (Map.Entry<String, Object> entry : attrs.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase("description")
+          || entry.getKey().equalsIgnoreCase("DESCR")) {
+        return String.valueOf(entry.getValue());
+      }
+    }
+    return null;
+  }
+
+  static Map<String, Object> findMatchingObject(
+      List<Map<String, Object>> results, String expected) {
+    return results.stream().filter(r -> containsStringValue(r, expected)).findFirst().orElse(null);
+  }
+
+  static void silentDelete(Runnable deleteAction) {
+    try {
+      deleteAction.run();
+    } catch (MqRestCommandException ignored) {
+      // Object may not exist; ignore.
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Display tests — read-only, exercising seeded objects
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class DisplayTests {
+
+    @Test
+    void displayQmgrReturnsObject() {
+      Map<String, Object> result = session.displayQmgr(null, null);
+
+      assertThat(result).isNotNull();
+      assertThat(containsStringValue(result, QM1_NAME)).isTrue();
+    }
+
+    @Test
+    void displayQmstatusReturnsObject() {
+      Map<String, Object> result = session.displayQmstatus(null, null);
+
+      assertThat(result).isNotNull();
+    }
+
+    @Test
+    void displayCmdservReturnsObject() {
+      Map<String, Object> result = session.displayCmdserv(null, null);
+
+      // May be null on some platforms; just verify no exception.
+      assertThat(result == null || result instanceof Map).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "DEV.DEAD.LETTER",
+          "DEV.QLOCAL",
+          "DEV.QREMOTE",
+          "DEV.QALIAS",
+          "DEV.QMODEL",
+          "DEV.XMITQ"
+        })
+    void displaySeededQueues(String queueName) {
+      List<Map<String, Object>> results = session.displayQueue(queueName, null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, queueName)).isTrue();
+    }
+
+    @Test
+    void displayQstatusReturnsResult() {
+      List<Map<String, Object>> results = session.displayQstatus("DEV.QLOCAL", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.QLOCAL")).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DEV.SVRCONN", "DEV.SDR", "DEV.RCVR"})
+    void displaySeededChannels(String channelName) {
+      List<Map<String, Object>> results = session.displayChannel(channelName, null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, channelName)).isTrue();
+    }
+
+    @Test
+    void displaySeededListener() {
+      List<Map<String, Object>> results = session.displayListener("DEV.LSTR", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.LSTR")).isTrue();
+    }
+
+    @Test
+    void displaySeededTopic() {
+      List<Map<String, Object>> results = session.displayTopic("DEV.TOPIC", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.TOPIC")).isTrue();
+    }
+
+    @Test
+    void displaySeededNamelist() {
+      List<Map<String, Object>> results = session.displayNamelist("DEV.NAMELIST", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.NAMELIST")).isTrue();
+    }
+
+    @Test
+    void displaySeededProcess() {
+      List<Map<String, Object>> results = session.displayProcess("DEV.PROC", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.PROC")).isTrue();
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Lifecycle tests — define, display, alter, delete
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class LifecycleTests {
+
+    record LifecycleCase(
+        String label,
+        String objectName,
+        Runnable define,
+        java.util.function.Supplier<List<Map<String, Object>>> display,
+        Runnable alter,
+        Runnable delete,
+        String alterDescription) {}
+
+    static Stream<LifecycleCase> lifecycleCases() {
+      return Stream.of(
+          new LifecycleCase(
+              "qlocal",
+              TEST_QLOCAL,
+              () ->
+                  session.defineQlocal(
+                      TEST_QLOCAL,
+                      Map.of(
+                          "replace", "YES",
+                          "default_persistence", "YES",
+                          "description", "dev test qlocal"),
+                      null),
+              () -> session.displayQueue(TEST_QLOCAL, null, null, null),
+              () -> {}, // no alter for qlocal in pymqrest reference
+              () -> session.deleteQueue(TEST_QLOCAL, null, null),
+              null),
+          new LifecycleCase(
+              "qremote",
+              TEST_QREMOTE,
+              () ->
+                  session.defineQremote(
+                      TEST_QREMOTE,
+                      Map.of(
+                          "replace", "YES",
+                          "remote_queue_name", "DEV.TARGET",
+                          "remote_queue_manager_name", QM1_NAME,
+                          "xmit_q_name", "DEV.XMITQ",
+                          "description", "dev test qremote"),
+                      null),
+              () -> session.displayQueue(TEST_QREMOTE, null, null, null),
+              () -> {},
+              () -> session.deleteQueue(TEST_QREMOTE, null, null),
+              null),
+          new LifecycleCase(
+              "qalias",
+              TEST_QALIAS,
+              () ->
+                  session.defineQalias(
+                      TEST_QALIAS,
+                      Map.of(
+                          "replace", "YES",
+                          "target_queue_name", "DEV.QLOCAL",
+                          "description", "dev test qalias"),
+                      null),
+              () -> session.displayQueue(TEST_QALIAS, null, null, null),
+              () -> {},
+              () -> session.deleteQueue(TEST_QALIAS, null, null),
+              null),
+          new LifecycleCase(
+              "qmodel",
+              TEST_QMODEL,
+              () ->
+                  session.defineQmodel(
+                      TEST_QMODEL,
+                      Map.of(
+                          "replace", "YES",
+                          "definition_type", "TEMPDYN",
+                          "default_share_option", "SHARED",
+                          "description", "dev test qmodel"),
+                      null),
+              () -> session.displayQueue(TEST_QMODEL, null, null, null),
+              () -> {},
+              () -> session.deleteQueue(TEST_QMODEL, null, null),
+              null),
+          new LifecycleCase(
+              "channel",
+              TEST_CHANNEL,
+              () ->
+                  session.defineChannel(
+                      TEST_CHANNEL,
+                      Map.of(
+                          "replace", "YES",
+                          "channel_type", "SVRCONN",
+                          "transport_type", "TCP",
+                          "description", "dev test channel"),
+                      null),
+              () -> session.displayChannel(TEST_CHANNEL, null, null, null),
+              () ->
+                  session.alterChannel(
+                      TEST_CHANNEL,
+                      Map.of(
+                          "channel_type", "SVRCONN",
+                          "description", "dev test channel updated"),
+                      null),
+              () -> session.deleteChannel(TEST_CHANNEL, null, null),
+              "dev test channel updated"),
+          new LifecycleCase(
+              "listener",
+              TEST_LISTENER,
+              () ->
+                  session.defineListener(
+                      TEST_LISTENER,
+                      Map.of(
+                          "replace", "YES",
+                          "transport_type", "TCP",
+                          "port", 1416,
+                          "control", "QMGR",
+                          "description", "dev test listener"),
+                      null),
+              () -> session.displayListener(TEST_LISTENER, null, null, null),
+              () ->
+                  session.alterListener(
+                      TEST_LISTENER,
+                      Map.of("transport_type", "TCP", "description", "dev test listener updated"),
+                      null),
+              () -> session.deleteListener(TEST_LISTENER, null, null),
+              "dev test listener updated"),
+          new LifecycleCase(
+              "process",
+              TEST_PROCESS,
+              () ->
+                  session.defineProcess(
+                      TEST_PROCESS,
+                      Map.of(
+                          "replace", "YES",
+                          "application_id", "/bin/true",
+                          "description", "dev test process"),
+                      null),
+              () -> session.displayProcess(TEST_PROCESS, null, null, null),
+              () ->
+                  session.alterProcess(
+                      TEST_PROCESS, Map.of("description", "dev test process updated"), null),
+              () -> session.deleteProcess(TEST_PROCESS, null, null),
+              "dev test process updated"),
+          new LifecycleCase(
+              "topic",
+              TEST_TOPIC,
+              () ->
+                  session.defineTopic(
+                      TEST_TOPIC,
+                      Map.of(
+                          "replace", "YES",
+                          "topic_string", "dev/test",
+                          "description", "dev test topic"),
+                      null),
+              () -> session.displayTopic(TEST_TOPIC, null, null, null),
+              () ->
+                  session.alterTopic(
+                      TEST_TOPIC, Map.of("description", "dev test topic updated"), null),
+              () -> session.deleteTopic(TEST_TOPIC, null, null),
+              "dev test topic updated"),
+          new LifecycleCase(
+              "namelist",
+              TEST_NAMELIST,
+              () ->
+                  session.defineNamelist(
+                      TEST_NAMELIST,
+                      Map.of(
+                          "replace", "YES",
+                          "names", "DEV.QLOCAL",
+                          "description", "dev test namelist"),
+                      null),
+              () -> session.displayNamelist(TEST_NAMELIST, null, null, null),
+              () ->
+                  session.alterNamelist(
+                      TEST_NAMELIST, Map.of("description", "dev test namelist updated"), null),
+              () -> session.deleteNamelist(TEST_NAMELIST, null, null),
+              "dev test namelist updated"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lifecycleCases")
+    void mutatingObjectLifecycle(LifecycleCase tc) {
+      try {
+        // Define
+        tc.define().run();
+
+        // Display and verify
+        List<Map<String, Object>> displayed = tc.display().get();
+        assertThat(displayed).isNotEmpty();
+        assertThat(anyContainsValue(displayed, tc.objectName())).isTrue();
+
+        // Alter and verify (if applicable)
+        if (tc.alterDescription() != null) {
+          tc.alter().run();
+          List<Map<String, Object>> updated = tc.display().get();
+          Map<String, Object> matched = findMatchingObject(updated, tc.objectName());
+          assertThat(matched).isNotNull();
+          assertThat(getDescriptionCaseInsensitive(matched)).isEqualTo(tc.alterDescription());
+        }
+      } finally {
+        // Always clean up
+        silentDelete(tc.delete());
+      }
+
+      // Verify deletion
+      try {
+        List<Map<String, Object>> afterDelete = tc.display().get();
+        assertThat(anyContainsValue(afterDelete, tc.objectName())).isFalse();
+      } catch (MqRestCommandException ignored) {
+        // Object not found is the expected outcome.
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Ensure tests — idempotent create/update
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class EnsureTests {
+
+    @Test
+    void ensureQmgrLifecycle() {
+      // Read current description so we can restore it.
+      Map<String, Object> qmgr = session.displayQmgr(null, null);
+      assertThat(qmgr).isNotNull();
+      String originalDescr = String.valueOf(qmgr.getOrDefault("description", ""));
+
+      String testDescr = "dev ensure_qmgr test";
+
+      try {
+        // Set to test value.
+        EnsureResult result = session.ensureQmgr(Map.of("description", testDescr));
+        assertThat(result.action()).isIn(EnsureAction.UPDATED, EnsureAction.UNCHANGED);
+
+        // Same attributes → UNCHANGED.
+        result = session.ensureQmgr(Map.of("description", testDescr));
+        assertThat(result.action()).isEqualTo(EnsureAction.UNCHANGED);
+      } finally {
+        // Restore original description.
+        session.ensureQmgr(Map.of("description", originalDescr));
+      }
+    }
+
+    @Test
+    void ensureQlocalLifecycle() {
+      MqRestSession nonStrict = buildNonStrictSession();
+
+      // Clean up from any prior failed run.
+      silentDelete(() -> nonStrict.deleteQueue(TEST_ENSURE_QLOCAL, null, null));
+
+      try {
+        // Create.
+        EnsureResult result =
+            nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure test"));
+        assertThat(result.action()).isEqualTo(EnsureAction.CREATED);
+
+        // Same attributes → UNCHANGED.
+        result = nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure test"));
+        assertThat(result.action()).isEqualTo(EnsureAction.UNCHANGED);
+
+        // Different attribute → UPDATED.
+        result =
+            nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure updated"));
+        assertThat(result.action()).isEqualTo(EnsureAction.UPDATED);
+      } finally {
+        silentDelete(() -> nonStrict.deleteQueue(TEST_ENSURE_QLOCAL, null, null));
+      }
+    }
+
+    @Test
+    void ensureChannelLifecycle() {
+      MqRestSession nonStrict = buildNonStrictSession();
+
+      // Clean up from any prior failed run.
+      silentDelete(() -> nonStrict.deleteChannel(TEST_ENSURE_CHANNEL, null, null));
+
+      try {
+        // Create.
+        EnsureResult result =
+            nonStrict.ensureChannel(
+                TEST_ENSURE_CHANNEL,
+                Map.of("channel_type", "SVRCONN", "description", "ensure test"));
+        assertThat(result.action()).isEqualTo(EnsureAction.CREATED);
+
+        // Same attributes → UNCHANGED.
+        result =
+            nonStrict.ensureChannel(
+                TEST_ENSURE_CHANNEL,
+                Map.of("channel_type", "SVRCONN", "description", "ensure test"));
+        assertThat(result.action()).isEqualTo(EnsureAction.UNCHANGED);
+
+        // Different attribute → UPDATED.
+        result =
+            nonStrict.ensureChannel(
+                TEST_ENSURE_CHANNEL,
+                Map.of("channel_type", "SVRCONN", "description", "ensure updated"));
+        assertThat(result.action()).isEqualTo(EnsureAction.UPDATED);
+      } finally {
+        silentDelete(() -> nonStrict.deleteChannel(TEST_ENSURE_CHANNEL, null, null));
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Gateway tests — multi-QM access
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class GatewayTests {
+
+    @Test
+    void displayQmgrQm2ViaQm1() {
+      MqRestSession gateway =
+          new MqRestSession.Builder(
+                  REST_BASE_URL, QM2_NAME, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+              .transport(new HttpClientTransport())
+              .verifyTls(false)
+              .gatewayQmgr(QM1_NAME)
+              .build();
+
+      Map<String, Object> result = gateway.displayQmgr(null, null);
+
+      assertThat(result).isNotNull();
+      assertThat(containsStringValue(result, QM2_NAME)).isTrue();
+    }
+
+    @Test
+    void displayQmgrQm1ViaQm2() {
+      MqRestSession gateway =
+          new MqRestSession.Builder(
+                  QM2_REST_BASE_URL, QM1_NAME, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+              .transport(new HttpClientTransport())
+              .verifyTls(false)
+              .gatewayQmgr(QM2_NAME)
+              .build();
+
+      Map<String, Object> result = gateway.displayQmgr(null, null);
+
+      assertThat(result).isNotNull();
+      assertThat(containsStringValue(result, QM1_NAME)).isTrue();
+    }
+
+    @Test
+    void displayQueueQm2ViaQm1() {
+      MqRestSession gateway =
+          new MqRestSession.Builder(
+                  REST_BASE_URL, QM2_NAME, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+              .transport(new HttpClientTransport())
+              .verifyTls(false)
+              .gatewayQmgr(QM1_NAME)
+              .build();
+
+      List<Map<String, Object>> results = gateway.displayQueue("DEV.QLOCAL", null, null, null);
+
+      assertThat(results).isNotEmpty();
+      assertThat(anyContainsValue(results, "DEV.QLOCAL")).isTrue();
+    }
+
+    @Test
+    void gatewaySessionProperties() {
+      MqRestSession gateway =
+          new MqRestSession.Builder(
+                  REST_BASE_URL, QM2_NAME, new BasicAuth(ADMIN_USER, ADMIN_PASSWORD))
+              .transport(new HttpClientTransport())
+              .verifyTls(false)
+              .gatewayQmgr(QM1_NAME)
+              .build();
+
+      assertThat(gateway.getQmgrName()).isEqualTo(QM2_NAME);
+      assertThat(gateway.getGatewayQmgr()).isEqualTo(QM1_NAME);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Session state tests — verify state accessors after a command
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class SessionStateTests {
+
+    @Test
+    void sessionStatePopulatedAfterCommand() {
+      session.displayQmgr(null, null);
+
+      assertThat(session.getLastHttpStatus()).isNotNull();
+      assertThat(session.getLastResponseText()).isNotNull();
+      assertThat(session.getLastResponsePayload()).isNotNull();
+    }
+  }
+}

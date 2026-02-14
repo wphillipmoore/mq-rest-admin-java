@@ -220,6 +220,7 @@
                             </rules>
                             <excludes>
                                 <exclude>**/package-info.class</exclude>
+                                <exclude>**/*IT.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
