@@ -10,6 +10,7 @@
 - [Testing](#testing)
 - [Architecture](#architecture)
 - [CI and publishing](#ci-and-publishing)
+- [Documentation](#documentation)
 - [Validation scripts](#validation-scripts)
 
 ## Purpose
@@ -97,6 +98,13 @@ implemented; remaining items are tooling and infrastructure.
   zero-config) over OWASP Dependency-Check Maven Plugin (decided 2026-02-13).
 - **Publishing target**: Maven Central (implicit from groupId decision).
 - **Publishing mechanism**: Central Portal API (OSSRH shut down June 2025).
+
+## Documentation
+
+- **Documentation site generator**: TBD. Candidates: Sphinx (matching pymqrest,
+  zero new tooling), Antora + AsciiDoctor (Java-native standard, used by Spring
+  and Hibernate), MkDocs with Material theme (language-agnostic, Markdown-based).
+  Goal is a similar documentation tree to the pymqrest Sphinx site.
 
 ## Validation scripts
 
