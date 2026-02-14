@@ -155,7 +155,7 @@ public final class MqRestSession {
     this.restBaseUrl = stripTrailingSlashes(builder.restBaseUrl);
     this.qmgrName = builder.qmgrName;
     this.credentials = builder.credentials;
-    this.transport = builder.transport;
+    this.transport = Objects.requireNonNull(builder.transport, "transport");
     this.gatewayQmgr = builder.gatewayQmgr;
     this.verifyTls = builder.verifyTls;
     this.timeout = builder.timeout;
@@ -409,7 +409,7 @@ public final class MqRestSession {
   static Map<String, Object> buildCommandPayload(
       String command,
       String qualifier,
-      String name,
+      @Nullable String name,
       Map<String, Object> parameters,
       List<String> responseParameters) {
     Map<String, Object> payload = new LinkedHashMap<>();
@@ -511,7 +511,8 @@ public final class MqRestSession {
     }
   }
 
-  private static boolean hasErrorCodes(Integer completionCode, Integer reasonCode) {
+  private static boolean hasErrorCodes(
+      @Nullable Integer completionCode, @Nullable Integer reasonCode) {
     return (completionCode != null && completionCode != 0)
         || (reasonCode != null && reasonCode != 0);
   }
@@ -1977,7 +1978,7 @@ public final class MqRestSession {
    * @param current the current value from the queue manager
    * @return true if the values are considered equal
    */
-  static boolean valuesMatch(Object desired, Object current) {
+  static boolean valuesMatch(Object desired, @Nullable Object current) {
     if (current == null) {
       return false;
     }
