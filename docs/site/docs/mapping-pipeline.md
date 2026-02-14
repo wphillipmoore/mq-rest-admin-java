@@ -1,5 +1,15 @@
 # Mapping Pipeline
 
+## Table of Contents
+
+- [The three-namespace problem](#the-three-namespace-problem)
+- [Qualifier-based mapping](#qualifier-based-mapping)
+- [Request mapping flow](#request-mapping-flow)
+- [Response mapping flow](#response-mapping-flow)
+- [Strict vs lenient mode](#strict-vs-lenient-mode)
+- [Custom mapping overrides](#custom-mapping-overrides)
+
+
 ## The three-namespace problem
 
 --8<-- "mapping-pipeline/three-namespace-problem.md"

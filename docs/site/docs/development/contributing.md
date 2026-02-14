@@ -1,5 +1,13 @@
 # Contributing
 
+## Table of Contents
+
+- [Branch workflow](#branch-workflow)
+- [Commit conventions](#commit-conventions)
+- [Code quality requirements](#code-quality-requirements)
+- [Pull request process](#pull-request-process)
+
+
 ## Branch workflow
 
 This project follows a library-release branching model:

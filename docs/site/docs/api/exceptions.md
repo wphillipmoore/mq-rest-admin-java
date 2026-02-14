@@ -1,5 +1,17 @@
 # Exceptions
 
+## Table of Contents
+
+- [Hierarchy](#hierarchy)
+- [MqRestException](#mqrestexception)
+- [MqRestTransportException](#mqresttransportexception)
+- [MqRestResponseException](#mqrestresponseexception)
+- [MqRestAuthException](#mqrestauthexception)
+- [MqRestCommandException](#mqrestcommandexception)
+- [MqRestTimeoutException](#mqresttimeoutexception)
+- [MappingException](#mappingexception)
+
+
 `io.github.wphillipmoore.mq.rest.admin.exception`
 
 ## Hierarchy

@@ -1,5 +1,10 @@
 # Sync Methods
 
+## Table of Contents
+
+- [Java usage](#java-usage)
+
+
 --8<-- "concepts/sync-pattern.md"
 
 ## Java usage

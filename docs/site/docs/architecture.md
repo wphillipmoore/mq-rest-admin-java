@@ -1,5 +1,15 @@
 # Architecture
 
+## Table of Contents
+
+- [Component overview](#component-overview)
+- [Request lifecycle](#request-lifecycle)
+- [Transport abstraction](#transport-abstraction)
+- [Single-endpoint design](#single-endpoint-design)
+- [Gateway routing](#gateway-routing)
+- [Package structure](#package-structure)
+
+
 ## Component overview
 
 --8<-- "architecture/component-overview.md"

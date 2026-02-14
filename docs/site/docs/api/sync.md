@@ -1,5 +1,13 @@
 # Sync
 
+## Table of Contents
+
+- [SyncConfig](#syncconfig)
+- [SyncResult](#syncresult)
+- [SyncOperation](#syncoperation)
+- [Usage](#usage)
+
+
 `io.github.wphillipmoore.mq.rest.admin.sync`
 
 ## SyncConfig

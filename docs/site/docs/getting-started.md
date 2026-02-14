@@ -1,5 +1,16 @@
 # Getting Started
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Creating a session](#creating-a-session)
+- [Running a command](#running-a-command)
+- [Attribute mapping](#attribute-mapping)
+- [Error handling](#error-handling)
+- [Next steps](#next-steps)
+
+
 ## Prerequisites
 
 - **Java**: 17 or later

@@ -1,5 +1,15 @@
 # mq-rest-admin
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Key features](#key-features)
+- [Quick links](#quick-links)
+- [Build coordinates](#build-coordinates)
+- [Status](#status)
+- [License](#license)
+
+
 A Java wrapper for the IBM MQ administrative REST API.
 
 ## Overview

@@ -1,5 +1,14 @@
 # MqRestSession
 
+## Table of Contents
+
+- [Creating a session](#creating-a-session)
+- [Builder options](#builder-options)
+- [Command methods](#command-methods)
+- [Ensure methods](#ensure-methods)
+- [Sync](#sync)
+
+
 `io.github.wphillipmoore.mq.rest.admin.MqRestSession`
 
 The main entry point for interacting with an IBM MQ queue manager's

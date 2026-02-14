@@ -1,5 +1,13 @@
 # Authentication
 
+## Table of Contents
+
+- [Credentials](#credentials)
+- [BasicAuth](#basicauth)
+- [LtpaAuth](#ltpaauth)
+- [CertificateAuth](#certificateauth)
+
+
 `io.github.wphillipmoore.mq.rest.admin.auth`
 
 ## Credentials

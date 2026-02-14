@@ -1,5 +1,12 @@
 # Ensure
 
+## Table of Contents
+
+- [EnsureResult](#ensureresult)
+- [EnsureAction](#ensureaction)
+- [Usage](#usage)
+
+
 `io.github.wphillipmoore.mq.rest.admin.ensure`
 
 ## EnsureResult
