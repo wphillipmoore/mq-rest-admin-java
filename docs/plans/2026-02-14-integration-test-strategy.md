@@ -2,6 +2,16 @@
 
 **Date**: 2026-02-14
 
+## Table of Contents
+
+- [Decision](#decision)
+- [Context](#context)
+- [Isolation mechanism](#isolation-mechanism)
+- [Local development](#local-development)
+- [CI](#ci)
+- [Java integration test gating](#java-integration-test-gating)
+- [Backward compatibility](#backward-compatibility)
+
 ## Decision
 
 Each consuming project (pymqrest, mq-rest-admin, future Go port) runs distinct
@@ -37,7 +47,7 @@ simultaneously.
 Each project uses a unique set of host ports with an offset of 10 per project:
 
 | Project | QM1 REST | QM2 REST | QM1 MQ | QM2 MQ |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | pymqrest | 9443 (default) | 9444 (default) | 1414 (default) | 1415 (default) |
 | mq-rest-admin | 9453 | 9454 | 1424 | 1425 |
 | Go port (future) | 9463 | 9464 | 1434 | 1435 |

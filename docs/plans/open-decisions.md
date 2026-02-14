@@ -22,7 +22,7 @@ implemented; remaining items are tooling and infrastructure.
 
 - **Project name**: `mq-rest-admin` (decided 2026-02-12, see
   `docs/plans/2026-02-12-project-naming.md`).
-- **GitHub repository name**: `mq-rest-admin`.
+- **GitHub repository name**: `mq-rest-admin-java`.
 - **Maven artifactId**: `mq-rest-admin`.
 - **Maven groupId**: `io.github.wphillipmoore` (decided 2026-02-12, see
   `docs/plans/2026-02-12-tier1-decisions.md`).

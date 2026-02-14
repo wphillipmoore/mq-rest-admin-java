@@ -160,7 +160,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: wphillipmoore/mq-dev-environment
-          ref: main
+          ref: develop
           path: .mq-dev-environment
 
       - name: Setup MQ environment

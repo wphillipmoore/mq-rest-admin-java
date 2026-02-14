@@ -12,7 +12,7 @@
 
     <name>mq-rest-admin</name>
     <description>Java wrapper for the IBM MQ administrative REST API</description>
-    <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+    <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
 
     <licenses>
         <license>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin.git</developerConnection>
-        <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin-java.git</developerConnection>
+        <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
     </scm>
 
     <properties>
@@ -282,6 +282,7 @@
                         <configuration>
                             <compilerArgs>
                                 <arg>-XDcompilePolicy=simple</arg>
+                                <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
                                 <arg>-Xplugin:ErrorProne
                                     -XepOpt:NullAway:AnnotatedPackages=io.github.wphillipmoore.mq.rest.admin
@@ -300,6 +301,20 @@
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <configuration>
+                                    <compilerArgs>
+                                        <arg>-XDcompilePolicy=simple</arg>
+                                        <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                                        <arg>--should-stop=ifError=FLOW</arg>
+                                        <arg>-Xplugin:ErrorProne
+                                            -Xep:NullAway:OFF</arg>
+                                    </compilerArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

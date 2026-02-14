@@ -537,11 +537,11 @@ independently.
 - `docs/plans/open-decisions.md` -- remaining open decisions
 - `docs/research/admin-rest-api-gap-analysis.md` -- REST API gap analysis
 - `docs/research/mq-java-ecosystem.md` -- ecosystem survey
-- `../pymqrest` -- reference implementation
-- `../pymqrest/src/pymqrest/session.py` -- transport protocol and session
-  logic
-- `../pymqrest/src/pymqrest/exceptions.py` -- exception hierarchy
-- `../pymqrest/src/pymqrest/mapping.py` -- mapping pipeline
-- `../pymqrest/src/pymqrest/mapping_data.py` -- mapping data
+- `../mq-rest-admin-python` -- reference implementation
+- `../mq-rest-admin-python/src/pymqrest/session.py` -- transport protocol and
+  session logic
+- `../mq-rest-admin-python/src/pymqrest/exceptions.py` -- exception hierarchy
+- `../mq-rest-admin-python/src/pymqrest/mapping.py` -- mapping pipeline
+- `../mq-rest-admin-python/src/pymqrest/mapping_data.py` -- mapping data
 - `../standards-and-conventions/docs/foundation/summarize-decisions-protocol
   .md` -- protocol followed for this document

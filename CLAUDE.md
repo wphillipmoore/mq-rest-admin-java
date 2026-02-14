@@ -239,7 +239,7 @@ This approach ensures all AI agents (Codex, Claude, etc.) have access to the sam
 - Local path (preferred): `../standards-and-conventions`
 - Load all skills from: `<standards-repo-path>/skills/**/SKILL.md`
 
-**Reference implementation**: `../pymqrest` (Python version)
+**Reference implementation**: `../mq-rest-admin-python` (Python version)
 
 **External Documentation**:
 - IBM MQ 9.4 administrative REST API
