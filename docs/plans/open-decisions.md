@@ -14,8 +14,8 @@
 
 ## Purpose
 
-Track decisions that must be made before substantive development begins on the
-Java port of pymqrest.
+Track technical decisions for the Java port of pymqrest. All library code is
+implemented; remaining items are tooling and infrastructure.
 
 ## Project identity
 
@@ -100,5 +100,7 @@ Java port of pymqrest.
 - **Local validation command**: `./mvnw verify` (decided 2026-02-12, see
   `docs/plans/2026-02-12-tier2-decisions.md`).
 - **Docs-only validation**: TBD (markdownlint is already available).
-- **Git hooks**: `pre-commit` (branch protection + naming) and `commit-msg`
-  (Conventional Commits + co-author validation) (decided 2026-02-13).
+- **Git hooks**: `pre-commit` (branching-model-aware branch protection) and
+  `commit-msg` (Conventional Commits + co-author validation with whitespace
+  normalization). Adopted canonical versions from standards-and-conventions
+  (decided 2026-02-13, updated 2026-02-14 via PR #31).
