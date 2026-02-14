@@ -748,16 +748,16 @@ class MqRestSessionEnsureTest {
     }
 
     @Test
-    void ensureHandlesResponseWithoutParametersWrapper() {
-      // Response item has attributes at top level (no "parameters" sub-object)
-      TransportResponse topLevelResponse =
+    void ensureHandlesResponseWithParametersWrapper() {
+      // Response item has attributes inside "parameters" sub-object (standard API format)
+      TransportResponse wrappedResponse =
           new TransportResponse(
               200,
               "{\"overallCompletionCode\":0,\"overallReasonCode\":0,"
-                  + "\"commandResponse\":[{\"MAXDEPTH\":\"5000\"}]}",
+                  + "\"commandResponse\":[{\"parameters\":{\"MAXDEPTH\":\"5000\"}}]}",
               Map.of());
       when(transport.postJson(anyString(), anyMap(), anyMap(), any(), anyBoolean()))
-          .thenReturn(topLevelResponse);
+          .thenReturn(wrappedResponse);
 
       EnsureResult result = session.ensureQlocal("Q1", Map.of("MAXDEPTH", "5000"));
 

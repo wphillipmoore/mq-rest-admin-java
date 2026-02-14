@@ -147,7 +147,7 @@ class MqRestSessionCommandsTest {
 
       Map<String, Object> result = session.displayQmgr(null, null);
 
-      assertThat(result).isNotNull().containsKey("parameters");
+      assertThat(result).isNotNull().containsKey("KEY");
     }
 
     @Test
