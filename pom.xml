@@ -12,7 +12,7 @@
 
     <name>mq-rest-admin</name>
     <description>Java wrapper for the IBM MQ administrative REST API</description>
-    <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+    <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
 
     <licenses>
         <license>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin.git</developerConnection>
-        <url>https://github.com/wphillipmoore/mq-rest-admin</url>
+        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin-java.git</developerConnection>
+        <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
     </scm>
 
     <properties>

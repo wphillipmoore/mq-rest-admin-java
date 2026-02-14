@@ -204,6 +204,6 @@ Single command `./mvnw verify` runs the entire pipeline.
 
 - `docs/plans/2026-02-12-tier1-decisions.md` -- tier 1 decisions
 - `docs/plans/open-decisions.md` -- remaining open decisions
-- `../pymqrest` -- reference implementation (100% coverage standard)
+- `../mq-rest-admin-python` -- reference implementation (100% coverage standard)
 - `../standards-and-conventions/docs/foundation/summarize-decisions-protocol.md`
   -- protocol followed for this document

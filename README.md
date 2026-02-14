@@ -10,7 +10,7 @@ Java implementation of the IBM MQ administrative REST API wrapper
 
 ## Overview
 
-A Java port of [pymqrest](https://github.com/wphillipmoore/pymqrest), providing
+A Java port of [pymqrest](https://github.com/wphillipmoore/mq-rest-admin-python), providing
 a Java wrapper for the IBM MQ administrative REST API. The library uses the
 `runCommandJSON` mode of the MQSC endpoint to execute structured commands and
 translate attributes between Java-friendly names and MQSC parameter names.
