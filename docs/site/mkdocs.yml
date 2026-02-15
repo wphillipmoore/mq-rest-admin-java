@@ -47,6 +47,7 @@ markdown_extensions:
       base_path:
         - docs
         - ../../.mq-rest-admin-common/fragments
+        - ../../../mq-rest-admin-common/fragments
   - tables
   - toc:
       permalink: true
