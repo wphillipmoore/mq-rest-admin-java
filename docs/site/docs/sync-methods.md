@@ -1,22 +1,50 @@
 # Synchronous Start/Stop/Restart
 
---8<-- "concepts/sync-pattern.md"
+## The problem with fire-and-forget
 
-## Java usage
+All MQSC `START` and `STOP` commands are fire-and-forget — they return
+immediately without waiting for the object to reach its target state.
+In practice, tooling that provisions infrastructure needs to wait until
+a channel is `RUNNING` or a listener is `STOPPED` before proceeding to
+the next step. Writing polling loops by hand is error-prone and
+clutters business logic with retry mechanics.
 
-### SyncConfig, SyncOperation, and SyncResult
+## The sync pattern
+
+The `*Sync` and `restart*` methods wrap the fire-and-forget commands
+with a polling loop that issues `DISPLAY *STATUS` until the object
+reaches a stable state or the timeout expires.
+
+Each call returns a `SyncResult` describing what happened:
 
 ```java
 import io.github.wphillipmoore.mq.rest.admin.sync.SyncConfig;
 import io.github.wphillipmoore.mq.rest.admin.sync.SyncOperation;
 import io.github.wphillipmoore.mq.rest.admin.sync.SyncResult;
 
-// SyncOperation enum: STARTED, STOPPED, RESTARTED
-// SyncConfig record: timeoutSeconds (default 30), pollIntervalSeconds (default 1)
-// SyncResult record: operation, polls, elapsedSeconds
+// SyncOperation enum values:
+//   STARTED   — Object confirmed running
+//   STOPPED   — Object confirmed stopped
+//   RESTARTED — Stop-then-start completed
+
+// SyncResult record:
+//   operation()      — the SyncOperation performed
+//   polls()          — number of status polls issued
+//   elapsedSeconds() — wall-clock time from command to confirmation
 ```
 
-### Basic start and stop
+Polling is controlled by a `SyncConfig` record:
+
+```java
+// SyncConfig record:
+//   timeoutSeconds (default 30)     — max wait before raising
+//   pollIntervalSeconds (default 1) — seconds between polls
+```
+
+If the object does not reach the target state within the timeout,
+`MqRestTimeoutException` is raised.
+
+## Basic usage
 
 ```java
 // Start a channel and wait until it is RUNNING
@@ -30,7 +58,14 @@ result = session.stopListenerSync("TCP.LISTENER");
 assert result.operation() == SyncOperation.STOPPED;
 ```
 
-### Restart convenience
+## Restart convenience
+
+The `restart*` methods perform a synchronous stop followed by a
+synchronous start. Each phase gets the full timeout independently —
+worst case is 2x the configured timeout.
+
+The returned `SyncResult` reports **total** polls and **total** elapsed
+time across both phases:
 
 ```java
 SyncResult result = session.restartChannel("TO.PARTNER");
@@ -39,7 +74,7 @@ System.out.println("Restarted in " + result.elapsedSeconds() + "s ("
     + result.polls() + " total polls)");
 ```
 
-### Custom timeout and poll interval
+## Custom timeout and poll interval
 
 Pass a `SyncConfig` to override the defaults:
 
@@ -53,9 +88,10 @@ SyncConfig patient = new SyncConfig(120, 5);
 result = session.startChannelSync("REMOTE.CHL", patient);
 ```
 
-### Timeout handling
+## Timeout handling
 
-When the timeout expires, `MqRestTimeoutException` is raised:
+When the timeout expires, `MqRestTimeoutException` is raised with
+diagnostic attributes:
 
 ```java
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestTimeoutException;
@@ -73,7 +109,7 @@ try {
 `MqRestTimeoutException` extends `MqRestException`, so existing
 `catch (MqRestException e)` handlers will catch it.
 
-### Available methods
+## Available methods
 
 | Method | Operation | START/STOP qualifier | Status qualifier |
 | --- | --- | --- | --- |
@@ -97,10 +133,34 @@ SyncResult startChannelSync(String name, SyncConfig config);
 The `config` parameter is optional — when omitted, the default `SyncConfig`
 (30-second timeout, 1-second poll interval) is used.
 
-### Provisioning example
+## Status detection
 
-The sync methods pair naturally with the [ensure methods](ensure-methods.md)
-for end-to-end provisioning:
+The polling loop checks the `STATUS` attribute in the `DISPLAY *STATUS`
+response. The target values are:
+
+- **Start**: `RUNNING`
+- **Stop**: `STOPPED`
+
+### Channel stop edge case
+
+When a channel stops, its `CHSTATUS` record may disappear entirely
+(the `DISPLAY CHSTATUS` response returns no rows). The channel sync
+methods treat an empty status result as successfully stopped. Listener
+and service status records are always present, so empty results are not
+treated as stopped for those object types.
+
+## Attribute mapping
+
+The sync methods call the internal MQSC command layer, so they participate
+in the same [mapping pipeline](mapping-pipeline.md) as all other
+command methods. The status key is checked using both the mapped
+`snake_case` name and the raw MQSC name, so polling works correctly
+regardless of whether mapping is enabled or disabled.
+
+## Provisioning example
+
+The sync methods pair naturally with the
+[ensure methods](ensure-methods.md) for end-to-end provisioning:
 
 ```java
 SyncConfig config = new SyncConfig(60, 1);
@@ -122,4 +182,25 @@ session.startListenerSync("APP.LISTENER", config);
 session.startListenerSync("ADMIN.LISTENER", config);
 
 System.out.println("Listeners ready");
+```
+
+## Rolling restart example
+
+Restart all listeners with error handling — useful when a queue
+manager serves multiple TCP ports for different client populations:
+
+```java
+import io.github.wphillipmoore.mq.rest.admin.exception.MqRestTimeoutException;
+
+var listeners = List.of("APP.LISTENER", "ADMIN.LISTENER", "PARTNER.LISTENER");
+var config = new SyncConfig(30, 2);
+
+for (var name : listeners) {
+    try {
+        SyncResult result = session.restartListener(name, config);
+        System.out.println(name + ": restarted in " + result.elapsedSeconds() + "s");
+    } catch (MqRestTimeoutException e) {
+        System.out.println(name + ": timed out — " + e.getMessage());
+    }
+}
 ```
