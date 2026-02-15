@@ -59,18 +59,60 @@ nav:
   - Mapping Pipeline: mapping-pipeline.md
   - Ensure Methods: ensure-methods.md
   - Sync Methods: sync-methods.md
+  - Examples: examples.md
   - API Reference:
       - api/index.md
       - Session: api/session.md
-      - Commands: api/commands.md
       - Authentication: api/auth.md
+      - Commands: api/commands.md
       - Transport: api/transport.md
       - Mapping: api/mapping.md
-      - Exceptions: api/exceptions.md
       - Ensure: api/ensure.md
       - Sync: api/sync.md
+      - Exceptions: api/exceptions.md
   - Mappings:
       - mappings/index.md
+      - apstatus: mappings/apstatus.md
+      - archive: mappings/archive.md
+      - authinfo: mappings/authinfo.md
+      - authrec: mappings/authrec.md
+      - authserv: mappings/authserv.md
+      - cfstatus: mappings/cfstatus.md
+      - cfstruct: mappings/cfstruct.md
+      - channel: mappings/channel.md
+      - chinit: mappings/chinit.md
+      - chlauth: mappings/chlauth.md
+      - chstatus: mappings/chstatus.md
+      - clusqmgr: mappings/clusqmgr.md
+      - cluster: mappings/cluster.md
+      - comminfo: mappings/comminfo.md
+      - conn: mappings/conn.md
+      - entauth: mappings/entauth.md
+      - group: mappings/group.md
+      - indoubt: mappings/indoubt.md
+      - listener: mappings/listener.md
+      - log: mappings/log.md
+      - lsstatus: mappings/lsstatus.md
+      - namelist: mappings/namelist.md
+      - policy: mappings/policy.md
+      - process: mappings/process.md
+      - pubsub: mappings/pubsub.md
+      - qmgr: mappings/qmgr.md
+      - qmstatus: mappings/qmstatus.md
+      - qstatus: mappings/qstatus.md
+      - queue: mappings/queue.md
+      - sbstatus: mappings/sbstatus.md
+      - security: mappings/security.md
+      - service: mappings/service.md
+      - smds: mappings/smds.md
+      - smdsconn: mappings/smdsconn.md
+      - stgclass: mappings/stgclass.md
+      - sub: mappings/sub.md
+      - svstatus: mappings/svstatus.md
+      - topic: mappings/topic.md
+      - topicstr: mappings/topicstr.md
+      - tpstatus: mappings/tpstatus.md
+      - usage: mappings/usage.md
   - Design:
       - design/index.md
       - Rationale: design/rationale.md
@@ -82,4 +124,3 @@ nav:
       - Contributing: development/contributing.md
       - Local MQ Container: development/local-mq-container.md
   - AI Engineering: ai-engineering.md
-  - Javadoc: javadoc.md

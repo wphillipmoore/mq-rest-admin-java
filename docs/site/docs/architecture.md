@@ -104,6 +104,12 @@ var session = MqRestSession.builder()
     .build();
 ```
 
+## Runtime dependencies
+
+The library has a single runtime dependency: Gson (~280KB) for JSON
+serialization. All other functionality uses JDK built-in APIs
+(`java.net.http.HttpClient`, `javax.net.ssl`).
+
 ## Package structure
 
 ```text
@@ -138,3 +144,13 @@ io.github.wphillipmoore.mq.rest.admin.ensure
     EnsureAction            — Enum: CREATED, UPDATED, UNCHANGED
     EnsureResult            — Record: action + changed attribute names
 ```
+
+## Ensure pipeline
+
+See [ensure methods](ensure-methods.md) for details on the idempotent
+create-or-update pipeline.
+
+## Sync pipeline
+
+See [sync methods](sync-methods.md) for details on the synchronous
+polling pipeline.
