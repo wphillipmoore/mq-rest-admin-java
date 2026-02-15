@@ -102,6 +102,12 @@ public record BasicAuth(
 var creds = new BasicAuth("mqadmin", "passw0rd");
 ```
 
+!!! note
+    All examples and documentation in this project use LTPA as the default
+    authentication method. If you see `new LtpaAuth(...)` in an example, you
+    can substitute `new BasicAuth(...)` or `new CertificateAuth(...)` based
+    on your environment.
+
 ## Choosing between LTPA and Basic authentication
 
 Both LTPA and Basic authentication use a username and password. The key

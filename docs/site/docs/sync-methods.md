@@ -102,7 +102,10 @@ try {
         new SyncConfig(15, 1)
     );
 } catch (MqRestTimeoutException e) {
-    System.out.println("Timed out: " + e.getMessage());
+    System.out.println("Object:    " + e.getName());
+    System.out.println("Operation: " + e.getOperation());
+    System.out.println("Elapsed:   " + e.getElapsed() + "s");
+    System.out.println("Detail:    " + e.getMessage());
 }
 ```
 

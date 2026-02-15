@@ -1,10 +1,60 @@
 # Developer Setup
 
+This guide covers everything needed to develop and test mq-rest-admin
+locally.
+
 ## Prerequisites
 
-- **Java 17+**: Install via [SDKMAN](https://sdkman.io/) or `brew install openjdk@17`
-- **Maven**: Provided by the Maven Wrapper (`./mvnw`), no separate install needed
-- **Python 3.12+**: Required for MkDocs documentation builds and mapping doc generation
+| Tool | Version | Purpose |
+| --- | --- | --- |
+| Java | 17+ | Runtime (install via SDKMAN or `brew install openjdk@17`) |
+| Maven | 3.9+ | Provided by Maven Wrapper (`./mvnw`) |
+| Python | 3.12+ | MkDocs documentation builds and mapping doc generation |
+| Docker | Latest | Local MQ containers (integration tests) |
+| `markdownlint` | Latest | Docs validation |
+
+## Required repositories
+
+mq-rest-admin depends on two sibling repositories:
+
+| Repository | Purpose |
+| --- | --- |
+| [mq-rest-admin-java](https://github.com/wphillipmoore/mq-rest-admin-java) | This project |
+| [standards-and-conventions](https://github.com/wphillipmoore/standards-and-conventions) | Canonical project standards (referenced by `AGENTS.md` and git hooks) |
+| [mq-dev-environment](https://github.com/wphillipmoore/mq-dev-environment) | Dockerized MQ test infrastructure (local and CI) |
+| [mq-rest-admin-common](https://github.com/wphillipmoore/mq-rest-admin-common) | Shared documentation fragments |
+
+## Recommended directory layout
+
+Clone all repositories as siblings:
+
+```text
+~/dev/github/
+├── mq-rest-admin-java/
+├── mq-rest-admin-common/
+├── standards-and-conventions/
+└── mq-dev-environment/
+```
+
+```bash
+cd ~/dev/github
+git clone https://github.com/wphillipmoore/mq-rest-admin-java.git
+git clone https://github.com/wphillipmoore/mq-rest-admin-common.git
+git clone https://github.com/wphillipmoore/standards-and-conventions.git
+git clone https://github.com/wphillipmoore/mq-dev-environment.git
+```
+
+## Initial setup
+
+```bash
+cd mq-rest-admin-java
+
+# Compile and run all quality checks
+./mvnw verify
+
+# Enable repository git hooks
+git config core.hooksPath scripts/git-hooks
+```
 
 ## Building
 
@@ -50,6 +100,28 @@ Individual tools can be run standalone:
 - **Assertions**: AssertJ (`assertThat(x).isEqualTo(y)`)
 - **Coverage**: JaCoCo — 100% line and branch coverage enforced
 
+## Running integration tests
+
+Integration tests require running MQ containers. Start the containers,
+seed test objects, then run the tests:
+
+```bash
+# Start both queue managers
+scripts/dev/mq_start.sh
+
+# Seed deterministic test objects
+scripts/dev/mq_seed.sh
+
+# Run integration tests
+MQ_REST_ADMIN_RUN_INTEGRATION=1 ./mvnw verify
+
+# Stop MQ when done
+scripts/dev/mq_stop.sh
+```
+
+See [local MQ container](local-mq-container.md) for full container configuration,
+credentials, gateway routing, and troubleshooting.
+
 ## Git hooks
 
 Enable repository git hooks before committing:
@@ -91,3 +163,17 @@ mkdocs serve -f docs/site/mkdocs.yml
 ```
 
 Output is generated to `docs/site/site/javadoc/`.
+
+## CI pipeline overview
+
+CI runs on every pull request and enforces the same gates as local
+validation. The pipeline includes:
+
+- **Unit tests** on Java 17, 21, and 25-ea
+- **Integration tests** against real MQ queue managers via the shared
+  `wphillipmoore/mq-dev-environment/.github/actions/setup-mq` action
+- **Standards compliance** (Spotless, Checkstyle, SpotBugs, PMD, markdown
+  lint, commit messages, repository profile)
+- **Dependency audit** (`dependency-check`)
+- **Release gates** (version checks, changelog validation) for PRs
+  targeting `main`
