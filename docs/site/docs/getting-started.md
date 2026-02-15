@@ -25,13 +25,13 @@ REST API host, port, queue manager name, and credentials:
 
 ```java
 import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
-import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
+import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
 
 var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .verifyTls(false)  // for local development only
     .build();
 ```
@@ -83,7 +83,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .mapAttributes(false)
     .build();
 ```
@@ -102,7 +102,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .mappingStrict(false)
     .build();
 ```
@@ -118,7 +118,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .mappingOverrides(Map.of(
         "qualifiers", Map.of(
             "queue", Map.of(
@@ -147,7 +147,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .verifyTls(false)
     .mappingOverrides(Map.of(
         "qualifiers", Map.of(
@@ -197,7 +197,7 @@ var session = MqRestSession.builder()
     .host("qm1-host")
     .port(9443)
     .queueManager("QM2")           // target queue manager
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .gatewayQmgr("QM1")            // local gateway queue manager
     .build();
 
@@ -247,11 +247,3 @@ System.out.println(session.getLastResponsePayload());   // the parsed JSON respo
 System.out.println(session.getLastHttpStatus());        // HTTP status code
 System.out.println(session.getLastResponseText());      // raw response body
 ```
-
-## Next steps
-
-- [Architecture](architecture.md) — Understand how the library is organized
-- [Mapping Pipeline](mapping-pipeline.md) — Learn about attribute translation
-- [API Reference](api/index.md) — Browse the full API
-- [Ensure Methods](ensure-methods.md) — Declarative object management
-- [Sync Methods](sync-methods.md) — Synchronous start/stop/restart

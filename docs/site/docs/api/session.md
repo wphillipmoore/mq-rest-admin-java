@@ -17,13 +17,13 @@ Use the builder pattern:
 
 ```java
 import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
-import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
+import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
 
 var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .build();
 ```
 
@@ -56,7 +56,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .build();
 ```
 
@@ -67,7 +67,7 @@ var session = MqRestSession.builder()
     .host("mq-server.example.com")
     .port(9443)
     .queueManager("QM2")
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .gatewayQmgr("QM1")
     .mapAttributes(true)
     .mappingStrict(false)
