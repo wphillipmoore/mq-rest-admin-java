@@ -46,9 +46,6 @@ jobs:
       - name: Install MkDocs and mike
         run: pip install mkdocs-material mike
 
-      - name: Generate mapping docs
-        run: python scripts/dev/generate_mapping_docs.py
-
       - name: Generate Javadoc
         run: ./mvnw javadoc:javadoc -B -q
 
