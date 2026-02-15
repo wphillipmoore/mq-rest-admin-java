@@ -3,67 +3,20 @@ name: Documentation
 on:
   push:
     branches:
-      - develop
-  pull_request:
-    branches:
       - main
-      - develop
-  release:
-    types:
-      - published
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: docs
+  cancel-in-progress: false
 
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Checkout mq-rest-admin-common
-        uses: actions/checkout@v4
-        with:
-          repository: wphillipmoore/mq-rest-admin-common
-          ref: develop
-          path: .mq-rest-admin-common
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install MkDocs
-        run: pip install mkdocs-material
-
-      - name: Generate mapping docs
-        run: python scripts/dev/generate_mapping_docs.py
-
-      - name: Generate Javadoc
-        run: ./mvnw javadoc:javadoc -B -q
-
-      - name: Build MkDocs site (validation only)
-        run: mkdocs build -f docs/site/mkdocs.yml --strict
-
   deploy:
     name: deploy
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,16 +56,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Deploy dev docs
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        working-directory: docs/site
-        run: mike deploy --push dev
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' | cut -d. -f1,2)
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "alias=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev" >> "$GITHUB_OUTPUT"
+            echo "alias=" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Deploy release docs
-        if: github.event_name == 'release'
+      - name: Deploy docs
         working-directory: docs/site
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          MINOR="${VERSION%.*}"
-          mike deploy --push --update-aliases "$MINOR" latest
-          mike set-default --push latest
+          if [ -n "${{ steps.version.outputs.alias }}" ]; then
+            mike deploy --push --update-aliases ${{ steps.version.outputs.version }} ${{ steps.version.outputs.alias }}
+          else
+            mike deploy --push ${{ steps.version.outputs.version }}
+          fi
