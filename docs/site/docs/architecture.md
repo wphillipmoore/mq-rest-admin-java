@@ -73,7 +73,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .transport(mockTransport)
     .build();
 ```
@@ -99,7 +99,7 @@ var session = MqRestSession.builder()
     .host("qm1-host")
     .port(9443)
     .queueManager("QM2")           // target (remote) queue manager
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .gatewayQmgr("QM1")            // local gateway queue manager
     .build();
 ```

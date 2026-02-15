@@ -164,7 +164,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .mappingStrict(true)  // default
     .build();
 
@@ -173,7 +173,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .mappingStrict(false)
     .build();
 ```
@@ -206,7 +206,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .mappingOverrides(overrides)
     .build();
 
@@ -269,7 +269,7 @@ session-level setting:
 // Session has mapping enabled (default)
 var session = MqRestSession.builder()
     .host("localhost").port(9443).queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .build();
 
 // This call uses native MQSC names
@@ -285,7 +285,7 @@ Mapping can also be disabled entirely at the session level:
 ```java
 var session = MqRestSession.builder()
     .host("localhost").port(9443).queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .mapAttributes(false)  // all commands use native MQSC names
     .build();
 ```
