@@ -19,18 +19,18 @@ theme:
     - search.highlight
     - search.suggest
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
     - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
 plugins:
   - search
@@ -81,4 +81,5 @@ nav:
       - Developer Setup: development/developer-setup.md
       - Contributing: development/contributing.md
       - Local MQ Container: development/local-mq-container.md
+  - AI Engineering: ai-engineering.md
   - Javadoc: javadoc.md
