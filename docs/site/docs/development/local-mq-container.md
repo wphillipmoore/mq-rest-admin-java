@@ -15,8 +15,7 @@ without port conflicts.
 | --- | --- | --- |
 | MQ listener port | `1424` | `1425` |
 | REST API port | `9453` | `9454` |
-| QM1 REST base URL | `https://localhost:9453/ibmmq/rest/v2` |
-| QM2 REST base URL | `https://localhost:9454/ibmmq/rest/v2` |
+| REST base URL | `https://localhost:9453/ibmmq/rest/v2` | `https://localhost:9454/ibmmq/rest/v2` |
 
 ### Running integration tests
 
