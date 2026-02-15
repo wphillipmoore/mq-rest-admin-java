@@ -2,7 +2,24 @@
 
 ## The three-namespace problem
 
---8<-- "mapping-pipeline/three-namespace-problem.md"
+IBM MQ uses multiple naming conventions depending on the interface:
+
+**MQSC names** (e.g. `CURDEPTH`, `DEFPSIST`)
+: Short, uppercase tokens used in MQSC commands and the REST API's
+  `runCommandJSON` endpoint.
+
+**PCF names** (e.g. `CurrentQDepth`, `DefPersistence`)
+: CamelCase names from the Programmable Command Formats. Not used
+  directly by mq-rest-admin, but they form the intermediate namespace in
+  the mapping pipeline.
+
+**Developer names** (e.g. `current_queue_depth`, `default_persistence`)
+: Human-readable `snake_case` names for use in application code.
+
+The mapping pipeline translates between MQSC and developer names. PCF names
+were used as an intermediate reference during the original extraction
+process that bootstrapped the mapping tables but do not appear at
+runtime.
 
 In Java, developer-friendly names use `snake_case` (e.g. `current_queue_depth`,
 `default_persistence`), matching the convention across the mq-rest-admin library
@@ -24,7 +41,14 @@ var queues = session.displayQueue("MY.QUEUE",
 
 ## Qualifier-based mapping
 
---8<-- "mapping-pipeline/qualifier-based-mapping.md"
+Mappings are organized by **qualifier** (e.g. `queue`, `channel`, `qmgr`),
+not by command. A single qualifier's mapping tables serve all commands
+that operate on that object type. For example, the `queue` qualifier
+covers `DISPLAY QUEUE`, `DEFINE QLOCAL`, `DELETE QALIAS`, and all other
+queue-related commands.
+
+This design avoids duplicating mapping data across commands and reflects
+how MQSC attributes are shared across command verbs.
 
 See the [Qualifier Mapping Reference](mappings/index.md) for the complete
 per-qualifier documentation, including every key map, value map, and key-value
@@ -32,7 +56,22 @@ map entry.
 
 ## Request mapping flow
 
---8<-- "mapping-pipeline/request-mapping-flow.md"
+When mapping is enabled, request attributes are translated before sending
+to the MQ REST API:
+
+1. **Key mapping**: Each `snake_case` attribute name is looked up in the
+   qualifier's `request_key_map`. If found, the key is replaced with the
+   MQSC parameter name.
+
+2. **Value mapping**: For attributes with enumerated values, the
+   qualifier's `request_value_map` translates developer values to MQSC
+   values (e.g. `"yes"` → `"YES"`).
+
+3. **Key-value mapping**: Some attributes require both key and value to
+   change simultaneously. The `request_key_value_map` handles cases
+   where a single developer attribute expands to a different MQSC key+value
+   pair (e.g. `channel_type="server_connection"` →
+   `CHLTYPE("SVRCONN")`).
 
 ### Java example
 
@@ -50,7 +89,15 @@ session.defineQlocal("MY.QUEUE", Map.of(
 
 ## Response mapping flow
 
---8<-- "mapping-pipeline/response-mapping-flow.md"
+Response attributes are translated after receiving the MQ REST response:
+
+1. **Key mapping**: Each MQSC parameter name from the response is looked
+   up in the qualifier's `response_key_map`. If found, the key is
+   replaced with the `snake_case` name.
+
+2. **Value mapping**: Enumerated MQSC values are translated to
+   developer-friendly values via the `response_value_map` (e.g. `"YES"` →
+   `"yes"`).
 
 ### Java example
 
@@ -66,11 +113,50 @@ var queues = session.displayQueue("MY.QUEUE",
 // { "queue_name": "MY.QUEUE", "current_queue_depth": 0, "max_queue_depth": 5000 }
 ```
 
+## Response parameter mapping
+
+When the caller specifies `response_parameters` (the list of attributes
+to return), those names are also mapped from `snake_case` to MQSC before
+being sent in the request. This allows callers to request specific
+attributes using developer-friendly names.
+
+Response parameter macros (like `CFCONLOS` for channel status) are
+recognized and passed through without mapping.
+
+## WHERE keyword mapping
+
+The `where` parameter on DISPLAY methods accepts a filter expression
+like `"current_queue_depth GT 100"`. The first token (the keyword) is mapped
+from `snake_case` to the MQSC name. The rest of the expression is
+passed through unchanged.
+
+## Qualifier resolution
+
+When a command is executed, the mapping qualifier is resolved by:
+
+1. Looking up the command key (e.g. `"DISPLAY QUEUE"`) in
+   `MAPPING_DATA["commands"]` for an explicit qualifier.
+2. Falling back to a hardcoded default map (e.g. `QLOCAL` → `queue`,
+   `CHANNEL` → `channel`).
+3. As a last resort, lowercasing the MQSC qualifier.
+
+This means `DEFINE QLOCAL`, `DEFINE QREMOTE`, and `DISPLAY QUEUE` all
+resolve to the `queue` qualifier and share the same mapping tables.
+
 ## Strict vs lenient mode
 
---8<-- "mapping-pipeline/strict-vs-lenient.md"
+**Strict mode** (default): Any attribute name or value that cannot be
+mapped raises a `MappingException`. This catches typos and unsupported
+attributes early.
 
-In Java, the mode is set at session construction via the builder:
+**Lenient mode** (`mappingStrict(false)`): Unknown attribute names and
+values pass through unchanged. This is useful when working with
+attributes not yet covered by the mapping tables.
+
+The mode is set at session construction and applies to all mapping
+operations. It cannot be overridden per-call.
+
+In Java, the mode is set via the builder:
 
 ```java
 // Strict mode (default) — throws MappingException on unknown attributes
@@ -94,11 +180,14 @@ var session = MqRestSession.builder()
 
 ## Custom mapping overrides
 
---8<-- "mapping-pipeline/custom-mapping-overrides.md"
+The built-in mapping tables cover all standard MQSC attributes, but sites may
+use different `snake_case` conventions. The `mappingOverrides` parameter on
+`MqRestSession` lets you layer sparse changes on top of the built-in data
+without replacing it.
 
-### Java example
+### How merging works
 
-Overrides are passed as a nested `Map` to the session builder. You only specify
+Overrides are merged at the **key level** within each sub-map. You only specify
 the entries you want to change — all other mappings remain intact:
 
 ```java
@@ -126,8 +215,50 @@ var queues = session.displayQueue("MY.QUEUE");
 // All other queue attributes keep their default names
 ```
 
-Invalid override structures raise exceptions at session construction time, so
-errors are caught before any commands are sent.
+When this override is applied:
+
+1. The built-in `MAPPING_DATA` is deep-copied (the original is never mutated).
+2. The `queue` qualifier's `response_key_map` is updated: the entry for
+   `CURDEPTH` changes from `"current_queue_depth"` to `"queue_depth"`.
+3. All other entries in `response_key_map` (and all other sub-maps) remain
+   unchanged.
+
+### Supported override keys
+
+The top level of `mappingOverrides` accepts two keys:
+
+- **`commands`**: Override command-level metadata (e.g. which qualifier a
+  command resolves to). Each command entry is shallow-merged.
+- **`qualifiers`**: Override qualifier mapping tables. Each qualifier supports
+  five sub-maps:
+  - `request_key_map` — `snake_case` → MQSC key mapping for requests
+  - `request_value_map` — value translations for request attributes
+  - `request_key_value_map` — combined key+value translations for requests
+  - `response_key_map` — MQSC → `snake_case` key mapping for responses
+  - `response_value_map` — value translations for response attributes
+
+### Adding new qualifiers
+
+You can add mappings for qualifiers not yet covered by the built-in data:
+
+```java
+var overrides = Map.of(
+    "qualifiers", Map.of(
+        "custom_object", Map.of(
+            "request_key_map", Map.of("my_attr", "MYATTR"),
+            "response_key_map", Map.of("MYATTR", "my_attr"),
+            "request_value_map", Map.of(),
+            "response_value_map", Map.of()
+        )
+    )
+);
+```
+
+### Validation
+
+The override structure is validated at session construction time. Invalid
+shapes raise exceptions immediately, so errors are caught before any
+commands are sent.
 
 ## Per-call opt-out
 
