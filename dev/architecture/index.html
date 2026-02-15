@@ -642,34 +642,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Request lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#build-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#parse-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parse phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -702,23 +674,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Gateway routing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2843,34 +2798,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Request lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#build-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#parse-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parse phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2903,23 +2830,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Gateway routing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2986,38 +2896,6 @@
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
 <h2 id="component-overview">Component overview<a class="headerlink" href="#component-overview" title="Permanent link">&para;</a></h2>
-<p>The library is organized around four core components:</p>
-<p><strong>Session</strong>
-: The main entry point. Owns authentication, base URL construction,
-  request/response handling, and diagnostic state. Provides generated
-  command methods for all MQSC commands. A single session represents a
-  connection to one queue manager's REST API.</p>
-<p><strong>Command methods</strong>
-: ~144 generated MQSC command methods. Each method is a thin wrapper that
-  calls the internal command dispatcher with the correct command verb and
-  qualifier. Method names follow the pattern <code>verb_qualifier</code> (or
-  <code>verbQualifier</code> in camelCase languages), mapping directly to MQSC
-  commands. For example, <code>DISPLAY QUEUE</code> becomes <code>display_queue</code> /
-  <code>displayQueue</code>, and <code>DEFINE QLOCAL</code> becomes <code>define_qlocal</code> /
-  <code>defineQlocal</code>.</p>
-<p><strong>Ensure methods</strong>
-: 16 idempotent ensure methods for declarative object management. Each
-  method checks current state with DISPLAY, then DEFINE, ALTER, or no-ops
-  as needed. Returns an ensure result indicating what action was taken.
-  The queue manager variant is a special singleton (no name, no DEFINE).
-  Only changed attributes are sent in ALTER commands, preserving
-  <code>ALTDATE</code>/<code>ALTTIME</code> audit timestamps.</p>
-<p><strong>Mapping pipeline</strong>
-: Bidirectional attribute translation between developer-friendly names and
-  native MQSC parameter names. Includes key mapping (attribute names),
-  value mapping (enumerated values), and key-value mapping (combined
-  name+value translations). The mapping tables were bootstrapped from
-  IBM MQ 9.4 documentation and cover all standard MQSC attributes.</p>
-<p><strong>Exception hierarchy</strong>
-: Structured error types for transport failures, malformed responses,
-  authentication errors, MQSC command errors, and polling timeouts.
-  All exceptions carry diagnostic context including the full MQ response
-  payload when available.</p>
 <p>In the Java implementation, the core components map to these classes:</p>
 <ul>
 <li><strong><code>MqRestSession</code></strong>: The main entry point. A single class (no mixin
@@ -3036,185 +2914,95 @@
   them but can choose to handle specific subtypes.</li>
 </ul>
 <h2 id="request-lifecycle">Request lifecycle<a class="headerlink" href="#request-lifecycle" title="Permanent link">&para;</a></h2>
-<p>Every MQSC command follows the same path through the system:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Method call (e.g. displayQueue / display_queue)
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  → command dispatcher
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    → Map request attributes (friendly names → MQSC)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    → Map response parameter names
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    → Map WHERE keyword
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    → Build runCommandJSON payload
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    → Transport POST
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    → Parse JSON response
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    → Extract commandResponse items
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    → Flatten nested objects
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    → Map response attributes (MQSC → friendly names)
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  → Return result
-</code></pre></div>
-<h3 id="build-phase">Build phase<a class="headerlink" href="#build-phase" title="Permanent link">&para;</a></h3>
-<ol>
-<li>The command method calls the internal dispatcher with the MQSC verb (e.g.
-   <code>DISPLAY</code>), qualifier (e.g. <code>QUEUE</code>), and user-supplied parameters.</li>
-<li>If mapping is enabled, request attributes are translated from friendly names
-   to MQSC parameter names via the qualifier's request key map and request
-   value map.</li>
-<li>Response parameter names are mapped similarly.</li>
-<li>A <code>WHERE</code> clause keyword, if provided, is mapped through the same qualifier
-   key maps.</li>
-<li>The <code>runCommandJSON</code> payload is assembled and sent via the transport.</li>
-</ol>
-<h3 id="parse-phase">Parse phase<a class="headerlink" href="#parse-phase" title="Permanent link">&para;</a></h3>
-<ol>
-<li>The JSON response is parsed and validated.</li>
-<li>Error codes (<code>overallCompletionCode</code>, <code>overallReasonCode</code>, per-item
-   <code>completionCode</code>/<code>reasonCode</code>) are checked. Errors raise a command
-   exception.</li>
-<li>The <code>parameters</code> dict is extracted from each <code>commandResponse</code> item.</li>
-<li>Nested <code>objects</code> lists (e.g. from <code>DISPLAY CONN TYPE(HANDLE)</code>) are
-   flattened into the parent parameter set.</li>
-<li>If mapping is enabled, response attributes are translated from MQSC to
-   friendly names.</li>
-</ol>
 <p>In Java, the command dispatcher is the internal <code>mqscCommand()</code> method on
 <code>MqRestSession</code>. Every public command method (e.g. <code>displayQueue()</code>,
 <code>defineQlocal()</code>) delegates to it with the appropriate verb and qualifier.</p>
 <p>The session retains diagnostic state from the most recent command for
 inspection:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">session</span><span class="p">.</span><span class="na">displayQueue</span><span class="p">(</span><span class="s">&quot;MY.QUEUE&quot;</span><span class="p">);</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastCommandPayload</span><span class="p">();</span><span class="w">    </span><span class="c1">// the JSON sent to MQ</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastResponsePayload</span><span class="p">();</span><span class="w">   </span><span class="c1">// the parsed JSON response</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastHttpStatus</span><span class="p">();</span><span class="w">        </span><span class="c1">// HTTP status code</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastResponseText</span><span class="p">();</span><span class="w">      </span><span class="c1">// raw response body</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">session</span><span class="p">.</span><span class="na">displayQueue</span><span class="p">(</span><span class="s">&quot;MY.QUEUE&quot;</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastCommandPayload</span><span class="p">();</span><span class="w">    </span><span class="c1">// the JSON sent to MQ</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastResponsePayload</span><span class="p">();</span><span class="w">   </span><span class="c1">// the parsed JSON response</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastHttpStatus</span><span class="p">();</span><span class="w">        </span><span class="c1">// HTTP status code</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">session</span><span class="p">.</span><span class="na">getLastResponseText</span><span class="p">();</span><span class="w">      </span><span class="c1">// raw response body</span>
 </code></pre></div>
 <h2 id="transport-abstraction">Transport abstraction<a class="headerlink" href="#transport-abstraction" title="Permanent link">&para;</a></h2>
-<p>The session object does not make HTTP calls directly. Instead, it delegates to
-a transport interface that defines a single method for posting JSON payloads:</p>
-<ul>
-<li><strong>URL</strong>: The fully-qualified endpoint URL.</li>
-<li><strong>Payload</strong>: The <code>runCommandJSON</code> request body.</li>
-<li><strong>Headers</strong>: Authentication, CSRF token, and optional gateway headers.</li>
-<li><strong>Timeout</strong>: Per-request timeout duration.</li>
-<li><strong>TLS verification</strong>: Whether to verify server certificates.</li>
-</ul>
-<p>The transport returns a response object containing the HTTP status code,
-response body, and response headers.</p>
-<p>The default implementation wraps the language's standard HTTP client. Tests
-inject a mock transport to avoid network calls, making the entire command
-pipeline testable without an MQ server.</p>
 <p>In Java, the transport is defined by the <code>MqRestTransport</code> interface:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">MqRestTransport</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">TransportResponse</span><span class="w"> </span><span class="nf">postJson</span><span class="p">(</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="n">Duration</span><span class="w"> </span><span class="n">timeout</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="kt">boolean</span><span class="w"> </span><span class="n">verifyTls</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">);</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">MqRestTransport</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">TransportResponse</span><span class="w"> </span><span class="nf">postJson</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="n">Duration</span><span class="w"> </span><span class="n">timeout</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="kt">boolean</span><span class="w"> </span><span class="n">verifyTls</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
 </code></pre></div>
 <p>The default implementation, <code>HttpClientTransport</code>, uses <code>java.net.http.HttpClient</code>
 (JDK built-in). It accepts an optional <code>SSLContext</code> at construction for mTLS
 client certificate authentication.</p>
 <p>For testing, inject a mock or lambda transport:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">MqRestTransport</span><span class="w"> </span><span class="n">mockTransport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">,</span><span class="w"> </span><span class="n">verify</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">TransportResponse</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="n">responseJson</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">());</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="na">port</span><span class="p">(</span><span class="mi">9443</span><span class="p">)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;passw0rd&quot;</span><span class="p">))</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">.</span><span class="na">transport</span><span class="p">(</span><span class="n">mockTransport</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">MqRestTransport</span><span class="w"> </span><span class="n">mockTransport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">,</span><span class="w"> </span><span class="n">verify</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">TransportResponse</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="n">responseJson</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">());</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">.</span><span class="na">port</span><span class="p">(</span><span class="mi">9443</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="p">.</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;passw0rd&quot;</span><span class="p">))</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="p">.</span><span class="na">transport</span><span class="p">(</span><span class="n">mockTransport</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>This makes the entire command pipeline testable without an MQ server.</p>
 <h2 id="single-endpoint-design">Single-endpoint design<a class="headerlink" href="#single-endpoint-design" title="Permanent link">&para;</a></h2>
-<p>All MQSC operations go through a single REST endpoint:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>POST /ibmmq/rest/v2/admin/action/qmgr/{qmgr}/mqsc
-</code></pre></div>
-<p>The <code>runCommandJSON</code> payload specifies the MQSC verb, qualifier, object name,
-parameters, and response parameters. This design means the library needs
-exactly one HTTP method and one URL pattern to cover all MQSC commands.</p>
 <p>In Java, this means every command method on <code>MqRestSession</code> ultimately calls the
 same <code>postJson()</code> method on the transport with the same URL pattern. The only
 variation is the JSON payload content.</p>
 <h2 id="gateway-routing">Gateway routing<a class="headerlink" href="#gateway-routing" title="Permanent link">&para;</a></h2>
-<p>The MQ REST API is available on all supported IBM MQ platforms (Linux, AIX,
-Windows, z/OS, and IBM i). The library is developed and tested against the
-<strong>Linux</strong> implementation.</p>
-<p>In enterprise environments, a <strong>gateway queue manager</strong> can route MQSC commands
-to remote queue managers via MQ channels — the same mechanism used by
-<code>runmqsc -w</code> and the MQ Console.</p>
-<p>When a gateway queue manager is configured on the session:</p>
-<ul>
-<li>The URL path targets the <strong>remote</strong> queue manager:
-  <code>POST /admin/action/qmgr/{TARGET_QM}/mqsc</code></li>
-<li>The <code>ibm-mq-rest-gateway-qmgr</code> HTTP header names the <strong>local</strong> queue manager
-  that routes the command.</li>
-</ul>
-<p>When no gateway is configured (the default), no gateway header is sent and the
-REST API talks directly to the queue manager in the URL. This makes the feature
-purely additive — existing sessions are unaffected.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Client                     Gateway QM (QM1)              Target QM (QM2)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  │                              │                              │
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  │  POST /qmgr/QM2/mqsc        │                              │
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  │  Header: gateway-qmgr=QM1   │                              │
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  │─────────────────────────────&gt;│   MQSC via MQ channel        │
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  │                              │─────────────────────────────&gt;│
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  │                              │&lt;─────────────────────────────│
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  │&lt;─────────────────────────────│                              │
-</code></pre></div>
-<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The gateway queue manager must have a running REST API.</li>
-<li>MQ channels must be configured between the gateway and target queue managers.</li>
-<li>A QM alias (QREMOTE with empty RNAME) must map the target QM name to the
-  correct transmission queue on the gateway.</li>
-</ul>
 <p>In Java, configure gateway routing via the session builder:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;qm1-host&quot;</span><span class="p">)</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="p">.</span><span class="na">port</span><span class="p">(</span><span class="mi">9443</span><span class="p">)</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="p">.</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM2&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// target (remote) queue manager</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;mqadmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mqadmin&quot;</span><span class="p">))</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">.</span><span class="na">gatewayQmgr</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span><span class="w">            </span><span class="c1">// local gateway queue manager</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;qm1-host&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="na">port</span><span class="p">(</span><span class="mi">9443</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM2&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// target (remote) queue manager</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;mqadmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mqadmin&quot;</span><span class="p">))</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="na">gatewayQmgr</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span><span class="w">            </span><span class="c1">// local gateway queue manager</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <h2 id="runtime-dependencies">Runtime dependencies<a class="headerlink" href="#runtime-dependencies" title="Permanent link">&para;</a></h2>
 <p>The library has a single runtime dependency: Gson (~280KB) for JSON
 serialization. All other functionality uses JDK built-in APIs
 (<code>java.net.http.HttpClient</code>, <code>javax.net.ssl</code>).</p>
 <h2 id="package-structure">Package structure<a class="headerlink" href="#package-structure" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>io.github.wphillipmoore.mq.rest.admin
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    MqRestSession           — Main entry point (builder, commands, ensure, diagnostics)
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    MqRestTransport         — Transport interface
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    HttpClientTransport     — Default transport (java.net.http.HttpClient)
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    TransportResponse       — HTTP response record (statusCode, body, headers)
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>io.github.wphillipmoore.mq.rest.admin.auth
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    Credentials             — Sealed interface
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    BasicAuth               — HTTP Basic authentication
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    LtpaAuth                — LTPA token-based authentication (auto-login)
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    CertificateAuth         — Client certificate authentication (mTLS)
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>io.github.wphillipmoore.mq.rest.admin.exception
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    MqRestException         — Sealed base class (RuntimeException)
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    MqRestTransportException    — Network/connection failures
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>    MqRestResponseException     — Malformed JSON, unexpected structure
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    MqRestAuthException         — Authentication/authorization failures
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    MqRestCommandException      — MQSC command returned error codes
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    MqRestTimeoutException      — Polling timeout exceeded
-<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
-<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>io.github.wphillipmoore.mq.rest.admin.mapping
-<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>    AttributeMapper         — Bidirectional attribute translation engine
-<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>    MappingData             — Mapping tables loaded from JSON resource
-<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>    MappingIssue            — Tracks individual mapping problems
-<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    MappingException        — Thrown on strict-mode mapping failure
-<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    MappingOverrideMode     — MERGE or REPLACE override strategy
-<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
-<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>io.github.wphillipmoore.mq.rest.admin.ensure
-<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    EnsureAction            — Enum: CREATED, UPDATED, UNCHANGED
-<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>    EnsureResult            — Record: action + changed attribute names
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>io.github.wphillipmoore.mq.rest.admin
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    MqRestSession           — Main entry point (builder, commands, ensure, diagnostics)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    MqRestTransport         — Transport interface
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    HttpClientTransport     — Default transport (java.net.http.HttpClient)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    TransportResponse       — HTTP response record (statusCode, body, headers)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>io.github.wphillipmoore.mq.rest.admin.auth
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    Credentials             — Sealed interface
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    BasicAuth               — HTTP Basic authentication
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    LtpaAuth                — LTPA token-based authentication (auto-login)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    CertificateAuth         — Client certificate authentication (mTLS)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>io.github.wphillipmoore.mq.rest.admin.exception
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    MqRestException         — Sealed base class (RuntimeException)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    MqRestTransportException    — Network/connection failures
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    MqRestResponseException     — Malformed JSON, unexpected structure
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    MqRestAuthException         — Authentication/authorization failures
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    MqRestCommandException      — MQSC command returned error codes
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    MqRestTimeoutException      — Polling timeout exceeded
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>io.github.wphillipmoore.mq.rest.admin.mapping
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    AttributeMapper         — Bidirectional attribute translation engine
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    MappingData             — Mapping tables loaded from JSON resource
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    MappingIssue            — Tracks individual mapping problems
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    MappingException        — Thrown on strict-mode mapping failure
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    MappingOverrideMode     — MERGE or REPLACE override strategy
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>io.github.wphillipmoore.mq.rest.admin.ensure
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>    EnsureAction            — Enum: CREATED, UPDATED, UNCHANGED
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    EnsureResult            — Record: action + changed attribute names
 </code></pre></div>
 <h2 id="ensure-pipeline">Ensure pipeline<a class="headerlink" href="#ensure-pipeline" title="Permanent link">&para;</a></h2>
 <p>See <a href="../ensure-methods/">ensure methods</a> for details on the idempotent

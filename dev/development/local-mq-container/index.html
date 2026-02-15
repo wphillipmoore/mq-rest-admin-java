@@ -2565,6 +2565,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Local MQ Container
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -2581,6 +2599,86 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#java-specific-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java-specific notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Java-specific notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#port-offsets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port offsets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running integration tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gateway-routing-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway routing example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2641,6 +2739,75 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#java-specific-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java-specific notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Java-specific notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#port-offsets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port offsets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running integration tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gateway-routing-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway routing example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2657,7 +2824,6 @@
 
 
 <h1 id="local-mq-container">Local MQ Container<a class="headerlink" href="#local-mq-container" title="Permanent link">&para;</a></h1>
-<h1 id="local-mq-container_1">Local MQ Container<a class="headerlink" href="#local-mq-container_1" title="Permanent link">&para;</a></h1>
 <h2 id="java-specific-notes">Java-specific notes<a class="headerlink" href="#java-specific-notes" title="Permanent link">&para;</a></h2>
 <h3 id="port-offsets">Port offsets<a class="headerlink" href="#port-offsets" title="Permanent link">&para;</a></h3>
 <p>The Java repo uses offset ports (9453/9454, 1424/1425) rather than the
@@ -2740,89 +2906,6 @@ without port conflicts.</p>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="kd">var</span><span class="w"> </span><span class="n">qmgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQmgr</span><span class="p">();</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1">// QM2&#39;s attributes, routed through QM1</span>
-</code></pre></div>
-<h2 id="java-specific-notes_1">Java-specific notes<a class="headerlink" href="#java-specific-notes_1" title="Permanent link">&para;</a></h2>
-<h3 id="port-offsets_1">Port offsets<a class="headerlink" href="#port-offsets_1" title="Permanent link">&para;</a></h3>
-<p>The Java repo uses offset ports (9453/9454, 1424/1425) rather than the
-standard ports (9443/9444, 1414/1415) used by the Python and Go repos.
-This allows running integration tests for multiple repos simultaneously
-without port conflicts.</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>QM1</th>
-<th>QM2</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>MQ listener port</td>
-<td><code>1424</code></td>
-<td><code>1425</code></td>
-</tr>
-<tr>
-<td>REST API port</td>
-<td><code>9453</code></td>
-<td><code>9454</code></td>
-</tr>
-<tr>
-<td>REST base URL</td>
-<td><code>https://localhost:9453/ibmmq/rest/v2</code></td>
-<td><code>https://localhost:9454/ibmmq/rest/v2</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="running-integration-tests_1">Running integration tests<a class="headerlink" href="#running-integration-tests_1" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Start MQ and seed configuration</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>scripts/dev/mq_start.sh
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>scripts/dev/mq_seed.sh
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Run integration tests</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">MQ_REST_ADMIN_RUN_INTEGRATION</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./mvnw<span class="w"> </span>verify
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Stop MQ when done</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>scripts/dev/mq_stop.sh
-</code></pre></div>
-<h3 id="environment-variables_1">Environment variables<a class="headerlink" href="#environment-variables_1" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>MQ_REST_BASE_URL</code></td>
-<td><code>https://localhost:9453/ibmmq/rest/v2</code></td>
-<td>QM1 REST API base URL</td>
-</tr>
-<tr>
-<td><code>MQ_REST_BASE_URL_QM2</code></td>
-<td><code>https://localhost:9454/ibmmq/rest/v2</code></td>
-<td>QM2 REST API base URL</td>
-</tr>
-<tr>
-<td><code>MQ_REST_ADMIN_RUN_INTEGRATION</code></td>
-<td>(unset)</td>
-<td>Set to <code>1</code> to enable integration tests</td>
-</tr>
-</tbody>
-</table>
-<h3 id="gateway-routing-example_1">Gateway routing example<a class="headerlink" href="#gateway-routing-example_1" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="na">port</span><span class="p">(</span><span class="mi">9453</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM2&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;mqadmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mqadmin&quot;</span><span class="p">))</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="na">gatewayQmgr</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="na">verifyTls</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="kd">var</span><span class="w"> </span><span class="n">qmgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQmgr</span><span class="p">();</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1">// QM2&#39;s attributes, routed through QM1</span>
 </code></pre></div>
 
 
