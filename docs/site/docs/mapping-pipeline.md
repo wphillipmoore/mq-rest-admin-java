@@ -231,11 +231,11 @@ The top level of `mappingOverrides` accepts two keys:
   command resolves to). Each command entry is shallow-merged.
 - **`qualifiers`**: Override qualifier mapping tables. Each qualifier supports
   five sub-maps:
-    - `request_key_map` — `snake_case` → MQSC key mapping for requests
-    - `request_value_map` — value translations for request attributes
-    - `request_key_value_map` — combined key+value translations for requests
-    - `response_key_map` — MQSC → `snake_case` key mapping for responses
-    - `response_value_map` — value translations for response attributes
+  - `request_key_map` — `snake_case` → MQSC key mapping for requests
+  - `request_value_map` — value translations for request attributes
+  - `request_key_value_map` — combined key+value translations for requests
+  - `response_key_map` — MQSC → `snake_case` key mapping for responses
+  - `response_value_map` — value translations for response attributes
 
 ### Adding new qualifiers
 
