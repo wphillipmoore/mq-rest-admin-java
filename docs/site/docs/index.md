@@ -17,14 +17,6 @@ native MQSC tokens, and surface errors as structured exceptions.
 - **Zero runtime dependencies** beyond Gson (~280KB)
 - **Transport abstraction** for easy testing with mock transports
 
-## Quick links
-
-- [Getting Started](getting-started.md) — Installation and first session
-- [Architecture](architecture.md) — How the library is organized
-- [Mapping Pipeline](mapping-pipeline.md) — Attribute translation details
-- [API Reference](api/index.md) — Class and method documentation
-- [Javadoc](javadoc.md) — Generated API documentation
-
 ## Build coordinates
 
 ```xml

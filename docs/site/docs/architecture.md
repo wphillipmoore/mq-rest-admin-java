@@ -73,7 +73,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .transport(mockTransport)
     .build();
 ```
@@ -99,10 +99,16 @@ var session = MqRestSession.builder()
     .host("qm1-host")
     .port(9443)
     .queueManager("QM2")           // target (remote) queue manager
-    .credentials(new BasicAuth("mqadmin", "mqadmin"))
+    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
     .gatewayQmgr("QM1")            // local gateway queue manager
     .build();
 ```
+
+## Runtime dependencies
+
+The library has a single runtime dependency: Gson (~280KB) for JSON
+serialization. All other functionality uses JDK built-in APIs
+(`java.net.http.HttpClient`, `javax.net.ssl`).
 
 ## Package structure
 
@@ -138,3 +144,13 @@ io.github.wphillipmoore.mq.rest.admin.ensure
     EnsureAction            — Enum: CREATED, UPDATED, UNCHANGED
     EnsureResult            — Record: action + changed attribute names
 ```
+
+## Ensure pipeline
+
+See [ensure methods](ensure-methods.md) for details on the idempotent
+create-or-update pipeline.
+
+## Sync pipeline
+
+See [sync methods](sync-methods.md) for details on the synchronous
+polling pipeline.

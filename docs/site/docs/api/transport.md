@@ -81,7 +81,7 @@ var session = MqRestSession.builder()
     .host("localhost")
     .port(9443)
     .queueManager("QM1")
-    .credentials(new BasicAuth("admin", "passw0rd"))
+    .credentials(new LtpaAuth("admin", "passw0rd"))
     .transport(mockTransport)
     .build();
 ```
