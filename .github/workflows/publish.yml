@@ -31,6 +31,11 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Extract version
         id: version
@@ -65,12 +70,13 @@ jobs:
           scan-type: sbom
           output-file: target/mq-rest-admin-${{ steps.version.outputs.version }}.cdx.json
 
-      # TODO: Publish to Maven Central when credentials are configured.
-      # This requires Central Portal API token set as repository secrets.
-      # - name: Publish to Maven Central
-      #   run: ./mvnw deploy -B -DskipTests
-      #   env:
-      #     MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+      - name: Publish to Maven Central
+        if: steps.tag_check.outputs.exists == 'false'
+        run: ./mvnw deploy -B -Prelease -DskipTests
+        env:
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Configure git identity
         if: steps.tag_check.outputs.exists == 'false'
@@ -102,16 +108,23 @@ jobs:
             --notes "$(cat <<'EOF'
           ## Installation
 
-          Maven Central publishing is not yet configured. Use JitPack or build
-          from source:
+          **Maven:**
+          ```xml
+          <dependency>
+              <groupId>io.github.wphillipmoore</groupId>
+              <artifactId>mq-rest-admin</artifactId>
+              <version>${{ steps.version.outputs.version }}</version>
+          </dependency>
+          ```
 
-          ```bash
-          git checkout ${{ steps.version.outputs.tag }}
-          ./mvnw install -B
+          **Gradle:**
+          ```groovy
+          implementation 'io.github.wphillipmoore:mq-rest-admin:${{ steps.version.outputs.version }}'
           ```
 
           ## Links
 
+          - [Maven Central](https://central.sonatype.com/artifact/io.github.wphillipmoore/mq-rest-admin)
           - [Documentation](https://wphillipmoore.github.io/mq-rest-admin-java/)
           EOF
           )" \
