@@ -16,7 +16,7 @@
 ## Purpose
 
 Track technical decisions for the Java port of pymqrest. All library code is
-implemented; remaining items are tooling and infrastructure.
+implemented. One minor tooling item remains (docs-only validation).
 
 ## Project identity
 
@@ -101,16 +101,17 @@ implemented; remaining items are tooling and infrastructure.
 
 ## Documentation
 
-- **Documentation site generator**: TBD. Candidates: Sphinx (matching pymqrest,
-  zero new tooling), Antora + AsciiDoctor (Java-native standard, used by Spring
-  and Hibernate), MkDocs with Material theme (language-agnostic, Markdown-based).
-  Goal is a similar documentation tree to the pymqrest Sphinx site.
+- **Documentation site generator**: MkDocs with Material theme
+  (language-agnostic, Markdown-based). Site lives in `docs/site/` with shared
+  fragment architecture and mike-based versioned deployment (decided 2026-02-14,
+  see PR #42, #68).
 
 ## Validation scripts
 
 - **Local validation command**: `./mvnw verify` (decided 2026-02-12, see
   `docs/plans/2026-02-12-tier2-decisions.md`).
-- **Docs-only validation**: TBD (markdownlint is already available).
+- **Docs-only validation**: TBD. markdownlint is available; CI docs-only job
+  skips Maven validation but does not yet run a dedicated docs linter.
 - **Git hooks**: `pre-commit` (branching-model-aware branch protection) and
   `commit-msg` (Conventional Commits + co-author validation with whitespace
   normalization). Adopted canonical versions from standards-and-conventions
