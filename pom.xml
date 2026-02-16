@@ -7,7 +7,7 @@
 
     <groupId>io.github.wphillipmoore</groupId>
     <artifactId>mq-rest-admin</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>mq-rest-admin</name>
@@ -54,7 +54,7 @@
         <jspecify.version>1.0.0</jspecify.version>
 
         <!-- Plugin versions -->
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
@@ -62,10 +62,10 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
-        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
-        <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
     </properties>
 
     <dependencies>
