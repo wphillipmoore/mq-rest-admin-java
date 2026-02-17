@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.4] - 2026-02-17
+
+### Bug fixes
+
+- sync prepare_release.py ruff formatting from canonical (#113)
+
+### Features
+
+- use GitHub App token for bump PR to trigger CI (#116)
+
 ## [1.1.3] - 2026-02-16
 
 ### Bug fixes
