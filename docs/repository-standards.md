@@ -30,12 +30,26 @@
 - branching_model: library-release
 - release_model: artifact-publishing
 - supported_release_lines: current and previous
+- canonical_local_validation_command: scripts/dev/validate_local.sh
 
 ## Local validation
+
+Canonical local validation command:
+
+```bash
+scripts/dev/validate_local.sh
+```
+
+Individual checks (run by the validation script):
 
 ```bash
 ./mvnw verify           # Full validation pipeline (formatting, style, compile,
                         # tests, coverage, SpotBugs, PMD)
+```
+
+Other useful commands:
+
+```bash
 ./mvnw clean verify     # Clean full validation
 ./mvnw compile          # Compile only
 ./mvnw test             # Unit tests only

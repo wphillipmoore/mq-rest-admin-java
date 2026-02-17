@@ -27,6 +27,7 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 ### Build and Validate
 
 ```bash
+scripts/dev/validate_local.sh   # Canonical validation (runs full pipeline below)
 ./mvnw compile              # Compile sources
 ./mvnw verify               # Full pipeline: Spotless → Checkstyle → compile → unit tests →
                             # integration tests → JaCoCo (100% line+branch) → SpotBugs → PMD
