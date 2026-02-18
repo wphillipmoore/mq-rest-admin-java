@@ -69,7 +69,7 @@ implemented. One minor tooling item remains (docs-only validation).
   (decided 2026-02-12).
 - **Integration test strategy**: Each project runs distinct MQ containers via
   COMPOSE_PROJECT_NAME isolation and project-specific port allocation. Shared
-  infrastructure from mq-dev-environment (decided 2026-02-14, see
+  infrastructure from mq-rest-admin-dev-environment (decided 2026-02-14, see
   `docs/plans/2026-02-14-integration-test-strategy.md`).
 
 ## Architecture
