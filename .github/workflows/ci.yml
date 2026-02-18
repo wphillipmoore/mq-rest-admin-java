@@ -212,15 +212,15 @@ jobs:
           java-version: "17"
           cache: maven
 
-      - name: Checkout mq-dev-environment
+      - name: Checkout mq-rest-admin-dev-environment
         uses: actions/checkout@v6
         with:
-          repository: wphillipmoore/mq-dev-environment
+          repository: wphillipmoore/mq-rest-admin-dev-environment
           ref: develop
-          path: .mq-dev-environment
+          path: .mq-rest-admin-dev-environment
 
       - name: Setup MQ environment
-        uses: ./.mq-dev-environment/.github/actions/setup-mq
+        uses: ./.mq-rest-admin-dev-environment/.github/actions/setup-mq
         with:
           project-name: mq-rest-admin
           qm1-rest-port: "9453"

@@ -21,7 +21,7 @@ mq-rest-admin depends on two sibling repositories:
 | --- | --- |
 | [mq-rest-admin-java](https://github.com/wphillipmoore/mq-rest-admin-java) | This project |
 | [standards-and-conventions](https://github.com/wphillipmoore/standards-and-conventions) | Canonical project standards (referenced by `AGENTS.md` and git hooks) |
-| [mq-dev-environment](https://github.com/wphillipmoore/mq-dev-environment) | Dockerized MQ test infrastructure (local and CI) |
+| [mq-rest-admin-dev-environment](https://github.com/wphillipmoore/mq-rest-admin-dev-environment) | Dockerized MQ test infrastructure (local and CI) |
 | [mq-rest-admin-common](https://github.com/wphillipmoore/mq-rest-admin-common) | Shared documentation fragments |
 
 ## Recommended directory layout
@@ -33,7 +33,7 @@ Clone all repositories as siblings:
 ├── mq-rest-admin-java/
 ├── mq-rest-admin-common/
 ├── standards-and-conventions/
-└── mq-dev-environment/
+└── mq-rest-admin-dev-environment/
 ```
 
 ```bash
@@ -41,7 +41,7 @@ cd ~/dev/github
 git clone https://github.com/wphillipmoore/mq-rest-admin-java.git
 git clone https://github.com/wphillipmoore/mq-rest-admin-common.git
 git clone https://github.com/wphillipmoore/standards-and-conventions.git
-git clone https://github.com/wphillipmoore/mq-dev-environment.git
+git clone https://github.com/wphillipmoore/mq-rest-admin-dev-environment.git
 ```
 
 ## Initial setup
@@ -171,7 +171,7 @@ validation. The pipeline includes:
 
 - **Unit tests** on Java 17, 21, and 25-ea
 - **Integration tests** against real MQ queue managers via the shared
-  `wphillipmoore/mq-dev-environment/.github/actions/setup-mq` action
+  `wphillipmoore/mq-rest-admin-dev-environment/.github/actions/setup-mq` action
 - **Standards compliance** (Spotless, Checkstyle, SpotBugs, PMD, markdown
   lint, commit messages, repository profile)
 - **Dependency audit** (`dependency-check`)
