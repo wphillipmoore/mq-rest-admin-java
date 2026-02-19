@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
@@ -3086,7 +3086,7 @@ locally.</p>
 <td>Canonical project standards (referenced by <code>AGENTS.md</code> and git hooks)</td>
 </tr>
 <tr>
-<td><a href="https://github.com/wphillipmoore/mq-dev-environment">mq-dev-environment</a></td>
+<td><a href="https://github.com/wphillipmoore/mq-rest-admin-dev-environment">mq-rest-admin-dev-environment</a></td>
 <td>Dockerized MQ test infrastructure (local and CI)</td>
 </tr>
 <tr>
@@ -3101,13 +3101,13 @@ locally.</p>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── mq-rest-admin-java/
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── mq-rest-admin-common/
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── standards-and-conventions/
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── mq-dev-environment/
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── mq-rest-admin-dev-environment/
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>~/dev/github
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wphillipmoore/mq-rest-admin-java.git
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wphillipmoore/mq-rest-admin-common.git
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wphillipmoore/standards-and-conventions.git
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wphillipmoore/mq-dev-environment.git
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wphillipmoore/mq-rest-admin-dev-environment.git
 </code></pre></div>
 <h2 id="initial-setup">Initial setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>mq-rest-admin-java
@@ -3202,7 +3202,7 @@ validation. The pipeline includes:</p>
 <ul>
 <li><strong>Unit tests</strong> on Java 17, 21, and 25-ea</li>
 <li><strong>Integration tests</strong> against real MQ queue managers via the shared
-  <code>wphillipmoore/mq-dev-environment/.github/actions/setup-mq</code> action</li>
+  <code>wphillipmoore/mq-rest-admin-dev-environment/.github/actions/setup-mq</code> action</li>
 <li><strong>Standards compliance</strong> (Spotless, Checkstyle, SpotBugs, PMD, markdown
   lint, commit messages, repository profile)</li>
 <li><strong>Dependency audit</strong> (<code>dependency-check</code>)</li>
