@@ -82,6 +82,9 @@ bin/
 .cursorignore
 .cursorindexingignore
 
+# Python
+__pycache__/
+
 # Documentation
 .mq-rest-admin-common
 docs/site/site/
