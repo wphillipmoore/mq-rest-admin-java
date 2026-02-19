@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.5] - 2026-02-19
+
+### Bug fixes
+
+- sync prepare_release.py ruff lint fixes from canonical (#122)
+- sync prepare_release.py empty changelog abort from canonical (#124)
+- sync shared tooling to v1.0.2
+- sync hook and lint scripts from standards-and-conventions (#135)
+
+### CI
+
+- auto-add issues to GitHub Project (#133)
+
+### Documentation
+
+- rename mq-dev-environment references to mq-rest-admin-dev-environment (#136)
+
+### Features
+
+- add canonical local validation script (#128)
+- add shared tooling sync from standard-tooling v1.0.0
+
+### Refactoring
+
+- use shared docs-deploy composite action (#140)
+- use shared composite actions for publish and release gates (#146)
+
 ## [1.1.4] - 2026-02-17
 
 ### Bug fixes
