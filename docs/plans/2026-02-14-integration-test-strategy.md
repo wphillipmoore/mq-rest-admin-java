@@ -16,12 +16,12 @@
 
 Each consuming project (pymqrest, mq-rest-admin, future Go port) runs distinct
 MQ containers isolated via `COMPOSE_PROJECT_NAME` and project-specific host port
-allocation. Shared Docker infrastructure is provided by the `mq-dev-environment`
+allocation. Shared Docker infrastructure is provided by the `mq-rest-admin-dev-environment`
 repository.
 
 ## Context
 
-The `mq-dev-environment` repo provides shared Docker infrastructure: a
+The `mq-rest-admin-dev-environment` repo provides shared Docker infrastructure: a
 docker-compose.yml with QM1 and QM2, seed scripts for test objects, lifecycle
 scripts (start/seed/verify/stop/reset), and a CI composite action. This is
 already consumed by pymqrest.
@@ -59,7 +59,7 @@ interpolates into the `ports:` mapping.
 ## Local development
 
 Wrapper scripts in `scripts/dev/mq_*.sh` set the project-specific environment
-variables and delegate to the corresponding `mq-dev-environment` scripts:
+variables and delegate to the corresponding `mq-rest-admin-dev-environment` scripts:
 
 - `scripts/dev/mq_start.sh` — start containers on project-specific ports
 - `scripts/dev/mq_seed.sh` — seed MQ objects
@@ -67,12 +67,12 @@ variables and delegate to the corresponding `mq-dev-environment` scripts:
 - `scripts/dev/mq_stop.sh` — stop containers
 - `scripts/dev/mq_reset.sh` — stop containers and remove volumes
 
-The `mq-dev-environment` repo is expected at `../mq-dev-environment` (sibling
+The `mq-rest-admin-dev-environment` repo is expected at `../mq-rest-admin-dev-environment` (sibling
 directory) by default, overridable via `MQ_DEV_ENV_PATH`.
 
 ## CI
 
-The `mq-dev-environment` composite action (`setup-mq`) accepts `project-name`,
+The `mq-rest-admin-dev-environment` composite action (`setup-mq`) accepts `project-name`,
 `qm1-rest-port`, and `qm2-rest-port` inputs. mq-rest-admin's CI workflow will
 pass its project-specific values.
 

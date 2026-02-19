@@ -93,7 +93,7 @@ built-in multi-repo support. However:
 
 **Why CI clone step (not git submodules)**:
 
-- Same pattern already used for `mq-dev-environment` in CI.
+- Same pattern already used for `mq-rest-admin-dev-environment` in CI.
 - Local dev uses sibling directory convention (`../mq-rest-admin-common`).
 - Simpler than submodules (no `.gitmodules`, no recursive clone friction).
 - A helper script creates a symlink for local builds.
