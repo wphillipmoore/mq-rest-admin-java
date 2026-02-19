@@ -100,20 +100,10 @@ jobs:
 
       - name: Version divergence gate (PRs targeting develop)
         if: github.event_name == 'pull_request' && github.base_ref == 'develop'
-        run: |
-          git fetch origin main --depth=1
-          if ! git show origin/main:pom.xml > /dev/null 2>&1; then
-            echo "OK: pom.xml not found on main; version divergence check skipped."
-            exit 0
-          fi
-          head_version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          main_pom=$(git show origin/main:pom.xml)
-          main_version=$(echo "$main_pom" | grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
-          if [ "$main_version" = "$head_version" ]; then
-            echo "FAIL: PR version ($head_version) must differ from main ($main_version)."
-            exit 1
-          fi
-          echo "OK: PR version ($head_version) differs from main ($main_version)."
+        uses: wphillipmoore/standard-actions/actions/release-gates/version-divergence@develop
+        with:
+          head-version-command: ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
+          main-version-command: git show origin/main:pom.xml | grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'
 
   test-and-validate:
     name: test-and-validate (${{ matrix.java-version }})
