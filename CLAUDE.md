@@ -25,6 +25,14 @@ creates divergent agent behavior across the multi-repo environment this project
 operates in. Consistency requires all guidance to live in shared, reviewable
 documentation.
 
+## Shell command policy
+
+**Do NOT use heredocs** (`<<EOF` / `<<'EOF'`) for multi-line arguments to CLI
+tools such as `gh`, `git commit`, or `curl`. Heredocs routinely fail due to
+shell escaping issues with apostrophes, backticks, and special characters.
+Always write multi-line content to a temporary file and pass it via `--body-file`
+or `--file` instead.
+
 ## Project Overview
 
 Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Python). Provides method-per-command API (`displayQueue()`, `defineQlocal()`, etc.) with attribute mapping between snake_case and MQSC parameter names.
