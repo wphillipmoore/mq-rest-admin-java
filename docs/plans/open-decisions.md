@@ -91,8 +91,8 @@ implemented. One minor tooling item remains (docs-only validation).
 ## CI and publishing
 
 - **CI platform**: GitHub Actions (consistent with pymqrest).
-- **CI workflows**: 6-job pipeline (docs-only, standards-compliance,
-  dependency-audit, release-gates, test-and-validate, integration-tests) with
+- **CI workflows**: 6-job pipeline (ci: docs-only, ci: standards-compliance,
+  ci: dependency-audit, release: gates, test: unit, test: integration) with
   Java 17/21/25 matrix (decided 2026-02-13).
 - **Dependency audit**: `actions/dependency-review-action@v4` (GitHub-native,
   zero-config) over OWASP Dependency-Check Maven Plugin (decided 2026-02-13).
