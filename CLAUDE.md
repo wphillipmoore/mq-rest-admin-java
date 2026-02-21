@@ -5,6 +5,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- include: docs/standards-and-conventions.md -->
 <!-- include: docs/repository-standards.md -->
 
+## Auto-memory policy
+
+**Do NOT use MEMORY.md.** Claude Code's auto-memory feature stores behavioral
+rules outside of version control, making them invisible to code review,
+inconsistent across repos, and unreliable across sessions. All behavioral rules,
+conventions, and workflow instructions belong in managed, version-controlled
+documentation (CLAUDE.md, AGENTS.md, skills, or docs/).
+
+If you identify a pattern, convention, or rule worth preserving:
+
+1. **Stop.** Do not write to MEMORY.md.
+2. **Discuss with the user** what you want to capture and why.
+3. **Together, decide** the correct managed location (CLAUDE.md, a skill file,
+   standards docs, or a new issue to track the gap).
+
+This policy exists because MEMORY.md is per-directory and per-machine — it
+creates divergent agent behavior across the multi-repo environment this project
+operates in. Consistency requires all guidance to live in shared, reviewable
+documentation.
+
+## Shell command policy
+
+**Do NOT use heredocs** (`<<EOF` / `<<'EOF'`) for multi-line arguments to CLI
+tools such as `gh`, `git commit`, or `curl`. Heredocs routinely fail due to
+shell escaping issues with apostrophes, backticks, and special characters.
+Always write multi-line content to a temporary file and pass it via `--body-file`
+or `--file` instead.
+
 ## Project Overview
 
 Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Python). Provides method-per-command API (`displayQueue()`, `defineQlocal()`, etc.) with attribute mapping between snake_case and MQSC parameter names.
