@@ -189,6 +189,45 @@ jobs:
         with:
           language: java
 
+  sonarcloud:
+    name: "quality: sonarcloud"
+    runs-on: ubuntu-latest
+    needs: docs-only
+    steps:
+      - name: Docs-only short-circuit
+        if: needs.docs-only.outputs.docs-only == 'true'
+        run: echo "Docs-only changes detected; skipping SonarCloud."
+
+      - name: Checkout code
+        if: needs.docs-only.outputs.docs-only != 'true'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        if: needs.docs-only.outputs.docs-only != 'true'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build and test with coverage
+        if: needs.docs-only.outputs.docs-only != 'true'
+        run: ./mvnw verify -B
+
+      - name: Run SonarCloud scan
+        if: needs.docs-only.outputs.docs-only != 'true'
+        uses: wphillipmoore/standard-actions/actions/quality/sonarcloud@develop
+        with:
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          organization: wphillipmoore
+          project-key: wphillipmoore_mq-rest-admin-java
+          sources: "src/main/java"
+          tests: "src/test/java"
+          coverage-report: "target/site/jacoco/jacoco.xml"
+          java-binaries: "target/classes"
+
   integration-tests:
     name: "test: integration"
     runs-on: ubuntu-latest
