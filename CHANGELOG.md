@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.7] - 2026-02-23
+
+### Bug fixes
+
+- revert git-hooks-and-validation.md merged to wrong repo (#173)
+
+### Documentation
+
+- document git hooks and validation rules (#171)
+
 ## [1.1.6] - 2026-02-21
 
 ### Bug fixes
