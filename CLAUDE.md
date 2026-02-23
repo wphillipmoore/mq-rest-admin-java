@@ -51,11 +51,12 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 
 - **Java**: 17+ (install via `brew install openjdk@17` or SDKMAN)
 - **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
+- **Standard tooling**: `cd ../standard-tooling && uv sync && export PATH="../standard-tooling/.venv/bin:../standard-tooling/scripts/bin:$PATH"`
 
 ### Build and Validate
 
 ```bash
-scripts/dev/validate_local.sh   # Canonical validation (runs full pipeline below)
+st-validate-local               # Canonical validation (runs full pipeline below)
 ./mvnw compile              # Compile sources
 ./mvnw verify               # Full pipeline: Spotless → Checkstyle → compile → unit tests →
                             # integration tests → JaCoCo (100% line+branch) → SpotBugs → PMD
@@ -91,7 +92,7 @@ scripts/dev/validate_local.sh   # Canonical validation (runs full pipeline below
 
 1. Check current branch: `git status -sb`
 2. If on `develop` or `main`, create a `feature/*`, `bugfix/*`, or `hotfix/*` branch first
-3. Enable git hooks: `git config core.hooksPath scripts/git-hooks`
+3. Enable git hooks: `git config core.hooksPath ../standard-tooling/scripts/lib/git-hooks`
 
 ### Branching Model (`library-release`)
 
@@ -115,14 +116,14 @@ The co-author hook validates trailers against approved identities in `docs/repos
 
 ## Commit and PR Scripts
 
-**NEVER use raw `git commit`** — always use `scripts/dev/commit.sh`.
-**NEVER use raw `gh pr create`** — always use `scripts/dev/submit-pr.sh`.
+**NEVER use raw `git commit`** — always use `st-commit`.
+**NEVER use raw `gh pr create`** — always use `st-submit-pr`.
 
 ### Committing
 
 ```bash
-scripts/dev/commit.sh --type feat --scope session --message "add timeout option" --agent claude
-scripts/dev/commit.sh --type fix --message "correct null handling in mapper" --agent claude
+st-commit --type feat --scope session --message "add timeout option" --agent claude
+st-commit --type fix --message "correct null handling in mapper" --agent claude
 ```
 
 - `--type` (required): `feat|fix|docs|style|refactor|test|chore|ci|build`
@@ -134,8 +135,8 @@ scripts/dev/commit.sh --type fix --message "correct null handling in mapper" --a
 ### Submitting PRs
 
 ```bash
-scripts/dev/submit-pr.sh --issue 42 --summary "Add timeout option to session builder"
-scripts/dev/submit-pr.sh --issue 42 --linkage Ref --summary "Update docs" --docs-only
+st-submit-pr --issue 42 --summary "Add timeout option to session builder"
+st-submit-pr --issue 42 --linkage Ref --summary "Update docs" --docs-only
 ```
 
 - `--issue` (required): GitHub issue number (just the number)
