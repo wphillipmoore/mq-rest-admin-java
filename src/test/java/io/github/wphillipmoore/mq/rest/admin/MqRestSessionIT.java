@@ -245,7 +245,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QLOCAL, null, null, null),
               () -> {}, // no alter for qlocal in pymqrest reference
-              () -> session.mqscCommand("DELETE", "QLOCAL", TEST_QLOCAL, null, null, null),
+              () -> session.deleteQlocal(TEST_QLOCAL, null, null),
               null),
           new LifecycleCase(
               "qremote",
@@ -262,7 +262,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QREMOTE, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QREMOTE", TEST_QREMOTE, null, null, null),
+              () -> session.deleteQremote(TEST_QREMOTE, null, null),
               null),
           new LifecycleCase(
               "qalias",
@@ -277,7 +277,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QALIAS, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QALIAS", TEST_QALIAS, null, null, null),
+              () -> session.deleteQalias(TEST_QALIAS, null, null),
               null),
           new LifecycleCase(
               "qmodel",
@@ -293,7 +293,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QMODEL, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QMODEL", TEST_QMODEL, null, null, null),
+              () -> session.deleteQmodel(TEST_QMODEL, null, null),
               null),
           new LifecycleCase(
               "channel",
@@ -461,8 +461,7 @@ class MqRestSessionIT {
       MqRestSession nonStrict = buildNonStrictSession();
 
       // Clean up from any prior failed run.
-      silentDelete(
-          () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
+      silentDelete(() -> nonStrict.deleteQlocal(TEST_ENSURE_QLOCAL, null, null));
 
       try {
         // Create.
@@ -479,8 +478,7 @@ class MqRestSessionIT {
             nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure updated"));
         assertThat(result.action()).isEqualTo(EnsureAction.UPDATED);
       } finally {
-        silentDelete(
-            () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
+        silentDelete(() -> nonStrict.deleteQlocal(TEST_ENSURE_QLOCAL, null, null));
       }
     }
 
