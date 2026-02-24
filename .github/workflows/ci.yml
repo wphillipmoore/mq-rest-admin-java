@@ -265,7 +265,7 @@ jobs:
           add-prefix: "src/main/java/"
 
   integration-tests:
-    name: "test: integration"
+    name: "test: integration (${{ matrix.java-version }})"
     runs-on: ubuntu-latest
     needs: docs-only
     strategy:
