@@ -1167,6 +1167,42 @@ public final class MqRestSession {
     mqscCommand("DELETE", "QUEUE", name, requestParameters, responseParameters, null);
   }
 
+  /** Executes a DELETE QLOCAL MQSC command. */
+  public void deleteQlocal(
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
+    Objects.requireNonNull(name, "name");
+    mqscCommand("DELETE", "QLOCAL", name, requestParameters, responseParameters, null);
+  }
+
+  /** Executes a DELETE QREMOTE MQSC command. */
+  public void deleteQremote(
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
+    Objects.requireNonNull(name, "name");
+    mqscCommand("DELETE", "QREMOTE", name, requestParameters, responseParameters, null);
+  }
+
+  /** Executes a DELETE QALIAS MQSC command. */
+  public void deleteQalias(
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
+    Objects.requireNonNull(name, "name");
+    mqscCommand("DELETE", "QALIAS", name, requestParameters, responseParameters, null);
+  }
+
+  /** Executes a DELETE QMODEL MQSC command. */
+  public void deleteQmodel(
+      @Nullable String name,
+      @Nullable Map<String, Object> requestParameters,
+      @Nullable List<String> responseParameters) {
+    Objects.requireNonNull(name, "name");
+    mqscCommand("DELETE", "QMODEL", name, requestParameters, responseParameters, null);
+  }
+
   /** Executes a DELETE CHANNEL MQSC command. */
   public void deleteChannel(
       @Nullable String name,

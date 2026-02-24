@@ -3,12 +3,15 @@ package io.github.wphillipmoore.mq.rest.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
+import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
 import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureAction;
 import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
+import io.github.wphillipmoore.mq.rest.admin.exception.MqRestException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -242,7 +245,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QLOCAL, null, null, null),
               () -> {}, // no alter for qlocal in pymqrest reference
-              () -> session.mqscCommand("DELETE", "QLOCAL", TEST_QLOCAL, null, null, null),
+              () -> session.deleteQlocal(TEST_QLOCAL, null, null),
               null),
           new LifecycleCase(
               "qremote",
@@ -259,7 +262,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QREMOTE, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QREMOTE", TEST_QREMOTE, null, null, null),
+              () -> session.deleteQremote(TEST_QREMOTE, null, null),
               null),
           new LifecycleCase(
               "qalias",
@@ -274,7 +277,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QALIAS, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QALIAS", TEST_QALIAS, null, null, null),
+              () -> session.deleteQalias(TEST_QALIAS, null, null),
               null),
           new LifecycleCase(
               "qmodel",
@@ -290,7 +293,7 @@ class MqRestSessionIT {
                       null),
               () -> session.displayQueue(TEST_QMODEL, null, null, null),
               () -> {},
-              () -> session.mqscCommand("DELETE", "QMODEL", TEST_QMODEL, null, null, null),
+              () -> session.deleteQmodel(TEST_QMODEL, null, null),
               null),
           new LifecycleCase(
               "channel",
@@ -458,8 +461,7 @@ class MqRestSessionIT {
       MqRestSession nonStrict = buildNonStrictSession();
 
       // Clean up from any prior failed run.
-      silentDelete(
-          () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
+      silentDelete(() -> nonStrict.deleteQlocal(TEST_ENSURE_QLOCAL, null, null));
 
       try {
         // Create.
@@ -476,8 +478,7 @@ class MqRestSessionIT {
             nonStrict.ensureQlocal(TEST_ENSURE_QLOCAL, Map.of("description", "ensure updated"));
         assertThat(result.action()).isEqualTo(EnsureAction.UPDATED);
       } finally {
-        silentDelete(
-            () -> nonStrict.mqscCommand("DELETE", "QLOCAL", TEST_ENSURE_QLOCAL, null, null, null));
+        silentDelete(() -> nonStrict.deleteQlocal(TEST_ENSURE_QLOCAL, null, null));
       }
     }
 
@@ -599,6 +600,41 @@ class MqRestSessionIT {
       assertThat(session.getLastHttpStatus()).isNotNull();
       assertThat(session.getLastResponseText()).isNotNull();
       assertThat(session.getLastResponsePayload()).isNotNull();
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // LTPA auth tests — expected to fail on MQ developer containers
+  // -------------------------------------------------------------------------
+
+  @Nested
+  class LtpaTests {
+
+    @Test
+    void ltpaAuthDisplayQmgr() {
+      MqRestSession ltpaSession;
+      try {
+        ltpaSession =
+            new MqRestSession.Builder(
+                    REST_BASE_URL, QM1_NAME, new LtpaAuth(ADMIN_USER, ADMIN_PASSWORD))
+                .transport(new HttpClientTransport())
+                .verifyTls(false)
+                .build();
+      } catch (MqRestException e) {
+        Assumptions.abort(
+            "LTPA session creation failed (expected on dev containers): " + e.getMessage());
+        return;
+      }
+
+      try {
+        Map<String, Object> result = ltpaSession.displayQmgr(null, null);
+
+        assertThat(result).isNotNull();
+        assertThat(containsStringValue(result, QM1_NAME)).isTrue();
+      } catch (MqRestException e) {
+        Assumptions.abort(
+            "LTPA DisplayQmgr failed (expected on dev containers): " + e.getMessage());
+      }
     }
   }
 }
