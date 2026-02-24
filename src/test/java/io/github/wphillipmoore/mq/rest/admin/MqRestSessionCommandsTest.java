@@ -246,6 +246,34 @@ class MqRestSessionCommandsTest {
     }
 
     @Test
+    void deleteQlocalWithNullNameThrowsNullPointerException() {
+      assertThatThrownBy(() -> session.deleteQlocal(null, null, null))
+          .isInstanceOf(NullPointerException.class)
+          .hasMessage("name");
+    }
+
+    @Test
+    void deleteQremoteWithNullNameThrowsNullPointerException() {
+      assertThatThrownBy(() -> session.deleteQremote(null, null, null))
+          .isInstanceOf(NullPointerException.class)
+          .hasMessage("name");
+    }
+
+    @Test
+    void deleteQaliasWithNullNameThrowsNullPointerException() {
+      assertThatThrownBy(() -> session.deleteQalias(null, null, null))
+          .isInstanceOf(NullPointerException.class)
+          .hasMessage("name");
+    }
+
+    @Test
+    void deleteQmodelWithNullNameThrowsNullPointerException() {
+      assertThatThrownBy(() -> session.deleteQmodel(null, null, null))
+          .isInstanceOf(NullPointerException.class)
+          .hasMessage("name");
+    }
+
+    @Test
     void deleteChannelWithNullNameThrowsNullPointerException() {
       assertThatThrownBy(() -> session.deleteChannel(null, null, null))
           .isInstanceOf(NullPointerException.class)
@@ -881,6 +909,30 @@ class MqRestSessionCommandsTest {
     void deleteQueueDispatches() {
       session.deleteQueue("Q1", null, null);
       assertDispatch("DELETE", "QUEUE");
+    }
+
+    @Test
+    void deleteQlocalDispatches() {
+      session.deleteQlocal("Q1", null, null);
+      assertDispatch("DELETE", "QLOCAL");
+    }
+
+    @Test
+    void deleteQremoteDispatches() {
+      session.deleteQremote("Q1", null, null);
+      assertDispatch("DELETE", "QREMOTE");
+    }
+
+    @Test
+    void deleteQaliasDispatches() {
+      session.deleteQalias("Q1", null, null);
+      assertDispatch("DELETE", "QALIAS");
+    }
+
+    @Test
+    void deleteQmodelDispatches() {
+      session.deleteQmodel("Q1", null, null);
+      assertDispatch("DELETE", "QMODEL");
     }
 
     @Test
