@@ -268,6 +268,10 @@ jobs:
     name: "test: integration"
     runs-on: ubuntu-latest
     needs: docs-only
+    strategy:
+      matrix:
+        java-version: ["17", "21", "25-ea"]
+
     steps:
       - name: Docs-only short-circuit
         if: needs.docs-only.outputs.docs-only == 'true'
@@ -277,12 +281,12 @@ jobs:
         if: needs.docs-only.outputs.docs-only != 'true'
         uses: actions/checkout@v6
 
-      - name: Set up Java 17
+      - name: Set up Java
         if: needs.docs-only.outputs.docs-only != 'true'
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
       - name: Setup MQ environment
