@@ -53,6 +53,29 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 - **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
 - **Standard tooling**: `cd ../standard-tooling && uv sync && export PATH="../standard-tooling/.venv/bin:../standard-tooling/scripts/bin:$PATH"`
 
+### Three-Tier CI Model
+
+Testing is split across three tiers with increasing scope and cost:
+
+**Tier 1 — Local pre-commit (seconds):** Fast smoke tests in a single
+container. Run before every commit. No MQ, no matrix.
+
+```bash
+./scripts/dev/test.sh        # Full verify pipeline in dev-java:21
+./scripts/dev/lint.sh        # Spotless + Checkstyle in dev-java:21
+./scripts/dev/audit.sh       # Dependency + license audit in dev-java:21
+```
+
+**Tier 2 — Push CI (~3-5 min):** Triggers automatically on push to
+`feature/**`, `bugfix/**`, `hotfix/**`, `chore/**`. Single Java version
+(21), includes integration tests, no security scanners or release gates.
+Workflow: `.github/workflows/ci-push.yml` (calls `ci.yml`).
+
+**Tier 3 — PR CI (~8-10 min):** Triggers on `pull_request`. Full Java
+matrix (17, 21, 25-ea), all integration tests, security scanners (CodeQL,
+Trivy, Semgrep), standards compliance, and release gates. Workflow:
+`.github/workflows/ci.yml`.
+
 ### Build and Validate
 
 ```bash
@@ -62,6 +85,30 @@ st-validate-local               # Canonical validation (runs full pipeline below
                             # integration tests → JaCoCo (100% line+branch) → SpotBugs → PMD
 ./mvnw spotless:apply       # Auto-format code (run before committing)
 ```
+
+### Docker-First Testing
+
+All tests can run inside containers — Docker is the only host prerequisite.
+The `dev-java:21` image is built from `../standard-tooling/docker/java/`.
+
+```bash
+# Build the dev image (one-time, from standard-tooling)
+cd ../standard-tooling && docker/build.sh
+
+# Run full verify pipeline in container
+./scripts/dev/test.sh
+
+# Run lint checks in container
+./scripts/dev/lint.sh
+
+# Run dependency audit in container
+./scripts/dev/audit.sh
+```
+
+Environment overrides:
+
+- `DOCKER_DEV_IMAGE` — override the container image (default: `dev-java:21`)
+- `DOCKER_TEST_CMD` — override the test command
 
 ### Testing
 
