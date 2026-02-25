@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-02-24
+
+### Bug fixes
+
+- add type-specific queue delete methods and remove integration test workarounds (#190)
+
+### CI
+
+- add SonarCloud quality analysis to CI (#180)
+- add SonarCloud post-merge workflow (#181)
+- add Code Climate (Qlty) coverage upload (#183)
+- assign unique REST API ports per integration test matrix entry (#186)
+
+### Features
+
+- run integration tests with same Java version matrix as unit tests (#184)
+
+### Testing
+
+- add LTPA auth integration test (#188)
+
 ## [1.1.7] - 2026-02-23
 
 ### Bug fixes
