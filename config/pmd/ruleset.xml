@@ -10,6 +10,7 @@
     <!-- Best Practices -->
     <rule ref="category/java/bestpractices.xml">
         <exclude name="AvoidReassigningParameters"/>
+        <exclude name="UnnecessaryWarningSuppression"/>
     </rule>
 
     <!-- Code Style -->
