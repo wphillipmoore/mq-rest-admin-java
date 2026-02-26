@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<ruleset name="mq-rest-admin"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>Comprehensive PMD ruleset for mq-rest-admin-java.</description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="AvoidReassigningParameters"/>
+    </rule>
+
+    <!-- Code Style -->
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="LongVariable"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="ShortVariable"/>
+    </rule>
+
+    <!-- Design (with threshold overrides) -->
+    <rule ref="category/java/design.xml">
+        <exclude name="GodClass"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="UseObjectForClearerAPI"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="CognitiveComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="AvoidDeeplyNestedIfStmts"/>
+    </rule>
+    <!-- CyclomaticComplexity: raised from 10 to 15 for dispatcher methods -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="500"/>
+            <property name="methodReportLevel" value="15"/>
+        </properties>
+    </rule>
+    <!-- CognitiveComplexity: raised from 15 to 20 for mapping pipeline methods -->
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="reportLevel" value="20"/>
+        </properties>
+    </rule>
+    <!-- NPathComplexity: raised from 200 to 300 for mqscCommand dispatcher -->
+    <rule ref="category/java/design.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="300"/>
+        </properties>
+    </rule>
+    <!-- AvoidDeeplyNestedIfStmts: raised from 3 to 4 for 3-layer mapping pipeline -->
+    <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts">
+        <properties>
+            <property name="problemDepth" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="AvoidLiteralsInIfCondition"/>
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <exclude name="AvoidDuplicateLiterals"/>
+        <exclude name="NullAssignment"/>
+        <exclude name="ReturnEmptyCollectionRatherThanNull"/>
+    </rule>
+
+    <!-- Multithreading -->
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="UseConcurrentHashMap"/>
+        <exclude name="DoNotUseThreads"/>
+        <exclude name="AvoidSynchronizedAtMethodLevel"/>
+    </rule>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+    </rule>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml"/>
+
+</ruleset>

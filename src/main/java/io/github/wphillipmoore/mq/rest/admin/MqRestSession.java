@@ -74,6 +74,26 @@ public final class MqRestSession {
   static final Set<String> RUNNING_VALUES = Set.of("RUNNING", "running");
   static final Set<String> STOPPED_VALUES = Set.of("STOPPED", "stopped");
 
+  private final String restBaseUrl;
+  private final String qmgrName;
+  private final Credentials credentials;
+  private final MqRestTransport transport;
+  private final @Nullable String gatewayQmgr;
+  private final boolean verifyTls;
+  private final @Nullable Duration timeout;
+  private final boolean mapAttributes;
+  private final boolean mappingStrict;
+  private final @Nullable String csrfToken;
+  private final MappingData mappingData;
+  private final AttributeMapper attributeMapper;
+
+  private Clock clock = new SystemClock();
+  private @Nullable String ltpaToken;
+  private @Nullable Integer lastHttpStatus;
+  private @Nullable String lastResponseText;
+  private @Nullable Map<String, Object> lastResponsePayload;
+  private @Nullable Map<String, Object> lastCommandPayload;
+
   private static final ObjectTypeConfig CHANNEL_CONFIG =
       new ObjectTypeConfig(
           "CHANNEL", "CHANNEL", "CHSTATUS", new String[] {"channel_status", "STATUS"}, true);
@@ -125,26 +145,6 @@ public final class MqRestSession {
       String statusQualifier,
       String[] statusKeys,
       boolean emptyMeansStopped) {}
-
-  private final String restBaseUrl;
-  private final String qmgrName;
-  private final Credentials credentials;
-  private final MqRestTransport transport;
-  private final @Nullable String gatewayQmgr;
-  private final boolean verifyTls;
-  private final @Nullable Duration timeout;
-  private final boolean mapAttributes;
-  private final boolean mappingStrict;
-  private final @Nullable String csrfToken;
-  private final MappingData mappingData;
-  private final AttributeMapper attributeMapper;
-
-  private Clock clock = new SystemClock();
-  private @Nullable String ltpaToken;
-  private @Nullable Integer lastHttpStatus;
-  private @Nullable String lastResponseText;
-  private @Nullable Map<String, Object> lastResponsePayload;
-  private @Nullable Map<String, Object> lastCommandPayload;
 
   /** Package-private setter for test injection. */
   void setClock(Clock clock) {
@@ -499,13 +499,14 @@ public final class MqRestSession {
     }
 
     if (hasOverallError || hasItemError) {
-      StringBuilder msg = new StringBuilder("MQSC command error");
+      StringBuilder msg = new StringBuilder(96);
+      msg.append("MQSC command error");
       if (overallCompletionCode != null || overallReasonCode != null) {
         msg.append(" (overallCompletionCode=")
             .append(overallCompletionCode)
             .append(", overallReasonCode=")
             .append(overallReasonCode)
-            .append(")");
+            .append(')');
       }
       throw new MqRestCommandException(msg.toString(), payload, statusCode);
     }
@@ -615,16 +616,9 @@ public final class MqRestSession {
 
   String mapWhereKeyword(String where, String mappingQualifier) {
     // Split on first whitespace
-    String keyword;
-    String rest;
     int spaceIdx = indexOfFirstWhitespace(where);
-    if (spaceIdx < 0) {
-      keyword = where;
-      rest = null;
-    } else {
-      keyword = where.substring(0, spaceIdx);
-      rest = where.substring(spaceIdx + 1);
-    }
+    String keyword = spaceIdx < 0 ? where : where.substring(0, spaceIdx);
+    String rest = spaceIdx < 0 ? "" : where.substring(spaceIdx + 1);
 
     Map<String, String> snakeToMqsc = mappingData.getSnakeToMqscMap(mappingQualifier);
     if (snakeToMqsc.isEmpty() && !mappingData.hasQualifier(mappingQualifier)) {
@@ -659,7 +653,7 @@ public final class MqRestSession {
       return where;
     }
 
-    if (rest != null) {
+    if (!rest.isEmpty()) {
       return mappedKeyword + " " + rest;
     }
     return mappedKeyword;
@@ -2015,10 +2009,8 @@ public final class MqRestSession {
    * @return true if the values are considered equal
    */
   static boolean valuesMatch(Object desired, @Nullable Object current) {
-    if (current == null) {
-      return false;
-    }
-    return String.valueOf(desired).strip().equalsIgnoreCase(String.valueOf(current).strip());
+    return current != null
+        && String.valueOf(desired).strip().equalsIgnoreCase(String.valueOf(current).strip());
   }
 
   /**

@@ -5,6 +5,8 @@ import java.util.Objects;
 /** Thrown when a network or connection failure occurs communicating with the MQ REST API. */
 public final class MqRestTransportException extends MqRestException {
 
+  private static final long serialVersionUID = 1L;
+
   private final String url;
 
   /**

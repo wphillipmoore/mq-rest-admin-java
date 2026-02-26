@@ -9,6 +9,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class MqRestResponseException extends MqRestException {
 
+  private static final long serialVersionUID = 1L;
+
   private final @Nullable String responseText;
 
   /**

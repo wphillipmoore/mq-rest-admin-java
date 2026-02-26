@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
  * io.github.wphillipmoore.mq.rest.admin.exception.MqRestTransportException} for network or
  * connection failures.
  */
+@FunctionalInterface
 public interface MqRestTransport {
 
   /**
