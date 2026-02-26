@@ -4,11 +4,19 @@
 
 - [Session](session.md) — `MqRestSession` main entry point
 - [Commands](commands.md) — MQSC command methods
-- [Transport](transport.md) — `MqRestTransport` and `HttpClientTransport`
+
+## Declarative Management
+
+- [Ensure](ensure.md) — Idempotent create-or-update for MQ objects
+- [Sync](sync.md) — Synchronous start/stop/restart with polling
 
 ## Authentication
 
 - [Auth](auth.md) — `Credentials` sealed interface and implementations
+
+## Transport
+
+- [Transport](transport.md) — `MqRestTransport` and `HttpClientTransport`
 
 ## Mapping
 
@@ -17,10 +25,3 @@
 ## Exceptions
 
 - [Exceptions](exceptions.md) — `MqRestException` hierarchy
-
-## Patterns
-
-- [Ensure](ensure.md) — `EnsureResult`, `EnsureAction`
-- [Ensure Methods](../ensure-methods.md) — Per-object-type ensure convenience methods
-- [Sync](sync.md) — `SyncConfig`, `SyncResult`, `SyncOperation`
-- [Sync Methods](../sync-methods.md) — Per-object-type sync convenience methods
