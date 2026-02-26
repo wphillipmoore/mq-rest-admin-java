@@ -19,6 +19,8 @@ jobs:
   publish:
     name: "publish: release"
     runs-on: ubuntu-latest
+    env:
+      HAS_MAVEN_CREDENTIALS: ${{ secrets.CENTRAL_TOKEN != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -100,7 +102,7 @@ jobs:
           release-artifacts: target/mq-rest-admin-${{ steps.version.outputs.version }}.cdx.json
 
       - name: Publish to Maven Central
-        if: steps.tag_check.outputs.exists == 'false' && secrets.CENTRAL_TOKEN != ''
+        if: steps.tag_check.outputs.exists == 'false' && env.HAS_MAVEN_CREDENTIALS == 'true'
         run: ./mvnw deploy -B -Prelease -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
