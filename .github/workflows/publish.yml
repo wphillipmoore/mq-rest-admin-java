@@ -70,14 +70,6 @@ jobs:
           scan-type: sbom
           output-file: target/mq-rest-admin-${{ steps.version.outputs.version }}.cdx.json
 
-      - name: Publish to Maven Central
-        if: steps.tag_check.outputs.exists == 'false'
-        run: ./mvnw deploy -B -Prelease -DskipTests
-        env:
-          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
       - name: Tag and release
         if: steps.tag_check.outputs.exists == 'false'
         uses: wphillipmoore/standard-actions/actions/publish/tag-and-release@develop
@@ -106,6 +98,14 @@ jobs:
             - [Maven Central](https://central.sonatype.com/artifact/io.github.wphillipmoore/mq-rest-admin)
             - [Documentation](https://wphillipmoore.github.io/mq-rest-admin-java/)
           release-artifacts: target/mq-rest-admin-${{ steps.version.outputs.version }}.cdx.json
+
+      - name: Publish to Maven Central
+        if: steps.tag_check.outputs.exists == 'false' && secrets.CENTRAL_TOKEN != ''
+        run: ./mvnw deploy -B -Prelease -DskipTests
+        env:
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Generate app token for bump PR
         if: steps.tag_check.outputs.exists == 'false'
