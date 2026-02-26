@@ -1,0 +1,3322 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Java wrapper for the IBM MQ administrative REST API">
+      
+      
+      
+        <link rel="canonical" href="https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.0/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Release 1.1.0 (2026-02-16) - mq-rest-admin (Java)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#release-110-2026-02-16" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="mq-rest-admin (Java)" class="md-header__button md-logo" aria-label="mq-rest-admin (Java)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mq-rest-admin (Java)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Release 1.1.0 (2026-02-16)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/wphillipmoore/mq-rest-admin-java" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mq-rest-admin-java
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../mapping-pipeline/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Mapping Pipeline
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ensure-methods/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Ensure Methods
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../sync-methods/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Sync Methods
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../examples/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Examples
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../mappings/" class="md-tabs__link">
+          
+  
+  
+  Mappings
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Releases
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ai-engineering/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  AI Engineering
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="mq-rest-admin (Java)" class="md-nav__button md-logo" aria-label="mq-rest-admin (Java)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    mq-rest-admin (Java)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/wphillipmoore/mq-rest-admin-java" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mq-rest-admin-java
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapping-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mapping Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ensure-methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ensure Methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sync-methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync Methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/session/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/transport/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/mapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ensure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ensure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mappings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Mappings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualifier Mapping Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/apstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    apstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/archive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/authinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    authinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/authrec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    authrec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/authserv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    authserv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/cfstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cfstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/cfstruct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cfstruct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    channel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/chinit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chinit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/chlauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chlauth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/chstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/clusqmgr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    clusqmgr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/comminfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    comminfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/conn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    conn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/entauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    entauth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/indoubt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    indoubt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/listener/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    listener
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/lsstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    lsstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/namelist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    namelist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/pubsub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pubsub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/qmgr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    qmgr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/qmstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    qmstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/qstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    qstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    queue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/sbstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sbstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/smds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    smds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/smdsconn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    smdsconn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/stgclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stgclass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/sub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/svstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    svstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/topic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    topic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/topicstr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    topicstr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/tpstatus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tpstatus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mappings/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/rationale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rationale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/runcommand-endpoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    runCommandJSON Endpoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/nested-object-flattening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nested Object Flattening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/developer-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/local-mq-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Local MQ Container
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/quality-gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Releases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Engineering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="release-110-2026-02-16">Release 1.1.0 (2026-02-16)<a class="headerlink" href="#release-110-2026-02-16" title="Permanent link">&para;</a></h1>
+<h2 id="bug-fixes">Bug fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>resolve three CI job failures (#27)</strong></li>
+<li>standards-compliance: fix markdown lint errors (MD031 blanks around
+  fences, MD040 missing code language, MD060 table separator spacing)
+  in tier3-decisions.md, admin-rest-api-gap-analysis.md, and
+  mq-java-ecosystem.md</li>
+<li>dependency-audit: replace dependency-review-action (requires
+  Dependency Graph enabled) with mvnw dependency:tree for all events</li>
+<li>
+<p>release-gates: guard version divergence check against missing
+  pom.xml on main branch</p>
+</li>
+<li>
+<p><strong>add blank line and Table of Contents to README.md (#29)</strong>
+Fix MD022 (blanks-around-headings) and add required Table of Contents
+section to satisfy standards-compliance checks.</p>
+</li>
+<li>
+<p><strong>sync mapping data with pymqrest and extract parameters from response (#38)</strong>
+Sync mapping-data.json with the authoritative pymqrest mapping_data.py:
+add DELETE QALIAS/QLOCAL/QMODEL/QREMOTE commands, add missing response
+key mappings across 9 qualifiers, and add request key-value mappings for
+listener replace/noreplace.</p>
+</li>
+</ul>
+<p>Fix a response parsing bug where completionCode, reasonCode, and the
+parameters wrapper from the MQ REST API commandResponse envelope were
+included as MQ object attributes. Now only the contents of the
+parameters sub-object are returned, matching pymqrest behavior.</p>
+<p>Update integration tests to use correct mapped attribute names (lowercase
+replace values, transmission_queue_name, default_input_open_option,
+start_mode) and specific DELETE qualifiers (QLOCAL, QREMOTE, etc.)
+instead of the generic DELETE QUEUE.</p>
+<ul>
+<li>
+<p><strong>disable MD041 for mkdocs snippet-include files</strong>
+The docs/site/docs/mappings/*.md files are mkdocs snippet includes
+(--8&lt;-- directives), not standalone markdown documents. MD041 (first
+line must be a heading) false-positives on these. The awk structural
+check in standards-compliance already enforces single-H1 for real docs.</p>
+</li>
+<li>
+<p><strong>correct table column count in local MQ container docs</strong>
+Merge the separate QM1/QM2 REST base URL rows into a single row with
+three columns to satisfy MD056 (table column count consistency).</p>
+</li>
+<li>
+<p><strong>correct snippets base_path resolution for fragment includes (#74)</strong>
+pymdownx.snippets resolves base_path relative to CWD (not the mkdocs.yml
+location). The previous paths were relative to docs/site/ which caused
+fragments to either not resolve or self-include when the wrapper file
+had the same name as the fragment.</p>
+</li>
+</ul>
+<p>Use CWD-relative paths so fragments resolve correctly when mkdocs is
+invoked from the repository root.</p>
+<p>Fixes wphillipmoore/mq-rest-admin-common#32</p>
+<ul>
+<li><strong>run mike from repo root so snippet base_path resolves in CI (#75)</strong>
+Remove working-directory from mike deploy step and pass
+-F docs/site/mkdocs.yml instead, so CWD matches the base_path
+entries in mkdocs.yml.</li>
+</ul>
+<p>Ref wphillipmoore/mq-rest-admin-common#32</p>
+<ul>
+<li>
+<p><strong>propagate 4 missing mapping entries from canonical JSON (#80)</strong>
+Propagates the fix from mq-rest-admin-common#40 restoring 4 entries
+dropped during the initial extraction from the Python source:</p>
+</li>
+<li>
+<p>conn.response_key_map: ASTATE, CONN, EXTCONN</p>
+</li>
+<li>qstatus.request_key_map: type</li>
+</ul>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>record tier 1 decisions (groupId, Java 17, Maven) (#2)</strong>
+Document the three foundational decisions: Maven groupId
+(io.github.wphillipmoore), minimum Java version (17), and build tool
+(Maven). Update open-decisions tracker to reflect resolved items and
+implicitly converged publishing decisions.</p>
+</li>
+<li>
+<p><strong>record tier 3 architecture decisions (#5)</strong>
+Document HTTP client (java.net.http), JSON library (Gson), API surface
+(method-per-command with Map params), attribute mapping (3-layer pipeline
+port), and exception hierarchy (unchecked, sealed) decisions. Add Gson
+2.13.2 compile dependency. Update CLAUDE.md architecture section and
+mark all 5 architecture items as decided in open-decisions.md.</p>
+</li>
+<li>
+<p><strong>update open-decisions to reflect completed implementation (#32)</strong>
+Update purpose to note all library code is implemented with only
+tooling remaining. Update git hooks entry to reflect adoption of
+canonical versions from standards-and-conventions (PR #31).</p>
+</li>
+<li>
+<p><strong>add documentation site generator to open decisions (#37)</strong></p>
+</li>
+<li><strong>enrich ensure-methods and getting-started pages (#45)</strong>
+Rewrite ensure-methods.md with full explanatory content from enriched
+common fragment plus detailed Java code examples (basic usage,
+assertions, queue manager singleton, configuration management).</li>
+</ul>
+<p>Rewrite getting-started.md to match pymqrest depth: add strict/lenient
+mapping, custom overrides with sparse examples, gateway queue manager,
+diagnostic state, and richer error handling examples.</p>
+<ul>
+<li><strong>enrich documentation pages and remove inline TOC sections (#47)</strong>
+Enrich all MkDocs documentation pages to match pymqrest reference depth:</li>
+<li>architecture.md: Java component mapping, diagnostic state, transport
+  interface, mock transport example, gateway builder example</li>
+<li>mapping-pipeline.md: Java examples for every section, per-call opt-out,
+  corrected snake_case naming (was incorrectly documented as camelCase)</li>
+<li>API reference pages: complete command tables (~144 methods by verb),
+  auth recommendations (LTPA vs Basic), exception method tables and
+  catch examples, transport parameter docs, mapping sub-map details</li>
+<li>ensure.md: fixed swapped EnsureResult/EnsureAction descriptions</li>
+</ul>
+<p>Fix incorrect attribute names and API references in code examples:
+- max_q_depth -&gt; max_queue_depth, current_depth -&gt; current_queue_depth
+- statistics_queue -&gt; queue_statistics, monitoring_queue -&gt; queue_monitoring
+- e.getReasonCode() -&gt; e.getStatusCode(), e.getCommandResponse() -&gt; e.getPayload()</p>
+<p>Remove inline Table of Contents sections from all docs/site/ pages.
+MkDocs Material provides integrated navigation, making them redundant.
+Exempt per standards-and-conventions#152 and standard-actions#11.</p>
+<ul>
+<li>
+<p><strong>add sync hallucination case study (#48)</strong>
+Root cause analysis of the fabricated sync documentation (issue #44).
+The doc agent invented a Terraform-style bulk declarative sync system
+instead of documenting the actual synchronous polling wrappers that
+were correctly ported from pymqrest.</p>
+</li>
+<li>
+<p><strong>rewrite sync documentation to match actual implementation (#49)</strong>
+The sync docs incorrectly described a bulk declarative configuration
+management system (Terraform-style sync). Replace with the correct
+documentation: synchronous polling wrappers around fire-and-forget
+START/STOP commands, matching the Python reference implementation.</p>
+</li>
+</ul>
+<p>See docs/research/2026-02-14-sync-hallucination-case-study.md for
+forensic analysis of how the hallucination occurred.</p>
+<ul>
+<li><strong>close content gaps in ensure, sync, mapping, and getting-started pages (#57)</strong></li>
+<li>docs: close content gaps in ensure, sync, mapping, and getting-started pages</li>
+</ul>
+<p>Inline all narrative content that was previously referenced via --8&lt;--
+snippet directives pointing to the non-existent .mq-rest-admin-common
+fragments directory. The shared fragment architecture will be revisited
+when the Go repo docs are built.</p>
+<ul>
+<li><strong>replace BasicAuth with LtpaAuth in examples and remove Next Steps (#61)</strong></li>
+<li>
+<p><strong>address medium-severity documentation consistency findings (#63)</strong>
+Enrich contributing.md with AI agent guidance, developer-setup.md with
+required-repos and CI overview, local-mq-container.md with gateway routing
+and environment variables, add diagnostic attributes to sync timeout example,
+add LTPA default note to auth.md, create ai-engineering.md, and set dark
+mode as default theme palette.</p>
+</li>
+<li>
+<p><strong>address cross-library documentation consistency nits (#67)</strong>
+Standardize nav ordering with full qualifier mapping listings, create
+examples page, add runtime dependencies and pipeline links to
+architecture page, and remove Quick Links from home page.</p>
+</li>
+<li>
+<p><strong>switch to shared fragment includes from common repo (#71)</strong>
+Replace duplicated mapping pages, AI engineering, and local MQ container
+docs with --8&lt;-- snippet includes from mq-rest-admin-common. Delete
+generate_mapping_docs.py (moved to common) and remove the generate step
+from the docs workflow.</p>
+</li>
+<li>
+<p><strong>add quality gates documentation page</strong>
+Include the shared quality gates fragment from mq-rest-admin-common and
+append Java-specific validation pipeline details (Spotless, Checkstyle,
+Surefire, Failsafe, JaCoCo, SpotBugs, PMD).</p>
+</li>
+<li>
+<p><strong>close stale documentation generator TBD in open-decisions</strong>
+The MkDocs decision was made in PRs #42 and #68 but open-decisions.md
+still listed it as TBD. Update to reflect the decision and clarify
+the remaining docs-only validation gap.</p>
+</li>
+</ul>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>add repository scaffolding and research documents (#1)</strong>
+Establish the repository structure adapted from pymqrest, including
+CLAUDE.md/AGENTS.md dual-file documentation strategy, canonical
+standards references, issue templates, markdownlint config, changelog
+config, and Java-specific .gitignore. Add research documents covering
+the MQ Java ecosystem survey, admin REST API gap analysis, project
+naming decision, and open decisions tracker.</p>
+</li>
+<li>
+<p><strong>add Maven project skeleton (#3)</strong>
+Set up the Maven build with project coordinates
+(io.github.wphillipmoore:mq-rest-admin:0.1.0-SNAPSHOT), Java 17 compiler
+configuration, and Maven Wrapper (3.3.4 / Maven 3.9.12). Create the
+standard src directory layout with package-info.java as the compilation
+placeholder. Update CLAUDE.md and repository-standards.md with concrete
+development commands.</p>
+</li>
+<li>
+<p><strong>add testing framework and code quality tooling (#4)</strong>
+Add JUnit 5, Mockito 5, AssertJ for testing with JaCoCo 100% coverage
+enforcement. Add Spotless + google-java-format, Checkstyle, SpotBugs, and
+PMD for full static analysis from day 1. Single command <code>./mvnw verify</code>
+runs the entire validation pipeline.</p>
+</li>
+<li>
+<p><strong>implement sealed exception hierarchy (#7)</strong></p>
+</li>
+<li><strong>add transport interface and response record (#8)</strong>
+Define the HTTP boundary types that all session logic depends on:</li>
+<li>TransportResponse record with defensive header copying</li>
+<li>
+<p>MqRestTransport interface with single postJson method</p>
+</li>
+<li>
+<p><strong>add auth types (Credentials sealed interface + records) (#9)</strong>
+Implement the credential model for MQ REST API authentication as step 3
+of the implementation sequence. Adds sealed Credentials interface with
+three record implementations: BasicAuth, LtpaAuth, and CertificateAuth.</p>
+</li>
+<li>
+<p><strong>add mapping issue types (MappingIssue record + MappingException) (#11)</strong>
+Step 4 of tier 3 implementation: define the error-reporting model for
+attribute translation failures. MappingDirection and MappingReason enums,
+MappingIssue record, and MappingException (separate from MqRestException
+hierarchy, as it represents data-transformation errors).</p>
+</li>
+<li>
+<p><strong>implement attribute mapping pipeline (AttributeMapper + MappingData + MappingOverrideMode) (#12)</strong>
+Implement the 3-layer attribute mapping pipeline that translates between
+snake_case Python-style attribute names and MQSC parameter names used by
+the MQ REST API. This is step 5 of the tier 3 implementation sequence.</p>
+</li>
+<li>
+<p>MappingOverrideMode enum (MERGE/REPLACE strategies)</p>
+</li>
+<li>MappingData class (JSON loading, factory methods, override merging)</li>
+<li>AttributeMapper class (key map, value map, key-value map pipeline)</li>
+<li>Minimal mapping-data.json resource skeleton for testing</li>
+<li>
+<p>75 new tests (165 total), 100% line and branch coverage</p>
+</li>
+<li>
+<p><strong>implement MqRestSession core with Builder, mqscCommand, and helpers (#13)</strong>
+Central session class that ties together URL/header building, MQSC command
+dispatch, response parsing, error detection, and attribute mapping integration.</p>
+</li>
+<li>
+<p>MqRestSession with Builder pattern (required: URL, qmgr, credentials, transport)</p>
+</li>
+<li>mqscCommand method: full pipeline mirroring pymqrest _mqsc_command</li>
+<li>LTPA login at construction time for LtpaAuth credentials</li>
+<li>Response parameter mapping and WHERE keyword mapping</li>
+<li>Session state tracking (lastHttpStatus, lastResponseText, lastResponsePayload,
+  lastCommandPayload)</li>
+<li>MappingData: add getResponseParameterMacros() and getSnakeToMqscMap() methods</li>
+<li>MappingData: make hasQualifier() public (needed by session)</li>
+<li>
+<p>100 new tests (280 total), 100% line and branch coverage</p>
+</li>
+<li>
+<p><strong>add 118 command methods to MqRestSession (#14)</strong>
+Add thin command methods that delegate to mqscCommand(), providing the
+public API surface users call (e.g., displayQueue(), defineQlocal()).</p>
+</li>
+</ul>
+<p>Six method patterns cover all MQSC commands:
+- Wildcard DISPLAY (2): displayQueue, displayChannel default to "*"
+- Singleton DISPLAY (3): displayQmgr/Qmstatus/Cmdserv return Map
+- Optional-name DISPLAY (39): return List<Map>
+- Required-name void (7): 5 DEFINEs + 2 DELETEs with null check
+- Optional-name void (56): most non-DISPLAY commands
+- No-name void (11): QMGR/CMDSERV commands</p>
+<ul>
+<li><strong>add ensure package (EnsureAction, EnsureResult) and 16 ensure methods on MqRestSession (#15)</strong>
+Implements idempotent upsert operations that create-if-not-exists,
+update-if-different, or leave-unchanged for MQ objects. Mirrors
+pymqrest MQRESTEnsureMixin.</li>
+</ul>
+<p>New types:
+- EnsureAction enum: CREATED, UPDATED, UNCHANGED
+- EnsureResult record: action + changed attribute names</p>
+<p>New methods on MqRestSession:
+- valuesMatch(): case-insensitive string comparison helper
+- extractParametersMap(): unwraps MQ REST API parameters sub-object
+- ensureObject(): core ensure logic (private)
+- ensureQmgr(): special case (never CREATED)
+- 15 standard ensure methods: ensureQlocal, ensureQremote, ensureQalias,
+  ensureQmodel, ensureChannel, ensureAuthinfo, ensureListener,
+  ensureNamelist, ensureProcess, ensureService, ensureTopic, ensureSub,
+  ensureStgclass, ensureComminfo, ensureCfstruct</p>
+<ul>
+<li>
+<p><strong>add sync package (SyncOperation, SyncConfig, SyncResult) and 9 sync methods on MqRestSession (#18)</strong>
+Add synchronous start/stop/restart methods with polling for channels,
+listeners, and services. Includes Clock abstraction for deterministic
+testing, ObjectTypeConfig for object type dispatch, and hasStatus helper
+for status detection. 591 tests, 100% coverage.</p>
+</li>
+<li>
+<p><strong>add git hooks for branch protection, commit message, and co-author validation (#21)</strong>
+Ports pre-commit (branch protection + naming) and commit-msg hooks
+from pymqrest, adapted for the library branching model. Adds a new
+co-author trailer validator that checks against the approved identity
+list in docs/repository-standards.md.</p>
+</li>
+<li>
+<p><strong>implement HttpClientTransport with JDK HttpClient (#19)</strong>
+Provides the real HTTP transport behind MqRestTransport using
+java.net.http.HttpClient and Gson — zero additional runtime
+dependencies. Supports TLS verification toggle, custom SSLContext
+for mTLS, timeout propagation, and RFC 9110 header flattening.</p>
+</li>
+<li>
+<p><strong>populate mapping-data.json with full MQ attribute set (#23)</strong>
+Port all 139 MQSC commands, 50 qualifiers, and ~1,300+ attribute
+mappings from pymqrest's mapping_data.py to the JSON resource file.
+Update tests to use real attribute names (max_queue_depth vs stub's
+max_depth.</p>
+</li>
+</ul>
+<p>EOF
+)</p>
+<ul>
+<li>
+<p><strong>add GitHub Actions CI workflow with 6-job pipeline (#25)</strong>
+Set up CI with docs-only detection, standards compliance, dependency
+audit (GitHub-native dependency-review-action), release gates (SNAPSHOT
+and version divergence checks), test-and-validate (Java 17/21/25
+matrix running full mvnw verify), and integration-tests placeholder.</p>
+</li>
+<li>
+<p><strong>add Error Prone, NullAway, and JSpecify null-safety tooling (#30)</strong>
+Add static analysis tooling and fix Java naming standard deviations
+tracked in issue #17.</p>
+</li>
+</ul>
+<p>Error Prone + NullAway configured in a JDK 21+ Maven profile so CI
+on Java 21/25 enforces null-safety at ERROR severity while Java 17
+builds compile normally. JSpecify @Nullable annotations applied across
+all source files. Abbreviated variable names expanded per naming
+standard Rule 3, and test method abbreviations (ThrowsNpe) replaced
+with full names (ThrowsNullPointerException).</p>
+<ul>
+<li>
+<p><strong>adopt canonical git hooks from standards-and-conventions (#31)</strong>
+Replace hardcoded hook scripts with dynamic branching-model-aware
+versions from standards-and-conventions#141. The pre-commit hook now
+reads branching_model from docs/repository-standards.md instead of
+hardcoding allowed prefixes, and co-author.sh gains whitespace
+normalization for trailer comparison.</p>
+</li>
+<li>
+<p><strong>add integration test strategy and MQ dev wrapper scripts (#6)</strong>
+Document per-project container isolation via COMPOSE_PROJECT_NAME and
+port allocation. Add wrapper scripts in scripts/dev/ that delegate to
+mq-dev-environment with mq-rest-admin-specific ports (9453/9454).</p>
+</li>
+<li>
+<p><strong>wire up CI integration tests with live MQ containers (#35)</strong>
+Replace the placeholder integration-tests CI job with a real workflow
+that starts MQ containers via the mq-dev-environment composite action
+and runs Failsafe integration tests against the live REST API.</p>
+</li>
+<li>
+<p>CI job: checkout mq-dev-environment, setup-mq with ports 9453/9454,
+  run ./mvnw verify with MQ_REST_ADMIN_RUN_INTEGRATION=1</p>
+</li>
+<li>JaCoCo: exclude *IT.class from 100% coverage enforcement</li>
+<li>
+<p>MqRestSessionIT: display, lifecycle, ensure, gateway, and session
+  state tests mirroring pymqrest test_mq_integration.py</p>
+</li>
+<li>
+<p><strong>add MkDocs documentation site with shared fragment architecture (#41)</strong></p>
+</li>
+<li>feat: add MkDocs documentation site with shared fragment architecture</li>
+</ul>
+<p>Implement cross-repo documentation architecture with a shared common
+fragments repo and a Java MkDocs Material site. Includes mapping docs
+generator, maven-javadoc-plugin, CI workflow for GitHub Pages, and
+complete doc pages for architecture, API reference, and development.</p>
+<ul>
+<li><strong>add Tier 1 security tooling (CodeQL, attestations, license compliance)</strong></li>
+<li>Add CodeQL SAST job to CI workflow using standard-actions composite action</li>
+<li>Add build provenance attestations to publish workflow (attest-build-provenance@v2)</li>
+<li>
+<p>Add license compliance check to dependency-audit job using license-maven-plugin</p>
+</li>
+<li>
+<p><strong>add Trivy and Semgrep CI jobs and SBOM generation</strong>
+Add Trivy filesystem vulnerability scanning and Semgrep SAST jobs to CI,
+gated by docs-only detection. Add CycloneDX SBOM generation to the
+publish workflow, attached to GitHub Releases.</p>
+</li>
+</ul>
+<p>Ref mq-rest-admin-common#11, #24, #25</p>
+<ul>
+<li><strong>configure Maven Central publication via Central Portal API</strong>
+Add a release Maven profile with source, javadoc, GPG signing, and
+central-publishing-maven-plugin. Update the publish workflow to import
+GPG keys, authenticate with Central Portal, and deploy artifacts.
+GitHub Release notes now show Maven/Gradle coordinates.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

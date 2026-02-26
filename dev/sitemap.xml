@@ -13,6 +13,10 @@
          <lastmod>2026-02-26</lastmod>
     </url>
     <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/changelog/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
          <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/ensure-methods/</loc>
          <lastmod>2026-02-26</lastmod>
     </url>
@@ -274,6 +278,42 @@
     </url>
     <url>
          <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/mappings/usage/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.0/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.1/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.2/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.3/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.4/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.6/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.1.7/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://wphillipmoore.github.io/mq-rest-admin-java/dev/releases/v1.2.0/</loc>
          <lastmod>2026-02-26</lastmod>
     </url>
 </urlset>
