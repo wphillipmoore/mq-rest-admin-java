@@ -162,6 +162,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <!-- HttpClient creates non-daemon threads that delay JVM exit.
+                         Allow extra time so the JaCoCo shutdown hook can write
+                         execution data before Surefire kills the fork. -->
+                    <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
+                </configuration>
             </plugin>
 
             <!-- Integration tests -->
@@ -258,6 +264,9 @@
                 <version>${maven-pmd-plugin.version}</version>
                 <configuration>
                     <linkXRef>false</linkXRef>
+                    <rulesets>
+                        <ruleset>config/pmd/ruleset.xml</ruleset>
+                    </rulesets>
                 </configuration>
                 <executions>
                     <execution>

@@ -12,6 +12,8 @@ public sealed class MqRestException extends RuntimeException
         MqRestCommandException,
         MqRestTimeoutException {
 
+  private static final long serialVersionUID = 1L;
+
   /** Creates an exception with the given message. */
   public MqRestException(String message) {
     super(message);

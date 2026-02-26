@@ -54,6 +54,8 @@ public final class MappingData {
    * @return mapping data loaded from the resource
    * @throws IllegalStateException if the resource cannot be found
    */
+  @SuppressWarnings(
+      "PMD.CloseResource") // classpath InputStream closed by InputStreamReader; no leak risk
   static MappingData loadFromResource(String resourceName) {
     InputStream stream = MappingData.class.getResourceAsStream(resourceName);
     if (stream == null) {
@@ -259,24 +261,24 @@ public final class MappingData {
 
   private MappingData applyReplace(Map<String, Object> overrides) {
     Map<String, Object> baseCommands = getCommandsMap();
-    Map<String, Object> baseQualifiers = getQualifiersMap();
     @SuppressWarnings("unchecked")
     Map<String, Object> overrideCommands =
         overrides.get("commands") instanceof Map
             ? (Map<String, Object>) overrides.get("commands")
             : null;
-    @SuppressWarnings("unchecked")
-    Map<String, Object> overrideQualifiers =
-        overrides.get("qualifiers") instanceof Map
-            ? (Map<String, Object>) overrides.get("qualifiers")
-            : null;
-
     if (baseCommands != null
         && !baseCommands.isEmpty()
         && (overrideCommands == null
             || !overrideCommands.keySet().containsAll(baseCommands.keySet()))) {
       throw new IllegalArgumentException("REPLACE overrides must cover all base command keys");
     }
+
+    Map<String, Object> baseQualifiers = getQualifiersMap();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> overrideQualifiers =
+        overrides.get("qualifiers") instanceof Map
+            ? (Map<String, Object>) overrides.get("qualifiers")
+            : null;
     if (baseQualifiers != null
         && !baseQualifiers.isEmpty()
         && (overrideQualifiers == null
