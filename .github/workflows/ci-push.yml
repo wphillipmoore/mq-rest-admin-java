@@ -20,6 +20,6 @@ jobs:
       security-events: write
     with:
       java-versions: '["21"]'
-      integration-matrix: '[{"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456"}]'
+      integration-matrix: '[{"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456","qm1-mq-port":"1428","qm2-mq-port":"1429"}]'
       run-security: "false"
       run-release-gates: "false"
