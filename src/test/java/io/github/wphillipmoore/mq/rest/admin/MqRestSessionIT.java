@@ -8,9 +8,23 @@ import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureAction;
 import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -50,14 +64,44 @@ class MqRestSessionIT {
   static final String TEST_ENSURE_QLOCAL = "DEV.ENSURE.QLOCAL";
   static final String TEST_ENSURE_CHANNEL = "DEV.ENSURE.CHL";
 
+  private static final Path REPO_ROOT = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+  private static final Path MQ_START_SCRIPT = REPO_ROOT.resolve("scripts/dev/mq_start.sh");
+  private static final Path MQ_SEED_SCRIPT = REPO_ROOT.resolve("scripts/dev/mq_seed.sh");
+  private static final Path MQ_STOP_SCRIPT = REPO_ROOT.resolve("scripts/dev/mq_stop.sh");
+  private static final long MQ_READY_TIMEOUT_MS = 90_000;
+  private static final long MQ_READY_SLEEP_MS = 2_000;
+
   static MqRestSession session;
   static MqRestSession qm2Session;
+  private static boolean lifecycleManaged;
 
   @BeforeAll
-  static void setUp() {
+  static void setUp() throws Exception {
+    boolean skipLifecycle =
+        "1".equals(System.getenv("MQ_SKIP_LIFECYCLE"))
+            || "true".equalsIgnoreCase(System.getenv("MQ_SKIP_LIFECYCLE"));
+    if (!skipLifecycle) {
+      runScript(MQ_START_SCRIPT);
+      lifecycleManaged = true;
+    }
+    waitForRestReady(REST_BASE_URL);
+    if (!skipLifecycle) {
+      runScript(MQ_SEED_SCRIPT);
+    }
     HttpClientTransport transport = new HttpClientTransport();
     session = buildSession(transport, REST_BASE_URL, QM1_NAME);
     qm2Session = buildSession(transport, QM2_REST_BASE_URL, QM2_NAME);
+  }
+
+  @AfterAll
+  static void tearDown() {
+    if (lifecycleManaged) {
+      try {
+        runScript(MQ_STOP_SCRIPT);
+      } catch (Exception e) {
+        System.err.println("mq_stop.sh failed (best-effort): " + e.getMessage());
+      }
+    }
   }
 
   static MqRestSession buildSession(MqRestTransport transport, String baseUrl, String qmgrName) {
@@ -636,5 +680,67 @@ class MqRestSessionIT {
             "LTPA DisplayQmgr failed (expected on dev containers): " + e.getMessage());
       }
     }
+  }
+
+  // -------------------------------------------------------------------------
+  // Lifecycle helpers
+  // -------------------------------------------------------------------------
+
+  private static void runScript(Path script) throws IOException, InterruptedException {
+    ProcessBuilder pb = new ProcessBuilder("bash", script.toString());
+    pb.inheritIO();
+    pb.directory(REPO_ROOT.toFile());
+    int exitCode = pb.start().waitFor();
+    if (exitCode != 0) {
+      throw new IOException("Script " + script.getFileName() + " exited with code " + exitCode);
+    }
+  }
+
+  private static void waitForRestReady(String baseUrl)
+      throws NoSuchAlgorithmException, KeyManagementException, InterruptedException {
+    TrustManager[] trustAll = {
+      new X509TrustManager() {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+          return new X509Certificate[0];
+        }
+      }
+    };
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, trustAll, new SecureRandom());
+
+    HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl + "/admin/qmgr"))
+            .header(
+                "Authorization",
+                "Basic "
+                    + java.util.Base64.getEncoder()
+                        .encodeToString((ADMIN_USER + ":" + ADMIN_PASSWORD).getBytes()))
+            .header("ibm-mq-rest-csrf-token", "blank")
+            .GET()
+            .build();
+
+    long deadline = System.currentTimeMillis() + MQ_READY_TIMEOUT_MS;
+    while (System.currentTimeMillis() < deadline) {
+      try {
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+          return;
+        }
+      } catch (IOException ignored) {
+        // REST endpoint not ready yet
+      }
+      Thread.sleep(MQ_READY_SLEEP_MS);
+    }
+    throw new RuntimeException(
+        "MQ REST endpoint not ready after " + (MQ_READY_TIMEOUT_MS / 1000) + "s");
   }
 }
