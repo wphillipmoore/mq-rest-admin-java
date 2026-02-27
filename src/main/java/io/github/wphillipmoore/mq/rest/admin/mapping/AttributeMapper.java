@@ -94,8 +94,14 @@ public final class AttributeMapper {
       String qualifier, List<Map<String, Object>> objects, boolean strict) {
     List<MappingIssue> allIssues = new ArrayList<>();
     List<Map<String, Object>> result = new ArrayList<>();
-    for (int i = 0; i < objects.size(); i++) {
-      result.add(mapAttributes(qualifier, objects.get(i), MappingDirection.RESPONSE, i, allIssues));
+    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++) {
+      result.add(
+          mapAttributes(
+              qualifier,
+              objects.get(objectIndex),
+              MappingDirection.RESPONSE,
+              objectIndex,
+              allIssues));
     }
     if (strict && !allIssues.isEmpty()) {
       throw new MappingException(allIssues);

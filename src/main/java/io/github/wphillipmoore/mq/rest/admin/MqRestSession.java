@@ -499,16 +499,17 @@ public final class MqRestSession {
     }
 
     if (hasOverallError || hasItemError) {
-      StringBuilder msg = new StringBuilder(96);
-      msg.append("MQSC command error");
+      StringBuilder message = new StringBuilder(96);
+      message.append("MQSC command error");
       if (overallCompletionCode != null || overallReasonCode != null) {
-        msg.append(" (overallCompletionCode=")
+        message
+            .append(" (overallCompletionCode=")
             .append(overallCompletionCode)
             .append(", overallReasonCode=")
             .append(overallReasonCode)
             .append(')');
       }
-      throw new MqRestCommandException(msg.toString(), payload, statusCode);
+      throw new MqRestCommandException(message.toString(), payload, statusCode);
     }
   }
 
@@ -660,9 +661,9 @@ public final class MqRestSession {
   }
 
   private static int indexOfFirstWhitespace(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      if (Character.isWhitespace(s.charAt(i))) {
-        return i;
+    for (int charIndex = 0; charIndex < s.length(); charIndex++) {
+      if (Character.isWhitespace(s.charAt(charIndex))) {
+        return charIndex;
       }
     }
     return -1;
