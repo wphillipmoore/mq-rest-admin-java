@@ -1,8 +1,14 @@
 # Examples
 
-The `examples/` directory contains practical scripts that demonstrate common
-MQ administration tasks using `mq-rest-admin`. Each example is self-contained
-and can be run against the local Docker environment.
+Runnable example classes demonstrate common MQ administration tasks using
+`mq-rest-admin`. Each example is a standalone class with a `main()` method
+that can be run against the local Docker environment.
+
+**Location:** [`src/test/java/.../examples/`](https://github.com/wphillipmoore/mq-rest-admin-java/tree/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples)
+
+Examples live in the test source tree so they compile alongside integration
+tests without affecting library coverage metrics. Each class is fully
+self-contained with its own `main()` entry point.
 
 ## Prerequisites
 
@@ -16,111 +22,57 @@ Start the multi-queue-manager Docker environment and seed both queue managers:
 This starts two queue managers (`QM1` on port 9453, `QM2` on port 9454) on a
 shared Docker network. See [local MQ container](development/local-mq-container.md) for details.
 
+## Environment variables
+
+| Variable               | Default                                | Description                   |
+|------------------------|----------------------------------------|-------------------------------|
+| `MQ_REST_BASE_URL`     | `https://localhost:9453/ibmmq/rest/v2` | QM1 REST endpoint             |
+| `MQ_REST_BASE_URL_QM2` | `https://localhost:9454/ibmmq/rest/v2` | QM2 REST endpoint             |
+| `MQ_QMGR_NAME`        | `QM1`                                  | Queue manager name            |
+| `MQ_ADMIN_USER`        | `mqadmin`                              | Admin username                |
+| `MQ_ADMIN_PASSWORD`    | `mqadmin`                              | Admin password                |
+| `DEPTH_THRESHOLD_PCT`  | `80`                                   | Queue depth warning threshold |
+
 ## Health check
 
-Connect to one or more queue managers and check:
+Connects to one or more queue managers and checks QMGR status,
+command server availability, and listener state. Produces a pass/fail
+summary for each queue manager.
 
-- Queue manager attributes via `displayQmgr()`
-- Running status via `displayQmstatus()`
-- Listener definitions via `displayListener()`
-
-```java
-var session = MqRestSession.builder()
-    .host("localhost").port(9453).queueManager("QM1")
-    .credentials(new LtpaAuth("mqadmin", "mqadmin"))
-    .verifyTls(false)
-    .build();
-
-var qmgr = session.displayQmgr();
-System.out.println("Queue manager: " + qmgr.get("queue_manager_name"));
-
-var status = session.displayQmstatus();
-System.out.println("Status: " + status.get("channel_initiator_status"));
-
-var listeners = session.displayListener("*");
-for (var listener : listeners) {
-    System.out.println("Listener: " + listener.get("listener_name")
-        + " port=" + listener.get("port"));
-}
-```
+See [`HealthCheck.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/HealthCheck.java).
 
 ## Queue depth monitor
 
-Display all local queues with their current depth and flag queues
-approaching capacity:
+Displays local queues with their current depth, flags queues
+approaching capacity, and sorts by depth percentage.
 
-```java
-var queues = session.displayQueue("*");
-
-for (var queue : queues) {
-    var depth = ((Number) queue.get("current_queue_depth")).intValue();
-    var maxDepth = ((Number) queue.get("max_queue_depth")).intValue();
-    var pct = maxDepth > 0 ? (depth * 100 / maxDepth) : 0;
-    var flag = pct > 80 ? " *** HIGH ***" : "";
-    System.out.printf("%-40s %5d / %5d (%d%%)%s%n",
-        queue.get("queue_name"), depth, maxDepth, pct, flag);
-}
-```
+See [`QueueDepthMonitor.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/QueueDepthMonitor.java).
 
 ## Channel status report
 
-Cross-reference channel definitions with live channel status:
+Displays channel definitions alongside live channel status, identifies
+channels that are defined but not running, and shows connection details.
 
-```java
-var channels = session.displayChannel("*");
-var statuses = session.displayChstatus("*");
-
-var runningChannels = statuses.stream()
-    .map(s -> s.get("channel_name"))
-    .collect(Collectors.toSet());
-
-for (var channel : channels) {
-    var name = channel.get("channel_name");
-    var state = runningChannels.contains(name) ? "RUNNING" : "INACTIVE";
-    System.out.println(name + ": " + state);
-}
-```
+See [`ChannelStatus.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/ChannelStatus.java).
 
 ## Environment provisioner
 
-Demonstrate bulk provisioning across two queue managers using ensure
-methods:
+Defines a complete set of queues, channels, and remote queue definitions
+across two queue managers, then verifies connectivity. Includes teardown.
 
-```java
-// Ensure application queues exist on QM1
-session.ensureQlocal("APP.REQUESTS", Map.of(
-    "max_queue_depth", 50000,
-    "default_persistence", "persistent"
-));
-session.ensureQlocal("APP.RESPONSES", Map.of(
-    "max_queue_depth", 50000,
-    "default_persistence", "persistent"
-));
-
-// Ensure listeners are running
-var config = new SyncConfig(60, 1);
-session.startListenerSync("TCP.LISTENER", config);
-
-System.out.println("Environment provisioned");
-```
+See [`ProvisionEnvironment.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/ProvisionEnvironment.java).
 
 ## Dead letter queue inspector
 
-Inspect the dead letter queue configuration:
+Checks the dead letter queue configuration, reports depth and capacity,
+and suggests actions when messages are present.
 
-```java
-var qmgr = session.displayQmgr();
-var dlqName = (String) qmgr.get("dead_letter_q_name");
+See [`DlqInspector.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/DlqInspector.java).
 
-if (dlqName != null && !dlqName.isBlank()) {
-    var dlq = session.displayQueue(dlqName);
-    if (!dlq.isEmpty()) {
-        var depth = dlq.get(0).get("current_queue_depth");
-        var maxDepth = dlq.get(0).get("max_queue_depth");
-        System.out.println("DLQ: " + dlqName
-            + " depth=" + depth + " max=" + maxDepth);
-    }
-} else {
-    System.out.println("No dead letter queue configured");
-}
-```
+## Queue status and connection handles
+
+Demonstrates `DISPLAY QSTATUS TYPE(HANDLE)` and `DISPLAY CONN TYPE(HANDLE)`
+queries, showing how `mq-rest-admin` flattens nested object response
+structures into uniform flat maps.
+
+See [`QueueStatus.java`](https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/QueueStatus.java).
