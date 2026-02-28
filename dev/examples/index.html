@@ -614,6 +614,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#health-check" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -662,6 +673,17 @@
     <span class="md-ellipsis">
       
         Dead letter queue inspector
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queue-status-and-connection-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue status and connection handles
       
     </span>
   </a>
@@ -3166,6 +3188,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#health-check" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3220,6 +3253,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#queue-status-and-connection-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue status and connection handles
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3238,9 +3282,13 @@
 
 
 <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
-<p>The <code>examples/</code> directory contains practical scripts that demonstrate common
-MQ administration tasks using <code>mq-rest-admin</code>. Each example is self-contained
-and can be run against the local Docker environment.</p>
+<p>Runnable example classes demonstrate common MQ administration tasks using
+<code>mq-rest-admin</code>. Each example is a standalone class with a <code>main()</code> method
+that can be run against the local Docker environment.</p>
+<p><strong>Location:</strong> <a href="https://github.com/wphillipmoore/mq-rest-admin-java/tree/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples"><code>src/test/java/.../examples/</code></a></p>
+<p>Examples live in the test source tree so they compile alongside integration
+tests without affecting library coverage metrics. Each class is fully
+self-contained with its own <code>main()</code> entry point.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Start the multi-queue-manager Docker environment and seed both queue managers:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./scripts/dev/mq_start.sh
@@ -3248,96 +3296,74 @@ and can be run against the local Docker environment.</p>
 </code></pre></div>
 <p>This starts two queue managers (<code>QM1</code> on port 9453, <code>QM2</code> on port 9454) on a
 shared Docker network. See <a href="../development/local-mq-container/">local MQ container</a> for details.</p>
+<h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MQ_REST_BASE_URL</code></td>
+<td><code>https://localhost:9453/ibmmq/rest/v2</code></td>
+<td>QM1 REST endpoint</td>
+</tr>
+<tr>
+<td><code>MQ_REST_BASE_URL_QM2</code></td>
+<td><code>https://localhost:9454/ibmmq/rest/v2</code></td>
+<td>QM2 REST endpoint</td>
+</tr>
+<tr>
+<td><code>MQ_QMGR_NAME</code></td>
+<td><code>QM1</code></td>
+<td>Queue manager name</td>
+</tr>
+<tr>
+<td><code>MQ_ADMIN_USER</code></td>
+<td><code>mqadmin</code></td>
+<td>Admin username</td>
+</tr>
+<tr>
+<td><code>MQ_ADMIN_PASSWORD</code></td>
+<td><code>mqadmin</code></td>
+<td>Admin password</td>
+</tr>
+<tr>
+<td><code>DEPTH_THRESHOLD_PCT</code></td>
+<td><code>80</code></td>
+<td>Queue depth warning threshold</td>
+</tr>
+</tbody>
+</table>
 <h2 id="health-check">Health check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h2>
-<p>Connect to one or more queue managers and check:</p>
-<ul>
-<li>Queue manager attributes via <code>displayQmgr()</code></li>
-<li>Running status via <code>displayQmstatus()</code></li>
-<li>Listener definitions via <code>displayListener()</code></li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MqRestSession</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="na">host</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">).</span><span class="na">port</span><span class="p">(</span><span class="mi">9453</span><span class="p">).</span><span class="na">queueManager</span><span class="p">(</span><span class="s">&quot;QM1&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LtpaAuth</span><span class="p">(</span><span class="s">&quot;mqadmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mqadmin&quot;</span><span class="p">))</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">.</span><span class="na">verifyTls</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kd">var</span><span class="w"> </span><span class="n">qmgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQmgr</span><span class="p">();</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Queue manager: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">qmgr</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;queue_manager_name&quot;</span><span class="p">));</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="kd">var</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQmstatus</span><span class="p">();</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Status: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">status</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;channel_initiator_status&quot;</span><span class="p">));</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kd">var</span><span class="w"> </span><span class="n">listeners</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayListener</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">);</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="n">listener</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">listeners</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Listener: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">listener</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;listener_name&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; port=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">listener</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;port&quot;</span><span class="p">));</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="p">}</span>
-</code></pre></div>
+<p>Connects to one or more queue managers and checks QMGR status,
+command server availability, and listener state. Produces a pass/fail
+summary for each queue manager.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/HealthCheck.java"><code>HealthCheck.java</code></a>.</p>
 <h2 id="queue-depth-monitor">Queue depth monitor<a class="headerlink" href="#queue-depth-monitor" title="Permanent link">&para;</a></h2>
-<p>Display all local queues with their current depth and flag queues
-approaching capacity:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">queues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQueue</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">queues</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;current_queue_depth&quot;</span><span class="p">)).</span><span class="na">intValue</span><span class="p">();</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">maxDepth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;max_queue_depth&quot;</span><span class="p">)).</span><span class="na">intValue</span><span class="p">();</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxDepth</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">depth</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">maxDepth</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">80</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot; *** HIGH ***&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;%-40s %5d / %5d (%d%%)%s%n&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="n">queue</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;queue_name&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="n">maxDepth</span><span class="p">,</span><span class="w"> </span><span class="n">pct</span><span class="p">,</span><span class="w"> </span><span class="n">flag</span><span class="p">);</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
-</code></pre></div>
+<p>Displays local queues with their current depth, flags queues
+approaching capacity, and sorts by depth percentage.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/QueueDepthMonitor.java"><code>QueueDepthMonitor.java</code></a>.</p>
 <h2 id="channel-status-report">Channel status report<a class="headerlink" href="#channel-status-report" title="Permanent link">&para;</a></h2>
-<p>Cross-reference channel definitions with live channel status:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayChannel</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">);</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kd">var</span><span class="w"> </span><span class="n">statuses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayChstatus</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">);</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kd">var</span><span class="w"> </span><span class="n">runningChannels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">statuses</span><span class="p">.</span><span class="na">stream</span><span class="p">()</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;channel_name&quot;</span><span class="p">))</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toSet</span><span class="p">());</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">channels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;channel_name&quot;</span><span class="p">);</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runningChannels</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;RUNNING&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;INACTIVE&quot;</span><span class="p">;</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">state</span><span class="p">);</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
-</code></pre></div>
+<p>Displays channel definitions alongside live channel status, identifies
+channels that are defined but not running, and shows connection details.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/ChannelStatus.java"><code>ChannelStatus.java</code></a>.</p>
 <h2 id="environment-provisioner">Environment provisioner<a class="headerlink" href="#environment-provisioner" title="Permanent link">&para;</a></h2>
-<p>Demonstrate bulk provisioning across two queue managers using ensure
-methods:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Ensure application queues exist on QM1</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">session</span><span class="p">.</span><span class="na">ensureQlocal</span><span class="p">(</span><span class="s">&quot;APP.REQUESTS&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="s">&quot;max_queue_depth&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">50000</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="s">&quot;default_persistence&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;persistent&quot;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">));</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">session</span><span class="p">.</span><span class="na">ensureQlocal</span><span class="p">(</span><span class="s">&quot;APP.RESPONSES&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="s">&quot;max_queue_depth&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">50000</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="s">&quot;default_persistence&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;persistent&quot;</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">));</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="c1">// Ensure listeners are running</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="kd">var</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SyncConfig</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">session</span><span class="p">.</span><span class="na">startListenerSync</span><span class="p">(</span><span class="s">&quot;TCP.LISTENER&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Environment provisioned&quot;</span><span class="p">);</span>
-</code></pre></div>
+<p>Defines a complete set of queues, channels, and remote queue definitions
+across two queue managers, then verifies connectivity. Includes teardown.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/ProvisionEnvironment.java"><code>ProvisionEnvironment.java</code></a>.</p>
 <h2 id="dead-letter-queue-inspector">Dead letter queue inspector<a class="headerlink" href="#dead-letter-queue-inspector" title="Permanent link">&para;</a></h2>
-<p>Inspect the dead letter queue configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">qmgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQmgr</span><span class="p">();</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kd">var</span><span class="w"> </span><span class="n">dlqName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">qmgr</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;dead_letter_q_name&quot;</span><span class="p">);</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dlqName</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">dlqName</span><span class="p">.</span><span class="na">isBlank</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">dlq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">displayQueue</span><span class="p">(</span><span class="n">dlqName</span><span class="p">);</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">dlq</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dlq</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;current_queue_depth&quot;</span><span class="p">);</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">maxDepth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dlq</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;max_queue_depth&quot;</span><span class="p">);</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;DLQ: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dlqName</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; depth=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">depth</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; max=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">maxDepth</span><span class="p">);</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;No dead letter queue configured&quot;</span><span class="p">);</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
-</code></pre></div>
+<p>Checks the dead letter queue configuration, reports depth and capacity,
+and suggests actions when messages are present.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/DlqInspector.java"><code>DlqInspector.java</code></a>.</p>
+<h2 id="queue-status-and-connection-handles">Queue status and connection handles<a class="headerlink" href="#queue-status-and-connection-handles" title="Permanent link">&para;</a></h2>
+<p>Demonstrates <code>DISPLAY QSTATUS TYPE(HANDLE)</code> and <code>DISPLAY CONN TYPE(HANDLE)</code>
+queries, showing how <code>mq-rest-admin</code> flattens nested object response
+structures into uniform flat maps.</p>
+<p>See <a href="https://github.com/wphillipmoore/mq-rest-admin-java/blob/main/src/test/java/io/github/wphillipmoore/mq/rest/admin/examples/QueueStatus.java"><code>QueueStatus.java</code></a>.</p>
 
 
 
