@@ -28,7 +28,7 @@ shared Docker network. See [local MQ container](development/local-mq-container.m
 |------------------------|----------------------------------------|-------------------------------|
 | `MQ_REST_BASE_URL`     | `https://localhost:9453/ibmmq/rest/v2` | QM1 REST endpoint             |
 | `MQ_REST_BASE_URL_QM2` | `https://localhost:9454/ibmmq/rest/v2` | QM2 REST endpoint             |
-| `MQ_QMGR_NAME`        | `QM1`                                  | Queue manager name            |
+| `MQ_QMGR_NAME`         | `QM1`                                  | Queue manager name            |
 | `MQ_ADMIN_USER`        | `mqadmin`                              | Admin username                |
 | `MQ_ADMIN_PASSWORD`    | `mqadmin`                              | Admin password                |
 | `DEPTH_THRESHOLD_PCT`  | `80`                                   | Queue depth warning threshold |
