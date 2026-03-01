@@ -3396,37 +3396,39 @@
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
 <h2 id="component-overview">Component overview<a class="headerlink" href="#component-overview" title="Permanent link">&para;</a></h2>
 <p>The library is organized around four core components:</p>
-<p><strong>Session</strong>
-: The main entry point. Owns authentication, base URL construction,
+<dl>
+<dt><strong>Session</strong></dt>
+<dd>The main entry point. Owns authentication, base URL construction,
   request/response handling, and diagnostic state. Provides generated
   command methods for all MQSC commands. A single session represents a
-  connection to one queue manager's REST API.</p>
-<p><strong>Command methods</strong>
-: ~144 generated MQSC command methods. Each method is a thin wrapper that
+  connection to one queue manager's REST API.</dd>
+<dt><strong>Command methods</strong></dt>
+<dd>~144 generated MQSC command methods. Each method is a thin wrapper that
   calls the internal command dispatcher with the correct command verb and
   qualifier. Method names follow the pattern <code>verb_qualifier</code> (or
   <code>verbQualifier</code> in camelCase languages), mapping directly to MQSC
   commands. For example, <code>DISPLAY QUEUE</code> becomes <code>display_queue</code> /
   <code>displayQueue</code>, and <code>DEFINE QLOCAL</code> becomes <code>define_qlocal</code> /
-  <code>defineQlocal</code>.</p>
-<p><strong>Ensure methods</strong>
-: 16 idempotent ensure methods for declarative object management. Each
+  <code>defineQlocal</code>.</dd>
+<dt><strong>Ensure methods</strong></dt>
+<dd>16 idempotent ensure methods for declarative object management. Each
   method checks current state with DISPLAY, then DEFINE, ALTER, or no-ops
   as needed. Returns an ensure result indicating what action was taken.
   The queue manager variant is a special singleton (no name, no DEFINE).
   Only changed attributes are sent in ALTER commands, preserving
-  <code>ALTDATE</code>/<code>ALTTIME</code> audit timestamps.</p>
-<p><strong>Mapping pipeline</strong>
-: Bidirectional attribute translation between developer-friendly names and
+  <code>ALTDATE</code>/<code>ALTTIME</code> audit timestamps.</dd>
+<dt><strong>Mapping pipeline</strong></dt>
+<dd>Bidirectional attribute translation between developer-friendly names and
   native MQSC parameter names. Includes key mapping (attribute names),
   value mapping (enumerated values), and key-value mapping (combined
   name+value translations). The mapping tables were bootstrapped from
-  IBM MQ 9.4 documentation and cover all standard MQSC attributes.</p>
-<p><strong>Exception hierarchy</strong>
-: Structured error types for transport failures, malformed responses,
+  IBM MQ 9.4 documentation and cover all standard MQSC attributes.</dd>
+<dt><strong>Exception hierarchy</strong></dt>
+<dd>Structured error types for transport failures, malformed responses,
   authentication errors, MQSC command errors, and polling timeouts.
   All exceptions carry diagnostic context including the full MQ response
-  payload when available.</p>
+  payload when available.</dd>
+</dl>
 <p>In the Java implementation, the core components map to these classes:</p>
 <ul>
 <li><strong><code>MqRestSession</code></strong>: The main entry point. A single class (no mixin

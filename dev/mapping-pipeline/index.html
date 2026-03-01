@@ -3496,15 +3496,17 @@
 <h1 id="mapping-pipeline">Mapping Pipeline<a class="headerlink" href="#mapping-pipeline" title="Permanent link">&para;</a></h1>
 <h2 id="the-three-namespace-problem">The three-namespace problem<a class="headerlink" href="#the-three-namespace-problem" title="Permanent link">&para;</a></h2>
 <p>IBM MQ uses multiple naming conventions depending on the interface:</p>
-<p><strong>MQSC names</strong> (e.g. <code>CURDEPTH</code>, <code>DEFPSIST</code>)
-: Short, uppercase tokens used in MQSC commands and the REST API's
-  <code>runCommandJSON</code> endpoint.</p>
-<p><strong>PCF names</strong> (e.g. <code>CurrentQDepth</code>, <code>DefPersistence</code>)
-: CamelCase names from the Programmable Command Formats. Not used
+<dl>
+<dt><strong>MQSC names</strong> (e.g. <code>CURDEPTH</code>, <code>DEFPSIST</code>)</dt>
+<dd>Short, uppercase tokens used in MQSC commands and the REST API's
+  <code>runCommandJSON</code> endpoint.</dd>
+<dt><strong>PCF names</strong> (e.g. <code>CurrentQDepth</code>, <code>DefPersistence</code>)</dt>
+<dd>CamelCase names from the Programmable Command Formats. Not used
   directly by mq-rest-admin, but they form the intermediate namespace in
-  the mapping pipeline.</p>
-<p><strong>Developer names</strong> (e.g. <code>current_queue_depth</code>, <code>default_persistence</code>)
-: Human-readable <code>snake_case</code> names for use in application code.</p>
+  the mapping pipeline.</dd>
+<dt><strong>Developer names</strong> (e.g. <code>current_queue_depth</code>, <code>default_persistence</code>)</dt>
+<dd>Human-readable <code>snake_case</code> names for use in application code.</dd>
+</dl>
 <p>The mapping pipeline translates between MQSC and developer names. PCF names
 were used as an intermediate reference during the original extraction
 process that bootstrapped the mapping tables but do not appear at
