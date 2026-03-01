@@ -1177,14 +1177,14 @@ class MqRestSessionTest {
     void extractOptionalIntFromNullReturnsNull() {
       Integer result = MqRestSession.extractOptionalInt(null);
 
-      assertThat(result).isEmpty();
+      assertThat(result).isNull();
     }
 
     @Test
     void extractOptionalIntFromStringReturnsNull() {
       Integer result = MqRestSession.extractOptionalInt("not a number");
 
-      assertThat(result).isEmpty();
+      assertThat(result).isNull();
     }
 
     @Test
