@@ -1109,33 +1109,47 @@ class MqRestSessionTest {
 
     @Test
     void extractLtpaTokenFromSetCookie() {
-      String token =
+      String[] result =
           MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "LtpaToken2=mytoken; Path=/"));
 
-      assertThat(token).isEqualTo("mytoken");
+      assertThat(result).isNotNull();
+      assertThat(result[0]).isEqualTo("LtpaToken2");
+      assertThat(result[1]).isEqualTo("mytoken");
+    }
+
+    @Test
+    void extractLtpaTokenWithSuffixedCookieName() {
+      String[] result =
+          MqRestSession.extractLtpaToken(
+              Map.of("Set-Cookie", "LtpaToken2_abcdef=suffixed_tok; Path=/"));
+
+      assertThat(result).isNotNull();
+      assertThat(result[0]).isEqualTo("LtpaToken2_abcdef");
+      assertThat(result[1]).isEqualTo("suffixed_tok");
     }
 
     @Test
     void extractLtpaTokenCaseInsensitiveHeader() {
-      String token =
+      String[] result =
           MqRestSession.extractLtpaToken(Map.of("set-cookie", "LtpaToken2=mytoken; Path=/"));
 
-      assertThat(token).isEqualTo("mytoken");
+      assertThat(result).isNotNull();
+      assertThat(result[1]).isEqualTo("mytoken");
     }
 
     @Test
     void extractLtpaTokenReturnsNullWhenNoSetCookie() {
-      String token = MqRestSession.extractLtpaToken(Map.of("Content-Type", "text/html"));
+      String[] result = MqRestSession.extractLtpaToken(Map.of("Content-Type", "text/html"));
 
-      assertThat(token).isNull();
+      assertThat(result).isNull();
     }
 
     @Test
     void extractLtpaTokenReturnsNullWhenWrongCookieName() {
-      String token =
+      String[] result =
           MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "JSESSIONID=abc123; Path=/"));
 
-      assertThat(token).isNull();
+      assertThat(result).isNull();
     }
 
     @Test
