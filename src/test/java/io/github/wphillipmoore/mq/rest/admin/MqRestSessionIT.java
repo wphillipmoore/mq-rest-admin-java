@@ -7,7 +7,6 @@ import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
 import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureAction;
 import io.github.wphillipmoore.mq.rest.admin.ensure.EnsureResult;
 import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
-import io.github.wphillipmoore.mq.rest.admin.exception.MqRestException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,7 +24,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -648,7 +646,7 @@ class MqRestSessionIT {
   }
 
   // -------------------------------------------------------------------------
-  // LTPA auth tests — expected to fail on MQ developer containers
+  // LTPA auth tests
   // -------------------------------------------------------------------------
 
   @Nested
@@ -656,29 +654,17 @@ class MqRestSessionIT {
 
     @Test
     void ltpaAuthDisplayQmgr() {
-      MqRestSession ltpaSession;
-      try {
-        ltpaSession =
-            new MqRestSession.Builder(
-                    REST_BASE_URL, QM1_NAME, new LtpaAuth(ADMIN_USER, ADMIN_PASSWORD))
-                .transport(new HttpClientTransport())
-                .verifyTls(false)
-                .build();
-      } catch (MqRestException e) {
-        Assumptions.abort(
-            "LTPA session creation failed (expected on dev containers): " + e.getMessage());
-        return;
-      }
+      MqRestSession ltpaSession =
+          new MqRestSession.Builder(
+                  REST_BASE_URL, QM1_NAME, new LtpaAuth(ADMIN_USER, ADMIN_PASSWORD))
+              .transport(new HttpClientTransport())
+              .verifyTls(false)
+              .build();
 
-      try {
-        Map<String, Object> result = ltpaSession.displayQmgr(null, null);
+      Map<String, Object> result = ltpaSession.displayQmgr(null, null);
 
-        assertThat(result).isNotNull();
-        assertThat(containsStringValue(result, QM1_NAME)).isTrue();
-      } catch (MqRestException e) {
-        Assumptions.abort(
-            "LTPA DisplayQmgr failed (expected on dev containers): " + e.getMessage());
-      }
+      assertThat(result).isNotNull();
+      assertThat(containsStringValue(result, QM1_NAME)).isTrue();
     }
   }
 

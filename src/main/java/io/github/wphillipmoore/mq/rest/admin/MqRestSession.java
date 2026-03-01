@@ -88,6 +88,7 @@ public final class MqRestSession {
   private final AttributeMapper attributeMapper;
 
   private Clock clock = new SystemClock();
+  private @Nullable String ltpaCookieName;
   private @Nullable String ltpaToken;
   private @Nullable Integer lastHttpStatus;
   private @Nullable String lastResponseText;
@@ -321,7 +322,7 @@ public final class MqRestSession {
       headers.put(
           "Authorization", buildBasicAuthHeader(basicAuth.username(), basicAuth.password()));
     } else if (ltpaToken != null) {
-      headers.put("Cookie", LTPA_COOKIE_NAME + "=" + ltpaToken);
+      headers.put("Cookie", ltpaCookieName + "=" + ltpaToken);
     }
     // CertificateAuth: no auth header needed (mTLS handled by transport)
     if (csrfToken != null) {
@@ -358,17 +359,18 @@ public final class MqRestSession {
       throw new MqRestAuthException("LTPA login failed", loginUrl, response.statusCode());
     }
 
-    String token = extractLtpaToken(response.headers());
-    if (token == null) {
+    String[] result = extractLtpaToken(response.headers());
+    if (result.length == 0) {
       throw new MqRestAuthException(
           "LTPA login succeeded but LtpaToken2 cookie not found in response",
           loginUrl,
           response.statusCode());
     }
-    this.ltpaToken = token;
+    this.ltpaCookieName = result[0];
+    this.ltpaToken = result[1];
   }
 
-  static @Nullable String extractLtpaToken(Map<String, String> headers) {
+  static String[] extractLtpaToken(Map<String, String> headers) {
     // Look for Set-Cookie header (case-insensitive)
     String setCookie = null;
     for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -378,16 +380,21 @@ public final class MqRestSession {
       }
     }
     if (setCookie == null) {
-      return null;
+      return new String[0];
     }
-    // Parse cookie string for LtpaToken2
+    // Parse cookie string for LtpaToken2 (exact or prefixed name)
     for (String part : setCookie.split(";")) {
       String trimmed = part.trim();
-      if (trimmed.startsWith(LTPA_COOKIE_NAME + "=")) {
-        return trimmed.substring(LTPA_COOKIE_NAME.length() + 1);
+      if (trimmed.startsWith(LTPA_COOKIE_NAME)) {
+        int eqIndex = trimmed.indexOf('=');
+        if (eqIndex > 0) {
+          String cookieName = trimmed.substring(0, eqIndex);
+          String cookieValue = trimmed.substring(eqIndex + 1);
+          return new String[] {cookieName, cookieValue};
+        }
       }
     }
-    return null;
+    return new String[0];
   }
 
   String resolveMappingQualifier(String command, String qualifier) {
