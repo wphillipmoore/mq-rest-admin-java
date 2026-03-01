@@ -42,6 +42,7 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - def_list
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
