@@ -860,6 +860,30 @@ class MqRestSessionCommandsTest {
     }
 
     @Test
+    void alterQaliasDispatches() {
+      session.alterQalias(null, null, null);
+      assertDispatch("ALTER", "QALIAS");
+    }
+
+    @Test
+    void alterQlocalDispatches() {
+      session.alterQlocal(null, null, null);
+      assertDispatch("ALTER", "QLOCAL");
+    }
+
+    @Test
+    void alterQmodelDispatches() {
+      session.alterQmodel(null, null, null);
+      assertDispatch("ALTER", "QMODEL");
+    }
+
+    @Test
+    void alterQremoteDispatches() {
+      session.alterQremote(null, null, null);
+      assertDispatch("ALTER", "QREMOTE");
+    }
+
+    @Test
     void alterSecurityDispatches() {
       session.alterSecurity(null, null, null);
       assertDispatch("ALTER", "SECURITY");
