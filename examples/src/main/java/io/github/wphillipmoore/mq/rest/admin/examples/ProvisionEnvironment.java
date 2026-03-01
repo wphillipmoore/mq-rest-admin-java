@@ -26,7 +26,14 @@ public final class ProvisionEnvironment {
 
   /** Result of the provisioning operation. */
   public record ProvisionResult(
-      List<String> objectsCreated, List<String> objectsFailed, boolean verified) {}
+      List<String> objectsCreated, List<String> objectsFailed, boolean verified) {
+
+    /** Defensive copy of list fields. */
+    public ProvisionResult {
+      objectsCreated = List.copyOf(objectsCreated);
+      objectsFailed = List.copyOf(objectsFailed);
+    }
+  }
 
   /** Provision cross-QM objects on both queue managers. */
   public static ProvisionResult provision(MqRestSession qm1, MqRestSession qm2) {

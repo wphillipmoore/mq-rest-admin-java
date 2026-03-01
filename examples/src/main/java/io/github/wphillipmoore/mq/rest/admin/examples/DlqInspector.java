@@ -5,6 +5,7 @@ import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
 import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Dead letter queue inspector.
@@ -116,7 +117,7 @@ public final class DlqInspector {
     return report;
   }
 
-  private static int toInt(Object value) {
+  private static int toInt(@Nullable Object value) {
     if (value instanceof Number n) {
       return n.intValue();
     }

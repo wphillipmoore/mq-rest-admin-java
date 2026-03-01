@@ -31,7 +31,13 @@ public final class HealthCheck {
       String status,
       String commandServer,
       List<ListenerResult> listeners,
-      boolean passed) {}
+      boolean passed) {
+
+    /** Defensive copy of listeners list. */
+    public QMHealthResult {
+      listeners = List.copyOf(listeners);
+    }
+  }
 
   /** Run a health check against a single queue manager. */
   public static QMHealthResult checkHealth(MqRestSession session) {

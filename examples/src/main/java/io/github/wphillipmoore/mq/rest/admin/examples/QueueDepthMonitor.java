@@ -6,8 +6,10 @@ import io.github.wphillipmoore.mq.rest.admin.auth.BasicAuth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Queue depth monitor.
@@ -38,7 +40,7 @@ public final class QueueDepthMonitor {
     List<QueueDepthInfo> results = new ArrayList<>();
 
     for (Map<String, Object> queue : queues) {
-      String qtype = String.valueOf(queue.getOrDefault("type", "")).strip().toUpperCase();
+      String qtype = String.valueOf(queue.getOrDefault("type", "")).strip().toUpperCase(Locale.ROOT);
       if (!LOCAL_TYPES.contains(qtype)) {
         continue;
       }
@@ -91,7 +93,7 @@ public final class QueueDepthMonitor {
     return results;
   }
 
-  static int toInt(Object value) {
+  static int toInt(@Nullable Object value) {
     if (value instanceof Number n) {
       return n.intValue();
     }
