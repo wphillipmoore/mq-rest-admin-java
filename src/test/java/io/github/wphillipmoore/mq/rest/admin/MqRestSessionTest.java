@@ -1145,6 +1145,14 @@ class MqRestSessionTest {
     }
 
     @Test
+    void extractLtpaTokenReturnsNullWhenNameHasNoEquals() {
+      String[] result =
+          MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "LtpaToken2; Path=/"));
+
+      assertThat(result).isNull();
+    }
+
+    @Test
     void extractLtpaTokenReturnsNullWhenWrongCookieName() {
       String[] result =
           MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "JSESSIONID=abc123; Path=/"));
