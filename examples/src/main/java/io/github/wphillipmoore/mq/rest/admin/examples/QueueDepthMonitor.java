@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Queue depth monitor.
@@ -92,7 +93,7 @@ public final class QueueDepthMonitor {
     return results;
   }
 
-  static int toInt(Object value) {
+  static int toInt(@Nullable Object value) {
     if (value instanceof Number n) {
       return n.intValue();
     }
