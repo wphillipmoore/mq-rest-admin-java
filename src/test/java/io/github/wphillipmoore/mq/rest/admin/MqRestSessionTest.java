@@ -1141,14 +1141,14 @@ class MqRestSessionTest {
     void extractLtpaTokenReturnsNullWhenNoSetCookie() {
       String[] result = MqRestSession.extractLtpaToken(Map.of("Content-Type", "text/html"));
 
-      assertThat(result).isNull();
+      assertThat(result).isEmpty();
     }
 
     @Test
     void extractLtpaTokenReturnsNullWhenNameHasNoEquals() {
       String[] result = MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "LtpaToken2; Path=/"));
 
-      assertThat(result).isNull();
+      assertThat(result).isEmpty();
     }
 
     @Test
@@ -1156,7 +1156,7 @@ class MqRestSessionTest {
       String[] result =
           MqRestSession.extractLtpaToken(Map.of("Set-Cookie", "JSESSIONID=abc123; Path=/"));
 
-      assertThat(result).isNull();
+      assertThat(result).isEmpty();
     }
 
     @Test
@@ -1177,14 +1177,14 @@ class MqRestSessionTest {
     void extractOptionalIntFromNullReturnsNull() {
       Integer result = MqRestSession.extractOptionalInt(null);
 
-      assertThat(result).isNull();
+      assertThat(result).isEmpty();
     }
 
     @Test
     void extractOptionalIntFromStringReturnsNull() {
       Integer result = MqRestSession.extractOptionalInt("not a number");
 
-      assertThat(result).isNull();
+      assertThat(result).isEmpty();
     }
 
     @Test

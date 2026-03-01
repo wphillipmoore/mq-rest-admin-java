@@ -360,7 +360,7 @@ public final class MqRestSession {
     }
 
     String[] result = extractLtpaToken(response.headers());
-    if (result == null) {
+    if (result.length == 0) {
       throw new MqRestAuthException(
           "LTPA login succeeded but LtpaToken2 cookie not found in response",
           loginUrl,
@@ -370,7 +370,7 @@ public final class MqRestSession {
     this.ltpaToken = result[1];
   }
 
-  static String @Nullable [] extractLtpaToken(Map<String, String> headers) {
+  static String[] extractLtpaToken(Map<String, String> headers) {
     // Look for Set-Cookie header (case-insensitive)
     String setCookie = null;
     for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -380,7 +380,7 @@ public final class MqRestSession {
       }
     }
     if (setCookie == null) {
-      return null;
+      return new String[0];
     }
     // Parse cookie string for LtpaToken2 (exact or prefixed name)
     for (String part : setCookie.split(";")) {
@@ -394,7 +394,7 @@ public final class MqRestSession {
         }
       }
     }
-    return null;
+    return new String[0];
   }
 
   String resolveMappingQualifier(String command, String qualifier) {
