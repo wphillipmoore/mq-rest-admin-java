@@ -194,6 +194,54 @@ st-submit-pr --issue 42 --linkage Ref --summary "Update docs" --docs-only
 - `--docs-only` (optional): applies docs-only testing exception
 - `--dry-run` (optional): print generated PR without executing
 
+### Local MQ Container
+
+The MQ development environment is owned by the
+[mq-rest-admin-dev-environment](https://github.com/wphillipmoore/mq-rest-admin-dev-environment)
+repository. Clone it as a sibling directory before running lifecycle
+scripts:
+
+```bash
+# Prerequisite (one-time)
+git clone https://github.com/wphillipmoore/mq-rest-admin-dev-environment.git ../mq-rest-admin-dev-environment
+
+# Start the containerized MQ queue managers
+./scripts/dev/mq_start.sh
+
+# Seed deterministic test objects (DEV.* prefix)
+./scripts/dev/mq_seed.sh
+
+# Verify REST-based MQSC responses
+./scripts/dev/mq_verify.sh
+
+# Stop the queue managers
+./scripts/dev/mq_stop.sh
+
+# Reset to clean state (removes data volumes)
+./scripts/dev/mq_reset.sh
+```
+
+The lifecycle scripts are thin wrappers that delegate to
+`../mq-rest-admin-dev-environment`. Override the path with `MQ_DEV_ENV_PATH`.
+
+Integration tests are gated by the `MQ_REST_ADMIN_RUN_INTEGRATION`
+environment variable. When unset, integration tests are skipped. For local
+runs:
+
+```bash
+./scripts/dev/mq_start.sh
+./scripts/dev/mq_seed.sh
+export MQ_REST_ADMIN_RUN_INTEGRATION=true
+./mvnw verify    # Unit + integration tests
+```
+
+Container details:
+- Queue managers: `QM1` and `QM2`
+- QM1 ports: `1424` (MQ listener), `9453` (REST API)
+- QM2 ports: `1425` (MQ listener), `9454` (REST API)
+- Admin credentials: `mqadmin` / `mqadmin`
+- Object prefix: `DEV.*`
+
 ## Architecture
 
 Direct port of pymqrest's architecture, adapted to Java idioms.
