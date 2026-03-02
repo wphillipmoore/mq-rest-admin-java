@@ -57,6 +57,7 @@ public final class HttpClientTransport implements MqRestTransport {
   }
 
   @Override
+  @SuppressWarnings("PMD.CloseResource") // HttpClient is managed by this transport, not disposable
   public TransportResponse postJson(
       String url,
       Map<String, Object> payload,
@@ -135,7 +136,6 @@ public final class HttpClientTransport implements MqRestTransport {
    * An {@link X509TrustManager} that accepts all certificates. Used when TLS verification is
    * disabled.
    */
-  @SuppressWarnings("all")
   static final class TrustAllManager implements X509TrustManager {
 
     @Override

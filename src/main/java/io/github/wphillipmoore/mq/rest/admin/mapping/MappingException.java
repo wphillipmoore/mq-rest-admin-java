@@ -2,7 +2,6 @@ package io.github.wphillipmoore.mq.rest.admin.mapping;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 /**
  * Raised when attribute mapping fails in strict mode.
@@ -58,18 +57,21 @@ public final class MappingException extends RuntimeException {
   }
 
   private static String buildMessage(List<MappingIssue> issues) {
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder(64 + issues.size() * 128);
     sb.append("Mapping failed with ").append(issues.size()).append(" issue(s):");
     for (MappingIssue issue : issues) {
-      sb.append('\n');
-      StringJoiner joiner = new StringJoiner(" | ");
-      joiner.add("index=" + (issue.objectIndex() != null ? issue.objectIndex() : "-"));
-      joiner.add("qualifier=" + (issue.qualifier() != null ? issue.qualifier() : "-"));
-      joiner.add("direction=" + issue.direction());
-      joiner.add("reason=" + issue.reason());
-      joiner.add("attribute=" + issue.attributeName());
-      joiner.add("value=" + (issue.attributeValue() != null ? issue.attributeValue() : "-"));
-      sb.append(joiner);
+      sb.append("\nindex=")
+          .append(issue.objectIndex() != null ? issue.objectIndex() : "-")
+          .append(" | qualifier=")
+          .append(issue.qualifier() != null ? issue.qualifier() : "-")
+          .append(" | direction=")
+          .append(issue.direction())
+          .append(" | reason=")
+          .append(issue.reason())
+          .append(" | attribute=")
+          .append(issue.attributeName())
+          .append(" | value=")
+          .append(issue.attributeValue() != null ? issue.attributeValue() : "-");
     }
     return sb.toString();
   }

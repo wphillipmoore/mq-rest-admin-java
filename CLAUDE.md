@@ -53,6 +53,29 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 - **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
 - **Standard tooling**: `cd ../standard-tooling && uv sync && export PATH="../standard-tooling/.venv/bin:../standard-tooling/scripts/bin:$PATH"`
 
+### Three-Tier CI Model
+
+Testing is split across three tiers with increasing scope and cost:
+
+**Tier 1 — Local pre-commit (seconds):** Fast smoke tests in a single
+container. Run before every commit. No MQ, no matrix.
+
+```bash
+./scripts/dev/test.sh        # Full verify pipeline in dev-java:21
+./scripts/dev/lint.sh        # Spotless + Checkstyle in dev-java:21
+./scripts/dev/audit.sh       # Dependency + license audit in dev-java:21
+```
+
+**Tier 2 — Push CI (~3-5 min):** Triggers automatically on push to
+`feature/**`, `bugfix/**`, `hotfix/**`, `chore/**`. Single Java version
+(21), includes integration tests, no security scanners or release gates.
+Workflow: `.github/workflows/ci-push.yml` (calls `ci.yml`).
+
+**Tier 3 — PR CI (~8-10 min):** Triggers on `pull_request`. Full Java
+matrix (17, 21, 25-ea), all integration tests, security scanners (CodeQL,
+Trivy, Semgrep), standards compliance, and release gates. Workflow:
+`.github/workflows/ci.yml`.
+
 ### Build and Validate
 
 ```bash
@@ -62,6 +85,30 @@ st-validate-local               # Canonical validation (runs full pipeline below
                             # integration tests → JaCoCo (100% line+branch) → SpotBugs → PMD
 ./mvnw spotless:apply       # Auto-format code (run before committing)
 ```
+
+### Docker-First Testing
+
+All tests can run inside containers — Docker is the only host prerequisite.
+The `dev-java:21` image is built from `../standard-tooling/docker/java/`.
+
+```bash
+# Build the dev image (one-time, from standard-tooling)
+cd ../standard-tooling && docker/build.sh
+
+# Run full verify pipeline in container
+./scripts/dev/test.sh
+
+# Run lint checks in container
+./scripts/dev/lint.sh
+
+# Run dependency audit in container
+./scripts/dev/audit.sh
+```
+
+Environment overrides:
+
+- `DOCKER_DEV_IMAGE` — override the container image (default: `dev-java:21`)
+- `DOCKER_TEST_CMD` — override the test command
 
 ### Testing
 
@@ -146,6 +193,54 @@ st-submit-pr --issue 42 --linkage Ref --summary "Update docs" --docs-only
 - `--notes` (optional): additional notes
 - `--docs-only` (optional): applies docs-only testing exception
 - `--dry-run` (optional): print generated PR without executing
+
+### Local MQ Container
+
+The MQ development environment is owned by the
+[mq-rest-admin-dev-environment](https://github.com/wphillipmoore/mq-rest-admin-dev-environment)
+repository. Clone it as a sibling directory before running lifecycle
+scripts:
+
+```bash
+# Prerequisite (one-time)
+git clone https://github.com/wphillipmoore/mq-rest-admin-dev-environment.git ../mq-rest-admin-dev-environment
+
+# Start the containerized MQ queue managers
+./scripts/dev/mq_start.sh
+
+# Seed deterministic test objects (DEV.* prefix)
+./scripts/dev/mq_seed.sh
+
+# Verify REST-based MQSC responses
+./scripts/dev/mq_verify.sh
+
+# Stop the queue managers
+./scripts/dev/mq_stop.sh
+
+# Reset to clean state (removes data volumes)
+./scripts/dev/mq_reset.sh
+```
+
+The lifecycle scripts are thin wrappers that delegate to
+`../mq-rest-admin-dev-environment`. Override the path with `MQ_DEV_ENV_PATH`.
+
+Integration tests are gated by the `MQ_REST_ADMIN_RUN_INTEGRATION`
+environment variable. When unset, integration tests are skipped. For local
+runs:
+
+```bash
+./scripts/dev/mq_start.sh
+./scripts/dev/mq_seed.sh
+export MQ_REST_ADMIN_RUN_INTEGRATION=true
+./mvnw verify    # Unit + integration tests
+```
+
+Container details:
+- Queue managers: `QM1` and `QM2`
+- QM1 ports: `1424` (MQ listener), `9453` (REST API)
+- QM2 ports: `1425` (MQ listener), `9454` (REST API)
+- Admin credentials: `mqadmin` / `mqadmin`
+- Object prefix: `DEV.*`
 
 ## Architecture
 

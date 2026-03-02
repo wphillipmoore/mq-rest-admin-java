@@ -147,10 +147,10 @@ io.github.wphillipmoore.mq.rest.admin.ensure
 
 ## Ensure pipeline
 
-See [ensure methods](ensure-methods.md) for details on the idempotent
+See [ensure](api/ensure.md) for details on the idempotent
 create-or-update pipeline.
 
 ## Sync pipeline
 
-See [sync methods](sync-methods.md) for details on the synchronous
+See [sync](api/sync.md) for details on the synchronous
 polling pipeline.

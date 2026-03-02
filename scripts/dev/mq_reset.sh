@@ -10,7 +10,7 @@ if [ ! -d "$mq_dev_env" ]; then
   exit 1
 fi
 
-export COMPOSE_PROJECT_NAME=mq-rest-admin
+export COMPOSE_PROJECT_NAME=mqrest-java
 export QM1_REST_PORT=9453
 export QM2_REST_PORT=9454
 export QM1_MQ_PORT=1424

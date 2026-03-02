@@ -7,7 +7,7 @@
 
     <groupId>io.github.wphillipmoore</groupId>
     <artifactId>mq-rest-admin</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>mq-rest-admin</name>
@@ -62,6 +62,7 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
@@ -107,6 +108,25 @@
 
     <build>
         <plugins>
+            <!-- Add examples/ as additional source directory -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-examples-source</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>examples/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -162,6 +182,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <!-- HttpClient creates non-daemon threads that delay JVM exit.
+                         Allow extra time so the JaCoCo shutdown hook can write
+                         execution data before Surefire kills the fork. -->
+                    <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
+                </configuration>
             </plugin>
 
             <!-- Integration tests -->
@@ -225,6 +251,7 @@
                             <excludes>
                                 <exclude>**/package-info.class</exclude>
                                 <exclude>**/*IT.class</exclude>
+                                <exclude>**/examples/*.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -258,6 +285,12 @@
                 <version>${maven-pmd-plugin.version}</version>
                 <configuration>
                     <linkXRef>false</linkXRef>
+                    <rulesets>
+                        <ruleset>config/pmd/ruleset.xml</ruleset>
+                    </rulesets>
+                    <excludeRoots>
+                        <excludeRoot>examples/src/main/java</excludeRoot>
+                    </excludeRoots>
                 </configuration>
                 <executions>
                     <execution>

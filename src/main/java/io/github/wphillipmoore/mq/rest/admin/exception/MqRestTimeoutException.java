@@ -5,6 +5,8 @@ import java.util.Objects;
 /** Thrown when a polling operation exceeds its configured timeout. */
 public final class MqRestTimeoutException extends MqRestException {
 
+  private static final long serialVersionUID = 1L;
+
   private final String name;
   private final String operation;
   private final double elapsed;

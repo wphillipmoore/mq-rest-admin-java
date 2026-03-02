@@ -12,6 +12,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class MqRestCommandException extends MqRestException {
 
+  private static final long serialVersionUID = 1L;
+
   private final Map<String, Object> payload;
   private final @Nullable Integer statusCode;
 
