@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-03-02
+
+### Bug fixes
+
+- reorder publish workflow to tag before registry publish (#210)
+- use job-level env for Maven Central secret gate (#211)
+- correct relative links to mapping-pipeline in api/ensure and api/sync (#219)
+- LTPA cookie extraction uses prefix matching for suffixed cookie names (#233)
+
+### CI
+
+- remove SonarCloud and Code Climate workflows (#196)
+- implement three-tier CI architecture (#198)
+- add concurrency group to ci-push workflow (#240)
+
+### Documentation
+
+- replace stale script references with st-* commands (#195)
+- fix index page mismatches and restructure nav for LHS sidebar (#215)
+- merge ensure and sync documentation into single pages (#217)
+- add cross-repo documentation links to docs site (#235)
+- document local MQ environment scripts for AI agents (#241)
+
+### Features
+
+- port 6 runnable examples and add integration tests (#226)
+- auto-generate all MQSC command methods from mapping-data.json (#230)
+
+### Refactoring
+
+- rename 3 abbreviated and single-char variables to descriptive names (#224)
+- move examples to examples/ directory and include in build (#228)
+
 ## [1.2.0] - 2026-02-24
 
 ### Bug fixes
