@@ -5,34 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- include: docs/standards-and-conventions.md -->
 <!-- include: docs/repository-standards.md -->
 
-## Auto-memory policy
-
-**Do NOT use MEMORY.md.** Claude Code's auto-memory feature stores behavioral
-rules outside of version control, making them invisible to code review,
-inconsistent across repos, and unreliable across sessions. All behavioral rules,
-conventions, and workflow instructions belong in managed, version-controlled
-documentation (CLAUDE.md, AGENTS.md, skills, or docs/).
-
-If you identify a pattern, convention, or rule worth preserving:
-
-1. **Stop.** Do not write to MEMORY.md.
-2. **Discuss with the user** what you want to capture and why.
-3. **Together, decide** the correct managed location (CLAUDE.md, a skill file,
-   standards docs, or a new issue to track the gap).
-
-This policy exists because MEMORY.md is per-directory and per-machine — it
-creates divergent agent behavior across the multi-repo environment this project
-operates in. Consistency requires all guidance to live in shared, reviewable
-documentation.
-
-## Shell command policy
-
-**Do NOT use heredocs** (`<<EOF` / `<<'EOF'`) for multi-line arguments to CLI
-tools such as `gh`, `git commit`, or `curl`. Heredocs routinely fail due to
-shell escaping issues with apostrophes, backticks, and special characters.
-Always write multi-line content to a temporary file and pass it via `--body-file`
-or `--file` instead.
-
 ## Project Overview
 
 Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Python). Provides method-per-command API (`displayQueue()`, `defineQlocal()`, etc.) with attribute mapping between snake_case and MQSC parameter names.
@@ -133,67 +105,6 @@ Environment overrides:
 ./mvnw pmd:check           # Code smell detection
 ```
 
-## Git Conventions
-
-### Pre-flight Checklist
-
-1. Check current branch: `git status -sb`
-2. If on `develop` or `main`, create a `feature/*`, `bugfix/*`, or `hotfix/*` branch first
-3. Enable git hooks: `git config core.hooksPath ../standard-tooling/scripts/lib/git-hooks`
-
-### Branching Model (`library-release`)
-
-- **`develop`**: Integration branch — PRs target here (squash merge)
-- **`main`**: Release branch — release PRs merge here (regular merge)
-- Allowed branch prefixes: `feature/*`, `bugfix/*`, `hotfix/*`
-
-### Commit Message Rules (enforced by hooks)
-
-Conventional Commits format required:
-
-```
-<type>(optional-scope): <description>
-
-Co-Authored-By: wphillipmoore-claude <255925739+wphillipmoore-claude@users.noreply.github.com>
-```
-
-Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
-The co-author hook validates trailers against approved identities in `docs/repository-standards.md`. Only use the approved co-author lines listed there.
-
-## Commit and PR Scripts
-
-**NEVER use raw `git commit`** — always use `st-commit`.
-**NEVER use raw `gh pr create`** — always use `st-submit-pr`.
-
-### Committing
-
-```bash
-st-commit --type feat --scope session --message "add timeout option" --agent claude
-st-commit --type fix --message "correct null handling in mapper" --agent claude
-```
-
-- `--type` (required): `feat|fix|docs|style|refactor|test|chore|ci|build`
-- `--message` (required): commit description
-- `--agent` (required): `claude` or `codex` — resolves the correct `Co-Authored-By` identity
-- `--scope` (optional): conventional commit scope
-- `--body` (optional): detailed commit body
-
-### Submitting PRs
-
-```bash
-st-submit-pr --issue 42 --summary "Add timeout option to session builder"
-st-submit-pr --issue 42 --linkage Ref --summary "Update docs" --docs-only
-```
-
-- `--issue` (required): GitHub issue number (just the number)
-- `--summary` (required): one-line PR summary
-- `--linkage` (optional, default: `Fixes`): `Fixes|Closes|Resolves|Ref`
-- `--title` (optional): PR title (default: most recent commit subject)
-- `--notes` (optional): additional notes
-- `--docs-only` (optional): applies docs-only testing exception
-- `--dry-run` (optional): print generated PR without executing
-
 ### Local MQ Container
 
 The MQ development environment is owned by the
@@ -281,9 +192,3 @@ MappingException (separate, data-transformation errors)
 .admin.sync     — SyncConfig, SyncResult, SyncOperation
 .admin.ensure   — EnsureResult, EnsureAction
 ```
-
-## Documentation and Standards
-
-- `AGENTS.md` — Generic AI agent instructions with include directives
-- `docs/repository-standards.md` — Project-specific standards (branching, co-authors, naming)
-- `docs/standards-and-conventions.md` — Canonical standards reference
