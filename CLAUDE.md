@@ -13,7 +13,7 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 
 **Java package**: `io.github.wphillipmoore.mq.rest.admin`
 
-**Canonical Standards**: https://github.com/wphillipmoore/standards-and-conventions (local: `../standards-and-conventions`)
+**Canonical Standards**: <https://github.com/wphillipmoore/standards-and-conventions> (local: `../standards-and-conventions`)
 
 **Reference implementation**: `../mq-rest-admin-python`
 
@@ -147,6 +147,7 @@ export MQ_REST_ADMIN_RUN_INTEGRATION=true
 ```
 
 Container details:
+
 - Queue managers: `QM1` and `QM2`
 - QM1 ports: `1424` (MQ listener), `9453` (REST API)
 - QM2 ports: `1425` (MQ listener), `9454` (REST API)
@@ -171,7 +172,7 @@ Direct port of pymqrest's architecture, adapted to Java idioms.
 
 ### Exception Hierarchy
 
-```
+```text
 MqRestException (sealed, RuntimeException)
 ├── MqRestTransportException   (network/connection)
 ├── MqRestResponseException    (malformed JSON)
@@ -184,7 +185,7 @@ MappingException (separate, data-transformation errors)
 
 ### Package Layout
 
-```
+```text
 .admin          — MqRestSession (Builder pattern), MqRestTransport, HttpClientTransport, TransportResponse
 .admin.auth     — Credentials (sealed), BasicAuth, LtpaAuth, CertificateAuth
 .admin.exception — Sealed exception hierarchy
