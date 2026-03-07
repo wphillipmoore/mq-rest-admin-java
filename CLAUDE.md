@@ -23,7 +23,8 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 
 - **Java**: 17+ (install via `brew install openjdk@17` or SDKMAN)
 - **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
-- **Standard tooling**: `cd ../standard-tooling && uv sync && export PATH="../standard-tooling/.venv/bin:../standard-tooling/scripts/bin:$PATH"`
+- **Git hooks**: `git config core.hooksPath ../standard-tooling/scripts/lib/git-hooks`
+- **Standard tooling**: CLI tools (`st-commit`, `st-validate-local`, etc.) are pre-installed in the dev container images
 
 ### Three-Tier CI Model
 
