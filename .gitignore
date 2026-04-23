@@ -88,3 +88,4 @@ __pycache__/
 # Documentation
 .mq-rest-admin-common
 docs/site/site/
+.worktrees/
