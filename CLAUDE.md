@@ -100,12 +100,13 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 - **Git hooks**: `git config core.hooksPath ../standard-tooling/scripts/lib/git-hooks`
 - **Standard tooling**: CLI tools (`st-commit`, `st-validate-local`, etc.) are pre-installed in the dev container images
 
-### Three-Tier CI Model
+### Two-Tier CI Model
 
-Testing is split across three tiers with increasing scope and cost:
+Testing is split across two tiers with increasing scope and cost:
 
 **Tier 1 — Local pre-commit (seconds):** Fast smoke tests in a single
-container. Run before every commit. No MQ, no matrix.
+container. Enforced via the `.githooks` pre-commit gate on every commit.
+No MQ, no matrix.
 
 ```bash
 ./scripts/dev/test.sh        # Full verify pipeline in dev-java:21
@@ -113,15 +114,13 @@ container. Run before every commit. No MQ, no matrix.
 ./scripts/dev/audit.sh       # Dependency + license audit in dev-java:21
 ```
 
-**Tier 2 — Push CI (~3-5 min):** Triggers automatically on push to
-`feature/**`, `bugfix/**`, `hotfix/**`, `chore/**`. Single Java version
-(21), includes integration tests, no security scanners or release gates.
-Workflow: `.github/workflows/ci-push.yml` (calls `ci.yml`).
-
-**Tier 3 — PR CI (~8-10 min):** Triggers on `pull_request`. Full Java
+**Tier 2 — PR CI (~8-10 min):** Triggers on `pull_request`. Full Java
 matrix (17, 21, 25-ea), all integration tests, security scanners (CodeQL,
 Trivy, Semgrep), standards compliance, and release gates. Workflow:
 `.github/workflows/ci.yml`.
+
+Push-CI was retired once `st-validate-local` reached parity with PR-CI.
+See wphillipmoore/standard-actions#176 for the parity audit and rationale.
 
 ### Build and Validate
 
