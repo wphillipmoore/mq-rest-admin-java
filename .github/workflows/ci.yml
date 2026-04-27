@@ -39,7 +39,7 @@ jobs:
   # Security and standards (shared reusable workflow)
   # ---------------------------------------------------------------------------
   security-and-standards:
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@develop
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@v1.3
     with:
       language: java
       run-standards: ${{ inputs.run-release-gates || 'true' }}
@@ -113,7 +113,7 @@ jobs:
 
       - name: Version divergence gate (PRs targeting develop)
         if: github.event_name == 'pull_request' && github.base_ref == 'develop'
-        uses: wphillipmoore/standard-actions/actions/release-gates/version-divergence@develop
+        uses: wphillipmoore/standard-actions/actions/release-gates/version-divergence@v1.3
         with:
           head-version-command: ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
           main-version-command: git show origin/main:pom.xml | grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'
