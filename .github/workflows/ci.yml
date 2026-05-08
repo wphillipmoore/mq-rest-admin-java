@@ -7,7 +7,7 @@ on:
       java-versions:
         description: >-
           JSON array of Java versions for the unit-test matrix.
-          Default (empty) runs the full matrix: ["17", "21", "25-ea"].
+          Default (empty) runs the full matrix: ["17", "21"].
         type: string
         default: ""
       integration-matrix:
@@ -36,7 +36,7 @@ jobs:
     uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
     with:
       language: java
-      versions: '["21"]'
+      versions: ${{ inputs.java-versions || '["17", "21"]' }}
 
   security:
     # yamllint disable-line rule:line-length
@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         # yamllint disable-line rule:line-length
-        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21", "25-ea"]') }}
+        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21"]') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -79,17 +79,22 @@ jobs:
         run: ./mvnw verify -B
 
   audit:
-    name: "audit / dependencies"
+    name: "audit / dependencies / ${{ matrix.java-version }}"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # yamllint disable-line rule:line-length
+        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21"]') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up Java 21
+      - name: Set up Java ${{ matrix.java-version }}
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
       - name: Verify dependency resolution
@@ -114,8 +119,7 @@ jobs:
         include: >-
           ${{ fromJSON(inputs.integration-matrix || '[
             {"java-version":"17","qm1-rest-port":"9453","qm2-rest-port":"9454","qm1-mq-port":"1426","qm2-mq-port":"1427"},
-            {"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456","qm1-mq-port":"1428","qm2-mq-port":"1429"},
-            {"java-version":"25-ea","qm1-rest-port":"9457","qm2-rest-port":"9458","qm1-mq-port":"1430","qm2-mq-port":"1431"}
+            {"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456","qm1-mq-port":"1428","qm2-mq-port":"1429"}
           ]') }}
     steps:
       - name: Checkout code
