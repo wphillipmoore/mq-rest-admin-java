@@ -57,58 +57,18 @@ jobs:
       run-release: ${{ inputs.run-release != false }}
 
   test:
-    name: "test / unit / ${{ matrix.java-version }}"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # yamllint disable-line rule:line-length
-        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21"]') }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Set up Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.java-version }}
-          cache: maven
-
-      - name: Run full validation pipeline
-        run: ./mvnw verify -B
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-test.yml@v1.5
+    with:
+      language: java
+      versions: ${{ inputs.java-versions || '["17", "21"]' }}
 
   audit:
-    name: "audit / dependencies / ${{ matrix.java-version }}"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # yamllint disable-line rule:line-length
-        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21"]') }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Set up Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.java-version }}
-          cache: maven
-
-      - name: Verify dependency resolution
-        run: ./mvnw dependency:tree -B -q
-
-      # yamllint disable rule:line-length
-      - name: Run license compliance check
-        run: >-
-          ./mvnw org.codehaus.mojo:license-maven-plugin:2.7.0:add-third-party
-          -Dlicense.excludedScopes=test
-          -Dlicense.failIfWarning=true
-          "-Dlicense.includedLicenses=Apache-2.0|Apache 2.0|The Apache License, Version 2.0|MIT License|BSD-2-Clause|BSD-3-Clause|ISC|MPL-2.0|GPL-3.0-or-later"
-          -B
-      # yamllint enable rule:line-length
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-audit.yml@v1.5
+    with:
+      language: java
+      versions: ${{ inputs.java-versions || '["17", "21"]' }}
 
   integration-tests:
     name: "test / integration / ${{ matrix.java-version }}"
