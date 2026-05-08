@@ -35,9 +35,8 @@ jobs:
     # yamllint disable-line rule:line-length
     uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
     with:
-      language: shell
-      versions: '["latest"]'
-      container-suffix: base
+      language: java
+      versions: '["21"]'
 
   security:
     # yamllint disable-line rule:line-length
