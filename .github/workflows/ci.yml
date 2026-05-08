@@ -62,6 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # yamllint disable-line rule:line-length
         java-version: ${{ fromJSON(inputs.java-versions || '["17", "21", "25-ea"]') }}
     steps:
       - name: Checkout code
@@ -99,6 +100,7 @@ jobs:
           ./mvnw org.codehaus.mojo:license-maven-plugin:2.7.0:add-third-party
           -Dlicense.excludedScopes=test
           -Dlicense.failIfWarning=true
+          # yamllint disable-line rule:line-length
           "-Dlicense.includedLicenses=Apache-2.0|Apache 2.0|The Apache License, Version 2.0|MIT License|BSD-2-Clause|BSD-3-Clause|ISC|MPL-2.0|GPL-3.0-or-later"
           -B
 
@@ -126,6 +128,7 @@ jobs:
           cache: maven
 
       - name: Setup MQ environment
+        # yamllint disable-line rule:line-length
         uses: wphillipmoore/mq-rest-admin-dev-environment/.github/actions/setup-mq@main
         with:
           project-name: mqrest-java-${{ matrix.java-version }}
@@ -138,6 +141,8 @@ jobs:
         env:
           MQ_REST_ADMIN_RUN_INTEGRATION: "1"
           MQ_SKIP_LIFECYCLE: "1"
+          # yamllint disable-line rule:line-length
           MQ_REST_BASE_URL: https://localhost:${{ matrix.qm1-rest-port }}/ibmmq/rest/v2
+          # yamllint disable-line rule:line-length
           MQ_REST_BASE_URL_QM2: https://localhost:${{ matrix.qm2-rest-port }}/ibmmq/rest/v2
         run: ./mvnw verify -B
