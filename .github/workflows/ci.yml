@@ -95,14 +95,15 @@ jobs:
       - name: Verify dependency resolution
         run: ./mvnw dependency:tree -B -q
 
+      # yamllint disable rule:line-length
       - name: Run license compliance check
         run: >-
           ./mvnw org.codehaus.mojo:license-maven-plugin:2.7.0:add-third-party
           -Dlicense.excludedScopes=test
           -Dlicense.failIfWarning=true
-          # yamllint disable-line rule:line-length
           "-Dlicense.includedLicenses=Apache-2.0|Apache 2.0|The Apache License, Version 2.0|MIT License|BSD-2-Clause|BSD-3-Clause|ISC|MPL-2.0|GPL-3.0-or-later"
           -B
+      # yamllint enable rule:line-length
 
   integration-tests:
     name: "test / integration / ${{ matrix.java-version }}"
