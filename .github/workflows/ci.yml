@@ -36,7 +36,7 @@ jobs:
     uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
     with:
       language: java
-      versions: '["21"]'
+      versions: ${{ inputs.java-versions || '["17", "21", "25-ea"]' }}
 
   security:
     # yamllint disable-line rule:line-length
@@ -79,17 +79,22 @@ jobs:
         run: ./mvnw verify -B
 
   audit:
-    name: "audit / dependencies"
+    name: "audit / dependencies / ${{ matrix.java-version }}"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # yamllint disable-line rule:line-length
+        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21", "25-ea"]') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up Java 21
+      - name: Set up Java ${{ matrix.java-version }}
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
       - name: Verify dependency resolution
