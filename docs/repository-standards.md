@@ -21,10 +21,10 @@
 Canonical local validation command:
 
 ```bash
-scripts/dev/validate_local.sh
+st-docker-run -- st-validate
 ```
 
-Individual checks (run by the validation script):
+Maven validation pipeline:
 
 ```bash
 ./mvnw verify           # Full validation pipeline (formatting, style, compile,

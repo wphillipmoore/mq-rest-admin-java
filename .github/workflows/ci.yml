@@ -17,15 +17,11 @@ on:
         type: string
         default: ""
       run-security:
-        description: >-
-          Run security scanner jobs (set to 'false' to skip).
-        type: string
-        default: "true"
-      run-release-gates:
-        description: >-
-          Run release gate checks (set to 'false' to skip).
-        type: string
-        default: "true"
+        type: boolean
+        default: true
+      run-release:
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -35,24 +31,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # Security and standards (shared reusable workflow)
-  # ---------------------------------------------------------------------------
-  security-and-standards:
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@v1.4
+  quality:
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
     with:
       language: java
-      run-standards: ${{ inputs.run-release-gates || 'true' }}
-      run-security: ${{ inputs.run-security || 'true' }}
+      versions: '["21"]'
+
+  security:
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@v1.5
+    with:
+      language: java
+      run-standards: ${{ inputs.run-release || true }}
+      run-security: ${{ inputs.run-security || true }}
     permissions:
       contents: read
       security-events: write
 
-  # ---------------------------------------------------------------------------
-  # Dependency audit
-  # ---------------------------------------------------------------------------
-  dependency-audit:
-    name: "ci: dependency-audit"
+  release:
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-release.yml@v1.5
+    with:
+      language: java
+      run-release: ${{ inputs.run-release != false }}
+
+  test:
+    name: "test / unit / ${{ matrix.java-version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # yamllint disable-line rule:line-length
+        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21", "25-ea"]') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      - name: Run full validation pipeline
+        run: ./mvnw verify -B
+
+  audit:
+    name: "audit / dependencies"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -68,6 +95,7 @@ jobs:
       - name: Verify dependency resolution
         run: ./mvnw dependency:tree -B -q
 
+      # yamllint disable rule:line-length
       - name: Run license compliance check
         run: >-
           ./mvnw org.codehaus.mojo:license-maven-plugin:2.7.0:add-third-party
@@ -75,85 +103,20 @@ jobs:
           -Dlicense.failIfWarning=true
           "-Dlicense.includedLicenses=Apache-2.0|Apache 2.0|The Apache License, Version 2.0|MIT License|BSD-2-Clause|BSD-3-Clause|ISC|MPL-2.0|GPL-3.0-or-later"
           -B
+      # yamllint enable rule:line-length
 
-  # ---------------------------------------------------------------------------
-  # Release gates
-  # ---------------------------------------------------------------------------
-  release-gates:
-    name: "release: gates"
-    if: ${{ inputs.run-release-gates != 'false' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip on non-PR events
-        if: github.event_name != 'pull_request'
-        run: echo "Not a pull request; skipping release gates."
-
-      - name: Checkout code
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java 21
-        if: github.event_name == 'pull_request'
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Version format gate (PRs targeting main)
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
-        run: |
-          version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "FAIL: Version ($version) must be plain semver (x.y.z)."
-            exit 1
-          fi
-          echo "OK: Version ($version) is valid semver."
-
-      - name: Version divergence gate (PRs targeting develop)
-        if: github.event_name == 'pull_request' && github.base_ref == 'develop'
-        uses: wphillipmoore/standard-actions/actions/release-gates/version-divergence@v1.4
-        with:
-          head-version-command: ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
-          main-version-command: git show origin/main:pom.xml | grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'
-
-  # ---------------------------------------------------------------------------
-  # Unit tests — matrix over Java versions
-  # ---------------------------------------------------------------------------
-  test-and-validate:
-    name: "test: unit (${{ matrix.java-version }})"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: ${{ fromJSON(inputs.java-versions || '["17", "21", "25-ea"]') }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Set up Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.java-version }}
-          cache: maven
-
-      - name: Run full validation pipeline
-        run: ./mvnw verify -B
-
-  # ---------------------------------------------------------------------------
-  # Integration tests — matrix over Java versions with unique MQ ports
-  # ---------------------------------------------------------------------------
   integration-tests:
-    name: "test: integration (${{ matrix.java-version }})"
+    name: "test / integration / ${{ matrix.java-version }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(inputs.integration-matrix || '[{"java-version":"17","qm1-rest-port":"9453","qm2-rest-port":"9454","qm1-mq-port":"1426","qm2-mq-port":"1427"},{"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456","qm1-mq-port":"1428","qm2-mq-port":"1429"},{"java-version":"25-ea","qm1-rest-port":"9457","qm2-rest-port":"9458","qm1-mq-port":"1430","qm2-mq-port":"1431"}]') }}
-
+        include: >-
+          ${{ fromJSON(inputs.integration-matrix || '[
+            {"java-version":"17","qm1-rest-port":"9453","qm2-rest-port":"9454","qm1-mq-port":"1426","qm2-mq-port":"1427"},
+            {"java-version":"21","qm1-rest-port":"9455","qm2-rest-port":"9456","qm1-mq-port":"1428","qm2-mq-port":"1429"},
+            {"java-version":"25-ea","qm1-rest-port":"9457","qm2-rest-port":"9458","qm1-mq-port":"1430","qm2-mq-port":"1431"}
+          ]') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -166,6 +129,7 @@ jobs:
           cache: maven
 
       - name: Setup MQ environment
+        # yamllint disable-line rule:line-length
         uses: wphillipmoore/mq-rest-admin-dev-environment/.github/actions/setup-mq@main
         with:
           project-name: mqrest-java-${{ matrix.java-version }}
@@ -178,6 +142,8 @@ jobs:
         env:
           MQ_REST_ADMIN_RUN_INTEGRATION: "1"
           MQ_SKIP_LIFECYCLE: "1"
+          # yamllint disable-line rule:line-length
           MQ_REST_BASE_URL: https://localhost:${{ matrix.qm1-rest-port }}/ibmmq/rest/v2
+          # yamllint disable-line rule:line-length
           MQ_REST_BASE_URL_QM2: https://localhost:${{ matrix.qm2-rest-port }}/ibmmq/rest/v2
         run: ./mvnw verify -B

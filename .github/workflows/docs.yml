@@ -36,7 +36,7 @@ jobs:
         run: ./mvnw javadoc:javadoc -B -q
 
       - name: Deploy docs
-        uses: wphillipmoore/standard-actions/actions/docs-deploy@v1.4
+        uses: wphillipmoore/standard-actions/actions/docs-deploy@v1.5
         with:
-          version-command: ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' | cut -d. -f1,2
+          version-command: st-version show --major-minor
           checkout-common: "true"

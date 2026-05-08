@@ -13,7 +13,8 @@ permissions:
 
 jobs:
   publish:
-    uses: wphillipmoore/standard-actions/.github/workflows/publish-release.yml@v1.4
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/publish-release.yml@v1.5
     permissions:
       attestations: write
       contents: write
@@ -21,17 +22,19 @@ jobs:
       pull-requests: write
     with:
       ecosystem: java
-      version-command: >-
-        ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
+      version-command: st-version show
+      # yamllint disable rule:line-length
       registry-check-command: >-
         status_code=$(curl -s -o /dev/null -w "%{http_code}"
         "https://repo1.maven.org/maven2/io/github/wphillipmoore/mq-rest-admin/$VERSION/");
         if [ "$status_code" = "200" ]; then echo "exists"; else echo "not_found"; fi
+      # yamllint enable rule:line-length
       build-command: ./mvnw verify -B
       attestation-subject-path: "target/*.jar"
       sbom-output-file: "dist/mq-rest-admin-$VERSION.cdx.json"
       registry-publish-command: ./mvnw deploy -B -Prelease -DskipTests
       release-title: mq-rest-admin
+      # yamllint disable rule:line-length
       release-notes: |
         ## Installation
 
@@ -53,13 +56,14 @@ jobs:
 
         - [Maven Central](https://central.sonatype.com/artifact/io.github.wphillipmoore/mq-rest-admin)
         - [Documentation](https://wphillipmoore.github.io/mq-rest-admin-java/)
+      # yamllint enable rule:line-length
       release-artifacts: "dist/*"
       version-file: pom.xml
+      # yamllint disable-line rule:line-length
       version-regex: '(<artifactId>mq-rest-admin</artifactId>\s*<version>)[^<]+(</version>)'
       version-replacement: '\g<1>{version}\2'
       version-regex-multiline: "true"
-      develop-version-command: >-
-        grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'
+      develop-version-command: st-version show
     secrets:
       APP_ID: ${{ secrets.APP_ID }}
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
