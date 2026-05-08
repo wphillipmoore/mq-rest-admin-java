@@ -13,7 +13,8 @@ permissions:
 
 jobs:
   publish:
-    uses: wphillipmoore/standard-actions/.github/workflows/publish-release.yml@v1.4
+    # yamllint disable-line rule:line-length
+    uses: wphillipmoore/standard-actions/.github/workflows/publish-release.yml@v1.5
     permissions:
       attestations: write
       contents: write
@@ -21,8 +22,7 @@ jobs:
       pull-requests: write
     with:
       ecosystem: java
-      version-command: >-
-        ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
+      version-command: st-version show
       registry-check-command: >-
         status_code=$(curl -s -o /dev/null -w "%{http_code}"
         "https://repo1.maven.org/maven2/io/github/wphillipmoore/mq-rest-admin/$VERSION/");
@@ -58,8 +58,7 @@ jobs:
       version-regex: '(<artifactId>mq-rest-admin</artifactId>\s*<version>)[^<]+(</version>)'
       version-replacement: '\g<1>{version}\2'
       version-regex-multiline: "true"
-      develop-version-command: >-
-        grep -m1 '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'
+      develop-version-command: st-version show
     secrets:
       APP_ID: ${{ secrets.APP_ID }}
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}

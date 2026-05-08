@@ -13,7 +13,7 @@
 
 ## Testing
 
-- markdownlint
+- `st-docker-run -- st-validate`
 - `./mvnw verify`
 
 ## Notes

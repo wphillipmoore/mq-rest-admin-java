@@ -105,63 +105,30 @@ Java wrapper for the IBM MQ administrative REST API, ported from `pymqrest` (Pyt
 - **Java**: 17+ (install via `brew install openjdk@17` or SDKMAN)
 - **Maven**: Provided by Maven Wrapper (`./mvnw`), no separate install needed
 - **Git hooks**: `git config core.hooksPath ../standard-tooling/scripts/lib/git-hooks`
-- **Standard tooling**: CLI tools (`st-commit`, `st-validate-local`, etc.) are pre-installed in the dev container images
+- **Standard tooling**: CLI tools (`st-commit`, `st-validate`, etc.) are pre-installed in the dev container images
 
-### Two-Tier CI Model
+### CI
 
-Testing is split across two tiers with increasing scope and cost:
+PR CI triggers on `pull_request`. Runs common quality checks (yamllint,
+markdownlint, shellcheck, actionlint), full Java matrix (17, 21, 25-ea)
+for unit tests, integration tests with MQ containers, security scanners
+(CodeQL, Trivy, Semgrep), standards compliance, and release gates.
+Workflow: `.github/workflows/ci.yml`.
 
-**Tier 1 — Local pre-commit (seconds):** Fast smoke tests in a single
-container. Enforced via the `.githooks` pre-commit gate on every commit.
-No MQ, no matrix.
+### Validation
 
 ```bash
-./scripts/dev/test.sh        # Full verify pipeline in dev-java:21
-./scripts/dev/lint.sh        # Spotless + Checkstyle in dev-java:21
-./scripts/dev/audit.sh       # Dependency + license audit in dev-java:21
+st-docker-run -- st-validate   # Full validation (runs in dev container)
 ```
-
-**Tier 2 — PR CI (~8-10 min):** Triggers on `pull_request`. Full Java
-matrix (17, 21, 25-ea), all integration tests, security scanners (CodeQL,
-Trivy, Semgrep), standards compliance, and release gates. Workflow:
-`.github/workflows/ci.yml`.
-
-Push-CI was retired once `st-validate-local` reached parity with PR-CI.
-See wphillipmoore/standard-actions#176 for the parity audit and rationale.
 
 ### Build and Validate
 
 ```bash
-st-validate-local               # Canonical validation (runs full pipeline below)
 ./mvnw compile              # Compile sources
 ./mvnw verify               # Full pipeline: Spotless → Checkstyle → compile → unit tests →
                             # integration tests → JaCoCo (100% line+branch) → SpotBugs → PMD
 ./mvnw spotless:apply       # Auto-format code (run before committing)
 ```
-
-### Docker-First Testing
-
-All tests can run inside containers — Docker is the only host prerequisite.
-The `dev-java:21` image is built from `../standard-tooling/docker/java/`.
-
-```bash
-# Build the dev image (one-time, from standard-tooling)
-cd ../standard-tooling && docker/build.sh
-
-# Run full verify pipeline in container
-./scripts/dev/test.sh
-
-# Run lint checks in container
-./scripts/dev/lint.sh
-
-# Run dependency audit in container
-./scripts/dev/audit.sh
-```
-
-Environment overrides:
-
-- `DOCKER_DEV_IMAGE` — override the container image (default: `dev-java:21`)
-- `DOCKER_TEST_CMD` — override the test command
 
 ### Testing
 
