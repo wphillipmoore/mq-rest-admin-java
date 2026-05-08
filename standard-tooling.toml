@@ -10,7 +10,7 @@ claude = "Co-Authored-By: wphillipmoore-claude <255925739+wphillipmoore-claude@u
 codex = "Co-Authored-By: wphillipmoore-codex <255923655+wphillipmoore-codex@users.noreply.github.com>"
 
 [ci]
-versions = ["17", "21", "25-ea"]
+versions = ["17", "21"]
 integration-tests = true
 
 [markdownlint]
