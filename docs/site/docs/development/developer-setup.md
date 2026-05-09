@@ -156,14 +156,6 @@ mkdocs build -f docs/site/mkdocs.yml
 mkdocs serve -f docs/site/mkdocs.yml
 ```
 
-### Javadoc
-
-```bash
-./mvnw javadoc:javadoc
-```
-
-Output is generated to `docs/site/site/javadoc/`.
-
 ## CI pipeline overview
 
 CI runs on every pull request and enforces the same gates as local
