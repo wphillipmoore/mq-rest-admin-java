@@ -1,3 +1,4 @@
+# https://github.com/wphillipmoore/standard-actions/blob/develop/.github/workflows/README.md
 name: CI
 
 on:
@@ -31,40 +32,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    # yamllint disable-line rule:line-length
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
-    with:
-      language: java
-      versions: ${{ inputs.java-versions || '["17", "21"]' }}
-
-  security:
-    # yamllint disable-line rule:line-length
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@v1.5
-    with:
-      language: java
-      run-standards: ${{ inputs.run-release != 'false' }}
-      run-security: ${{ inputs.run-security != 'false' }}
-    permissions:
-      contents: read
-      security-events: write
-
-  release:
-    # yamllint disable-line rule:line-length
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-release.yml@v1.5
-    with:
-      language: java
-      run-release: ${{ inputs.run-release != false }}
-
-  test:
-    # yamllint disable-line rule:line-length
-    uses: wphillipmoore/standard-actions/.github/workflows/ci-test.yml@v1.5
-    with:
-      language: java
-      versions: ${{ inputs.java-versions || '["17", "21"]' }}
-
   audit:
-    # yamllint disable-line rule:line-length
     uses: wphillipmoore/standard-actions/.github/workflows/ci-audit.yml@v1.5
     with:
       language: java
@@ -107,7 +75,37 @@ jobs:
           MQ_REST_ADMIN_RUN_INTEGRATION: "1"
           MQ_SKIP_LIFECYCLE: "1"
           # yamllint disable-line rule:line-length
-          MQ_REST_BASE_URL: https://localhost:${{ matrix.qm1-rest-port }}/ibmmq/rest/v2
+          MQ_REST_BASE_URL: >-
+            https://localhost:${{ matrix.qm1-rest-port }}/ibmmq/rest/v2
           # yamllint disable-line rule:line-length
-          MQ_REST_BASE_URL_QM2: https://localhost:${{ matrix.qm2-rest-port }}/ibmmq/rest/v2
+          MQ_REST_BASE_URL_QM2: >-
+            https://localhost:${{ matrix.qm2-rest-port }}/ibmmq/rest/v2
         run: ./mvnw verify -B
+
+  quality:
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-quality.yml@v1.5
+    with:
+      language: java
+      versions: ${{ inputs.java-versions || '["17", "21"]' }}
+
+  security:
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-security.yml@v1.5
+    with:
+      language: java
+      run-standards: ${{ inputs.run-release != 'false' }}
+      run-security: ${{ inputs.run-security != 'false' }}
+    permissions:
+      contents: read
+      security-events: write
+
+  test:
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-test.yml@v1.5
+    with:
+      language: java
+      versions: ${{ inputs.java-versions || '["17", "21"]' }}
+
+  version:
+    uses: wphillipmoore/standard-actions/.github/workflows/ci-version-bump.yml@v1.5
+    with:
+      language: java
+      run-release: ${{ inputs.run-release != 'false' }}
