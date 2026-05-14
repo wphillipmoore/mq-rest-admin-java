@@ -12,7 +12,7 @@ Add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>io.github.wphillipmoore</groupId>
+    <groupId>io.github.mqrestadminproject</groupId>
     <artifactId>mq-rest-admin</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -24,8 +24,8 @@ All interaction with IBM MQ goes through an `MqRestSession`. You need the
 REST API host, port, queue manager name, and credentials:
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
-import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
+import io.github.mqrestadminproject.mq.rest.admin.MqRestSession;
+import io.github.mqrestadminproject.mq.rest.admin.auth.LtpaAuth;
 
 var session = MqRestSession.builder()
     .host("localhost")
@@ -219,7 +219,7 @@ display methods return `null` when no match is found. Non-display commands
 raise `MqRestCommandException` on failure:
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.exception.MqRestCommandException;
+import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestCommandException;
 
 // Empty list — no exception
 List<Map<String, Object>> result = session.displayQueue("NONEXISTENT.*");

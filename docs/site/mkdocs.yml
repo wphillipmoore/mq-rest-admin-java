@@ -1,7 +1,7 @@
 site_name: mq-rest-admin (Java)
-site_url: https://wphillipmoore.github.io/mq-rest-admin-java/
+site_url: https://mq-rest-admin-project.github.io/mq-rest-admin-java/
 site_description: Java wrapper for the IBM MQ administrative REST API
-repo_url: https://github.com/wphillipmoore/mq-rest-admin-java
+repo_url: https://github.com/mq-rest-admin-project/mq-rest-admin-java
 repo_name: mq-rest-admin-java
 edit_uri: ""
 

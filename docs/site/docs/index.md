@@ -21,7 +21,7 @@ native MQSC tokens, and surface errors as structured exceptions.
 
 ```xml
 <dependency>
-    <groupId>io.github.wphillipmoore</groupId>
+    <groupId>io.github.mqrestadminproject</groupId>
     <artifactId>mq-rest-admin</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>

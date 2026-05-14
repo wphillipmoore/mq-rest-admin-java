@@ -11,8 +11,8 @@ method. Always use TLS (`https://`) for production deployments to protect
 credentials and data in transit.
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
-import io.github.wphillipmoore.mq.rest.admin.auth.*;
+import io.github.mqrestadminproject.mq.rest.admin.MqRestSession;
+import io.github.mqrestadminproject.mq.rest.admin.auth.*;
 
 // mTLS client certificate auth — strongest; no shared secrets
 var session = MqRestSession.builder()

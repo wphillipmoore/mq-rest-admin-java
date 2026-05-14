@@ -107,7 +107,7 @@ Thrown when a polling operation exceeds the configured timeout duration.
 
 ## MappingException
 
-`io.github.wphillipmoore.mq.rest.admin.mapping.MappingException`
+`io.github.mqrestadminproject.mq.rest.admin.mapping.MappingException`
 
 Separate from the `MqRestException` hierarchy. Thrown by the mapping layer when
 strict-mode attribute translation fails. Contains the list of `MappingIssue`
