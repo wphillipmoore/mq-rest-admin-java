@@ -5,14 +5,14 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.wphillipmoore</groupId>
+    <groupId>io.github.mq-rest-admin-project</groupId>
     <artifactId>mq-rest-admin</artifactId>
     <version>1.2.2</version>
     <packaging>jar</packaging>
 
     <name>mq-rest-admin</name>
     <description>Java wrapper for the IBM MQ administrative REST API</description>
-    <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
+    <url>https://github.com/mq-rest-admin-project/mq-rest-admin-java</url>
 
     <licenses>
         <license>
@@ -25,14 +25,14 @@
     <developers>
         <developer>
             <name>W. Phillip Moore</name>
-            <url>https://github.com/wphillipmoore</url>
+            <url>https://github.com/mq-rest-admin-project</url>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/wphillipmoore/mq-rest-admin-java.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/wphillipmoore/mq-rest-admin-java.git</developerConnection>
-        <url>https://github.com/wphillipmoore/mq-rest-admin-java</url>
+        <connection>scm:git:https://github.com/mq-rest-admin-project/mq-rest-admin-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/mq-rest-admin-project/mq-rest-admin-java.git</developerConnection>
+        <url>https://github.com/mq-rest-admin-project/mq-rest-admin-java</url>
     </scm>
 
     <properties>
@@ -335,7 +335,7 @@
                                 <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
                                 <arg>-Xplugin:ErrorProne
-                                    -XepOpt:NullAway:AnnotatedPackages=io.github.wphillipmoore.mq.rest.admin
+                                    -XepOpt:NullAway:AnnotatedPackages=io.github.mqrestadminproject.mq.rest.admin
                                     -Xep:NullAway:ERROR</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>

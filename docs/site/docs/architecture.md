@@ -113,19 +113,19 @@ serialization. All other functionality uses JDK built-in APIs
 ## Package structure
 
 ```text
-io.github.wphillipmoore.mq.rest.admin
+io.github.mqrestadminproject.mq.rest.admin
     MqRestSession           — Main entry point (builder, commands, ensure, diagnostics)
     MqRestTransport         — Transport interface
     HttpClientTransport     — Default transport (java.net.http.HttpClient)
     TransportResponse       — HTTP response record (statusCode, body, headers)
 
-io.github.wphillipmoore.mq.rest.admin.auth
+io.github.mqrestadminproject.mq.rest.admin.auth
     Credentials             — Sealed interface
     BasicAuth               — HTTP Basic authentication
     LtpaAuth                — LTPA token-based authentication (auto-login)
     CertificateAuth         — Client certificate authentication (mTLS)
 
-io.github.wphillipmoore.mq.rest.admin.exception
+io.github.mqrestadminproject.mq.rest.admin.exception
     MqRestException         — Sealed base class (RuntimeException)
     MqRestTransportException    — Network/connection failures
     MqRestResponseException     — Malformed JSON, unexpected structure
@@ -133,14 +133,14 @@ io.github.wphillipmoore.mq.rest.admin.exception
     MqRestCommandException      — MQSC command returned error codes
     MqRestTimeoutException      — Polling timeout exceeded
 
-io.github.wphillipmoore.mq.rest.admin.mapping
+io.github.mqrestadminproject.mq.rest.admin.mapping
     AttributeMapper         — Bidirectional attribute translation engine
     MappingData             — Mapping tables loaded from JSON resource
     MappingIssue            — Tracks individual mapping problems
     MappingException        — Thrown on strict-mode mapping failure
     MappingOverrideMode     — MERGE or REPLACE override strategy
 
-io.github.wphillipmoore.mq.rest.admin.ensure
+io.github.mqrestadminproject.mq.rest.admin.ensure
     EnsureAction            — Enum: CREATED, UPDATED, UNCHANGED
     EnsureResult            — Record: action + changed attribute names
 ```

@@ -21,7 +21,7 @@
 Canonical local validation command:
 
 ```bash
-st-docker-run -- st-validate
+vrg-docker-run -- vrg-validate
 ```
 
 Maven validation pipeline:
@@ -65,7 +65,7 @@ submission. Do not construct commit messages or PR bodies manually.
 ### Committing
 
 ```bash
-st-commit \
+vrg-commit \
   --type TYPE --message MESSAGE --agent AGENT \
   [--scope SCOPE] [--body BODY]
 ```
@@ -78,7 +78,7 @@ st-commit \
 - `--body` (optional): detailed commit body
 
 The script resolves the correct `Co-Authored-By` identity from
-`standard-tooling.toml` and the git hooks validate the result.
+`vergil.toml` and the git hooks validate the result.
 
 ### Submitting PRs
 

@@ -324,27 +324,27 @@ MappingException (extends RuntimeException, separate hierarchy)
 ## Planned package structure
 
 ```text
-io.github.wphillipmoore.mq.rest.admin
+io.github.mqrestadminproject.mq.rest.admin
     MqRestSession, MqRestTransport (interface), HttpClientTransport,
     TransportResponse (record)
 
-io.github.wphillipmoore.mq.rest.admin.auth
+io.github.mqrestadminproject.mq.rest.admin.auth
     Credentials (sealed interface), BasicAuth, LtpaAuth,
     CertificateAuth (records)
 
-io.github.wphillipmoore.mq.rest.admin.exception
+io.github.mqrestadminproject.mq.rest.admin.exception
     MqRestException (sealed), MqRestTransportException,
     MqRestResponseException, MqRestAuthException,
     MqRestCommandException, MqRestTimeoutException
 
-io.github.wphillipmoore.mq.rest.admin.mapping
+io.github.mqrestadminproject.mq.rest.admin.mapping
     AttributeMapper, MappingData, MappingIssue (record),
     MappingException, MappingOverrideMode (enum)
 
-io.github.wphillipmoore.mq.rest.admin.sync
+io.github.mqrestadminproject.mq.rest.admin.sync
     SyncConfig (record), SyncResult (record), SyncOperation (enum)
 
-io.github.wphillipmoore.mq.rest.admin.ensure
+io.github.mqrestadminproject.mq.rest.admin.ensure
     EnsureResult (record), EnsureAction (enum)
 ```
 

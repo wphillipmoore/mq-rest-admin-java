@@ -24,9 +24,9 @@ implemented. One minor tooling item remains (docs-only validation).
   `docs/plans/2026-02-12-project-naming.md`).
 - **GitHub repository name**: `mq-rest-admin-java`.
 - **Maven artifactId**: `mq-rest-admin`.
-- **Maven groupId**: `io.github.wphillipmoore` (decided 2026-02-12, see
+- **Maven groupId**: `io.github.mqrestadminproject` (decided 2026-02-12, see
   `docs/plans/2026-02-12-tier1-decisions.md`).
-- **Java package**: `io.github.wphillipmoore.mq.rest.admin` (decided
+- **Java package**: `io.github.mqrestadminproject.mq.rest.admin` (decided
   2026-02-12).
 
 ## Java platform

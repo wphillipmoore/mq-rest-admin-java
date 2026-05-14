@@ -12,8 +12,8 @@
 
 ### Decisions made
 
-- **Maven groupId**: `io.github.wphillipmoore`
-- **Full Java package**: `io.github.wphillipmoore.mq.rest.admin`
+- **Maven groupId**: `io.github.mqrestadminproject`
+- **Full Java package**: `io.github.mqrestadminproject.mq.rest.admin`
 - **Minimum Java version**: 17
 - **CI test matrix**: 17, 21, and 25
 - **Build tool**: Maven (with Maven Wrapper)
@@ -30,7 +30,7 @@
 
 ### Action items
 
-- Register the `io.github.wphillipmoore` namespace on the Central Portal
+- Register the `io.github.mqrestadminproject` namespace on the Central Portal
   (auto-verified via GitHub login).
 - Generate the Maven project skeleton with `pom.xml` and Maven Wrapper.
 - Update `CLAUDE.md` with concrete development commands once the project
@@ -62,7 +62,7 @@
 
 #### Tradeoffs
 
-- `io.github.wphillipmoore` is verbose in import statements (26 characters
+- `io.github.mqrestadminproject` is verbose in import statements (26 characters
   before the artifact package). This is a cosmetic concern -- IDEs handle
   imports automatically.
 - The groupId is tied to a personal GitHub username. If the project grows to

@@ -32,7 +32,7 @@ the MQSC command's qualifier (e.g. `queue`, `channel`, `qmgr`).
 Holds the complete mapping tables loaded from the JSON resource file at:
 
 ```text
-src/main/resources/io/github/wphillipmoore/mq/rest/admin/mapping/mapping-data.json
+src/main/resources/io/github/mqrestadminproject/mq/rest/admin/mapping/mapping-data.json
 ```
 
 The data is organized by qualifier (e.g. `queue`, `channel`, `qmgr`) with
@@ -77,7 +77,7 @@ mode, issues are collected but the unmapped values pass through unchanged.
 
 ## MappingException
 
-`io.github.wphillipmoore.mq.rest.admin.mapping.MappingException`
+`io.github.mqrestadminproject.mq.rest.admin.mapping.MappingException`
 
 Thrown when attribute mapping fails in strict mode. Separate from the
 `MqRestException` hierarchy (it does not extend `MqRestException`). Contains
