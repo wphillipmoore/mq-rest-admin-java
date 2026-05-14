@@ -86,8 +86,7 @@ class MappingExceptionTest {
     MappingException ex = new MappingException(List.of(SAMPLE_ISSUE));
 
     assertThat(ex).isInstanceOf(RuntimeException.class);
-    assertThat(ex)
-        .isNotInstanceOf(MqRestException.class);
+    assertThat(ex).isNotInstanceOf(MqRestException.class);
   }
 
   @Test
