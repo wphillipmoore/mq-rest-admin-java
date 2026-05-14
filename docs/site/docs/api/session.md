@@ -16,8 +16,8 @@ the Java session is a single class with all methods directly available.
 Use the builder pattern:
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.MqRestSession;
-import io.github.wphillipmoore.mq.rest.admin.auth.LtpaAuth;
+import io.github.mqrestadminproject.mq.rest.admin.MqRestSession;
+import io.github.mqrestadminproject.mq.rest.admin.auth.LtpaAuth;
 
 var session = MqRestSession.builder()
     .host("localhost")

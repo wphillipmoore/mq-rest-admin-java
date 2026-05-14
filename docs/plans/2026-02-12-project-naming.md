@@ -27,9 +27,9 @@
 
 ### Open decisions explicitly flagged as unresolved
 
-- **Maven groupId**: depends on whether `io.github.wphillipmoore` or a personal
+- **Maven groupId**: depends on whether `io.github.mqrestadminproject` or a personal
   domain (e.g., `dev.pmoore`) is used. This determines the full Java package
-  namespace (e.g., `io.github.wphillipmoore.mq.rest.admin` vs
+  namespace (e.g., `io.github.mqrestadminproject.mq.rest.admin` vs
   `dev.pmoore.mq.rest.admin`).
 
 ## Reasoning

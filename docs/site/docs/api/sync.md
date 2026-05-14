@@ -123,7 +123,7 @@ When the timeout expires, `MqRestTimeoutException` is raised with
 diagnostic attributes:
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.exception.MqRestTimeoutException;
+import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestTimeoutException;
 
 try {
     session.startChannelSync(
@@ -212,7 +212,7 @@ Restart all listeners with error handling — useful when a queue
 manager serves multiple TCP ports for different client populations:
 
 ```java
-import io.github.wphillipmoore.mq.rest.admin.exception.MqRestTimeoutException;
+import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestTimeoutException;
 
 var listeners = List.of("APP.LISTENER", "ADMIN.LISTENER", "PARTNER.LISTENER");
 var config = new SyncConfig(30, 2);

@@ -124,7 +124,7 @@ Update the Claude Code memory file to reflect:
 
 - Maven artifactId remains `mq-rest-admin` (NOT `mq-rest-admin-java`)
 - Python package name remains `pymqrest` (NOT `mq-rest-admin-python`)
-- Java package remains `io.github.wphillipmoore.mq.rest.admin`
+- Java package remains `io.github.mqrestadminproject.mq.rest.admin`
 - COMPOSE_PROJECT_NAME remains `mq-rest-admin` (container isolation)
 - GitHub redirects from old URLs are automatic and permanent
 - The `test-and-validate (25-ea)` CI check is intentionally a soft gate
