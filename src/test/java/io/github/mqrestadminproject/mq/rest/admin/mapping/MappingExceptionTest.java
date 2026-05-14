@@ -3,6 +3,7 @@ package io.github.mqrestadminproject.mq.rest.admin.mapping;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -86,7 +87,7 @@ class MappingExceptionTest {
 
     assertThat(ex).isInstanceOf(RuntimeException.class);
     assertThat(ex)
-        .isNotInstanceOf(io.github.mqrestadminproject.mq.rest.admin.exception.MqRestException.class);
+        .isNotInstanceOf(MqRestException.class);
   }
 
   @Test

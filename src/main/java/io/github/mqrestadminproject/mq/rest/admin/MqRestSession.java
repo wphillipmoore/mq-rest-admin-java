@@ -13,9 +13,11 @@ import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestResponseExcept
 import io.github.mqrestadminproject.mq.rest.admin.exception.MqRestTimeoutException;
 import io.github.mqrestadminproject.mq.rest.admin.mapping.AttributeMapper;
 import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingData;
+import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingDirection;
 import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingException;
 import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingIssue;
 import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingOverrideMode;
+import io.github.mqrestadminproject.mq.rest.admin.mapping.MappingReason;
 import io.github.mqrestadminproject.mq.rest.admin.sync.SyncConfig;
 import io.github.mqrestadminproject.mq.rest.admin.sync.SyncOperation;
 import io.github.mqrestadminproject.mq.rest.admin.sync.SyncResult;
@@ -607,8 +609,8 @@ public final class MqRestSession {
       // Unknown parameter
       issues.add(
           new MappingIssue(
-              io.github.mqrestadminproject.mq.rest.admin.mapping.MappingDirection.REQUEST,
-              io.github.mqrestadminproject.mq.rest.admin.mapping.MappingReason.UNKNOWN_KEY,
+              MappingDirection.REQUEST,
+              MappingReason.UNKNOWN_KEY,
               param,
               null,
               null,
@@ -635,8 +637,8 @@ public final class MqRestSession {
         throw new MappingException(
             List.of(
                 new MappingIssue(
-                    io.github.mqrestadminproject.mq.rest.admin.mapping.MappingDirection.REQUEST,
-                    io.github.mqrestadminproject.mq.rest.admin.mapping.MappingReason.UNKNOWN_QUALIFIER,
+                    MappingDirection.REQUEST,
+                    MappingReason.UNKNOWN_QUALIFIER,
                     keyword,
                     null,
                     null,
@@ -651,8 +653,8 @@ public final class MqRestSession {
         throw new MappingException(
             List.of(
                 new MappingIssue(
-                    io.github.mqrestadminproject.mq.rest.admin.mapping.MappingDirection.REQUEST,
-                    io.github.mqrestadminproject.mq.rest.admin.mapping.MappingReason.UNKNOWN_KEY,
+                    MappingDirection.REQUEST,
+                    MappingReason.UNKNOWN_KEY,
                     keyword,
                     null,
                     null,
